@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0b1120">
+<meta name="description" content="PFC Tuner - Tuning loop di controllo PFC trifase con grafici Bode e risposta al gradino.">
+<title>PFC Tuner</title>
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjogIlBGQyBUdW5lciIsICJzaG9ydF9uYW1lIjogIlBGQyBUdW5lciIsICJkZXNjcmlwdGlvbiI6ICJUdW5pbmcgaW50ZXJhdHRpdm8gZGVpIGxvb3AgZGkgY29udHJvbGxvIHBlciBQRkMgdHJpZmFzZSBjb24gZ3JhZmljaSBCb2RlIGUgcmlzcG9zdGEgYWwgZ3JhZGluby4iLCAic3RhcnRfdXJsIjogIi4iLCAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwgImJhY2tncm91bmRfY29sb3IiOiAiIzBiMTEyMCIsICJ0aGVtZV9jb2xvciI6ICIjMGIxMTIwIiwgIm9yaWVudGF0aW9uIjogInBvcnRyYWl0IiwgImljb25zIjogW3sic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTkyIDE5MiclM0UlM0NyZWN0IGZpbGw9JyUyMzBiMTEyMCcgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHJ4PSc0MCcvJTNFJTNDdGV4dCB4PSc5NicgeT0nMTIwJyBmb250LXNpemU9JzgwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSclMjNmOTczMTYnJTNFJUUyJTlBJUExJTNDL3RleHQlM0UlM0Mvc3ZnJTNFIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIn0sIHsic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgNTEyIDUxMiclM0UlM0NyZWN0IGZpbGw9JyUyMzBiMTEyMCcgd2lkdGg9JzUxMicgaGVpZ2h0PSc1MTInIHJ4PSc4MCcvJTNFJTNDdGV4dCB4PScyNTYnIHk9JzMyMCcgZm9udC1zaXplPScyNDAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZpbGw9JyUyM2Y5NzMxNiclM0UlRTIlOUElQTElM0MvdGV4dCUzRSUzQy9zdmclM0UiLCAic2l6ZXMiOiAiNTEyeDUxMiIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiLCAicHVycG9zZSI6ICJhbnkgbWFza2FibGUifV19">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%230b1120' width='192' height='192' rx='40'/%3E%3Ctext x='96' y='120' font-size='80' text-anchor='middle' fill='%23f97316'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #0b1120;
+  --surface: #1e293b;
+  --surface-2: #334155;
+  --text: #f1f5f9;
+  --text-2: #94a3b8;
+  --accent: #f97316;
+  --accent-2: #38bdf8;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --radius: 12px;
+  --shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+header {
+  padding: 16px 20px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--surface-2);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.header-top { display: flex; justify-content: space-between; align-items: center; }
+h1 { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
+.subtitle { font-size: 0.8rem; color: var(--text-2); margin-top: 2px; }
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-top: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.tab {
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  border: none;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+.tab.active { background: var(--accent); color: #fff; }
+.tab:active { opacity: 0.8; }
+main { flex: 1; padding: 16px; overflow-y: auto; }
+.panel { display: none; animation: fadeIn 0.3s; }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--surface-2);
+}
+.card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.param { display: flex; flex-direction: column; gap: 4px; }
+.param label {
+  font-size: 0.75rem;
+  color: var(--text-2);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.param input, .param select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--surface-2);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.95rem;
+  outline: none;
+  width: 100%;
+}
+.param input:focus { border-color: var(--accent); }
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+.slider-row input[type="range"] { flex: 1; accent-color: var(--accent); }
+.slider-val {
+  min-width: 70px;
+  text-align: right;
+  font-weight: 700;
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+.result-box {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  border: 1px solid var(--surface-2);
+}
+.result-box .val {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--accent-2);
+  font-family: 'Courier New', monospace;
+}
+.result-box .lbl {
+  font-size: 0.7rem;
+  color: var(--text-2);
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+.canvas-container {
+  background: var(--bg);
+  border-radius: var(--radius);
+  border: 1px solid var(--surface-2);
+  margin-top: 12px;
+  overflow: hidden;
+  position: relative;
+}
+canvas { display: block; width: 100%; }
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-top: 8px;
+}
+.badge.ok { background: rgba(34,197,94,0.15); color: var(--success); border: 1px solid var(--success); }
+.badge.warn { background: rgba(234,179,8,0.15); color: var(--warning); border: 1px solid var(--warning); }
+.badge.bad { background: rgba(239,68,68,0.15); color: var(--danger); border: 1px solid var(--danger); }
+.info-text {
+  font-size: 0.85rem;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-top: 8px;
+}
+.formula {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: var(--accent-2);
+  margin-top: 8px;
+  border-left: 3px solid var(--accent);
+  overflow-x: auto;
+}
+.btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 12px;
+  transition: opacity 0.2s;
+}
+.btn:active { opacity: 0.8; }
+.btn-secondary { background: var(--surface-2); color: var(--text); }
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+.summary-table th, .summary-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--surface-2);
+}
+.summary-table th {
+  color: var(--text-2);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+.summary-table td { font-family: 'Courier New', monospace; }
+.install-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(200%);
+  background: var(--accent);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 700;
+  box-shadow: 0 8px 24px rgba(249,115,22,0.4);
+  cursor: pointer;
+  z-index: 50;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+.install-banner.show { transform: translateX(-50%) translateY(0); }
+@media (min-width: 768px) {
+  .param-grid { grid-template-columns: 1fr 1fr 1fr; }
+  main { max-width: 900px; margin: 0 auto; width: 100%; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="header-top">
+    <div>
+      <h1>⚡ PFC Tuner</h1>
+      <div class="subtitle">Tuning loop di controllo PFC trifase</div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('system')">Sistema</button>
+    <button class="tab" onclick="switchTab('current')">Loop Corrente</button>
+    <button class="tab" onclick="switchTab('voltage')">Loop Tensione</button>
+    <button class="tab" onclick="switchTab('summary')">Riassunto</button>
+  </div>
+</header>
+
+<main>
+  <div class="panel active" id="panel-system">
+    <div class="card">
+      <div class="card-title">🔧 Parametri del Sistema</div>
+      <div class="param-grid">
+        <div class="param"><label>V<sub>AC</sub> (RMS)</label><input type="number" id="v_ac" value="230" step="1"></div>
+        <div class="param"><label>f<sub>linea</sub> (Hz)</label><input type="number" id="f_line" value="50" step="1"></div>
+        <div class="param"><label>P<sub>out</sub> (W)</label><input type="number" id="p_out" value="3000" step="100"></div>
+        <div class="param"><label>V<sub>DC</sub> ref (V)</label><input type="number" id="v_dc" value="400" step="10"></div>
+        <div class="param"><label>L (mH)</label><input type="number" id="L" value="2.5" step="0.1"></div>
+        <div class="param"><label>R<sub>L</sub> (Ω)</label><input type="number" id="R_l" value="0.1" step="0.01"></div>
+        <div class="param"><label>C<sub>DC</sub> (μF)</label><input type="number" id="C_dc" value="1000" step="100"></div>
+        <div class="param"><label>f<sub>sw</sub> (kHz)</label><input type="number" id="f_sw" value="20" step="1"></div>
+        <div class="param"><label>R<sub>load</sub> (Ω)</label><input type="number" id="R_load" value="53.3" step="0.1"></div>
+      </div>
+      <button class="btn" onclick="computeSystem()">Calcola Parametri Derivati</button>
+      <div class="result-grid" id="sysResults" style="display:none;">
+        <div class="result-box"><div class="val" id="res_i_pk">--</div><div class="lbl">I<sub>pk</sub> (A)</div></div>
+        <div class="result-box"><div class="val" id="res_i_rms">--</div><div class="lbl">I<sub>L rms</sub> (A)</div></div>
+        <div class="result-box"><div class="val" id="res_duty">--</div><div class="lbl">Duty max</div></div>
+        <div class="result-box"><div class="val" id="res_ripple">--</div><div class="lbl">ΔI<sub>L</sub> %</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📐 Formule di Riferimento</div>
+      <div class="formula">I<sub>pk</sub> = √2 · P / (3 · V<sub>ac</sub> · PF) &nbsp;&nbsp;|&nbsp;&nbsp; ΔI<sub>L</sub> = V<sub>dc</sub>·D·(1-D)/(L·f<sub>sw</sub>)</div>
+      <div class="info-text">Inserisci i parametri del convertitore e premi "Calcola" per ottenere le correnti di picco e il ripple atteso sull'induttanza.</div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-current">
+    <div class="card">
+      <div class="card-title">🎛️ Tuning Loop di Corrente (Inner)</div>
+      <div class="info-text">Metodo: cancellazione del polo del plant. Il controllore PI annulla il polo dell'induttore (R/L) e imposta la banda passante desiderata.</div>
+      <div class="slider-row">
+        <span style="min-width:80px;font-size:0.85rem;">BW:</span>
+        <input type="range" id="bw_i_slider" min="100" max="5000" value="2000" step="50" oninput="updateCurrentLoop()">
+        <span class="slider-val" id="bw_i_val">2.0 kHz</span>
+      </div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="kp_i">--</div><div class="lbl">K<sub>p</sub></div></div>
+        <div class="result-box"><div class="val" id="ki_i">--</div><div class="lbl">K<sub>i</sub></div></div>
+        <div class="result-box"><div class="val" id="pm_i">--</div><div class="lbl">Margine Fase (°)</div></div>
+        <div class="result-box"><div class="val" id="gm_i">--</div><div class="lbl">Margine Guadagno (dB)</div></div>
+      </div>
+      <div id="badge_i"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📉 Bode Loop Aperto - Corrente</div>
+      <div class="canvas-container"><canvas id="bodeI" height="280"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 Risposta al Gradino - Loop Chiuso</div>
+      <div class="canvas-container"><canvas id="stepI" height="220"></canvas></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-voltage">
+    <div class="card">
+      <div class="card-title">🔋 Tuning Loop di Tensione (Outer)</div>
+      <div class="info-text">Il loop di tensione deve essere molto più lento del loop di corrente (tipicamente 5–20 Hz) per evitare distorsione della corrente di rete.</div>
+      <div class="slider-row">
+        <span style="min-width:80px;font-size:0.85rem;">BW:</span>
+        <input type="range" id="bw_v_slider" min="1" max="50" value="10" step="1" oninput="updateVoltageLoop()">
+        <span class="slider-val" id="bw_v_val">10 Hz</span>
+      </div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="kp_v">--</div><div class="lbl">K<sub>p</sub></div></div>
+        <div class="result-box"><div class="val" id="ki_v">--</div><div class="lbl">K<sub>i</sub></div></div>
+        <div class="result-box"><div class="val" id="pm_v">--</div><div class="lbl">Margine Fase (°)</div></div>
+        <div class="result-box"><div class="val" id="gm_v">--</div><div class="lbl">Margine Guadagno (dB)</div></div>
+      </div>
+      <div id="badge_v"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📉 Bode Loop Aperto - Tensione</div>
+      <div class="canvas-container"><canvas id="bodeV" height="280"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 Risposta al Gradino - Loop Chiuso</div>
+      <div class="canvas-container"><canvas id="stepV" height="220"></canvas></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-summary">
+    <div class="card">
+      <div class="card-title">📋 Parametri Finali</div>
+      <table class="summary-table">
+        <thead><tr><th>Parametro</th><th>Valore</th><th>Unità</th></tr></thead>
+        <tbody id="summaryBody"><tr><td colspan="3" style="text-align:center;color:var(--text-2)">Calcola i loop nelle schede precedenti</td></tr></tbody>
+      </table>
+      <button class="btn btn-secondary" onclick="exportParams()">📤 Esporta JSON</button>
+    </div>
+    <div class="card">
+      <div class="card-title">💡 Suggerimenti di Tuning</div>
+      <div class="info-text" id="suggestions">
+        1. Mantieni la banda del loop di corrente &lt; f<sub>sw</sub>/10 per evitare interferenze con lo switching.<br>
+        2. La banda del loop di tensione deve essere &lt; f<sub>linea</sub>/2 per non distorcere la forma d'onda di corrente.<br>
+        3. Se il margine di fase è &lt; 45°, riduci la banda passante o aggiungi un filtro passa-basso.<br>
+        4. Verifica sempre la risposta al gradino: sovraelongazione &lt; 10% è ideale per il loop di tensione.
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="install-banner" id="installBanner" onclick="installApp()">📲 Installa PFC Tuner</div>
+
+<script>
+// Inline Service Worker via Blob
+const swCode = `const CACHE_NAME = 'pfc-tuner-v1';
+const ASSETS = [self.location.href];
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
+  self.skipWaiting();
+});
+self.addEventListener('activate', e => {
+  e.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))));
+  self.clients.claim();
+});
+self.addEventListener('fetch', e => {
+  e.respondWith(caches.match(e.request).then(response => response || fetch(e.request).catch(() => caches.match(self.location.href))));
+});`;
+const swBlob = new Blob([swCode], {type: 'application/javascript'});
+const swUrl = URL.createObjectURL(swBlob);
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register(swUrl).catch(console.error);
+}
+
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  setTimeout(() => document.getElementById('installBanner').classList.add('show'), 1500);
+});
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      document.getElementById('installBanner').classList.remove('show');
+      deferredPrompt = null;
+    });
+  }
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+  if (name === 'current') updateCurrentLoop();
+  if (name === 'voltage') updateVoltageLoop();
+  if (name === 'summary') updateSummary();
+}
+
+function computeSystem() {
+  const v_ac = parseFloat(document.getElementById('v_ac').value) || 230;
+  const p_out = parseFloat(document.getElementById('p_out').value) || 3000;
+  const v_dc = parseFloat(document.getElementById('v_dc').value) || 400;
+  const L = (parseFloat(document.getElementById('L').value) || 2.5) * 1e-3;
+  const f_sw = (parseFloat(document.getElementById('f_sw').value) || 20) * 1e3;
+
+  const i_pk = Math.sqrt(2) * p_out / (3 * v_ac);
+  const i_rms = p_out / (3 * v_ac);
+  const d_max = 1 - (v_ac * Math.sqrt(2)) / v_dc;
+  const delta_i = v_dc * d_max * (1 - d_max) / (L * f_sw);
+  const ripple_pct = (delta_i / (i_pk * 2)) * 100;
+
+  document.getElementById('res_i_pk').textContent = i_pk.toFixed(2);
+  document.getElementById('res_i_rms').textContent = i_rms.toFixed(2);
+  document.getElementById('res_duty').textContent = d_max.toFixed(3);
+  document.getElementById('res_ripple').textContent = ripple_pct.toFixed(1) + '%';
+  document.getElementById('sysResults').style.display = 'grid';
+
+  const maxBw = Math.floor(f_sw / 10);
+  const slider = document.getElementById('bw_i_slider');
+  slider.max = maxBw;
+  if (parseInt(slider.value) > maxBw) slider.value = Math.floor(maxBw / 2);
+}
+
+function complex(re, im) { return { re, im }; }
+function cAdd(a, b) { return complex(a.re + b.re, a.im + b.im); }
+function cMul(a, b) { return complex(a.re*b.re - a.im*b.im, a.re*b.im + a.im*b.re); }
+function cDiv(a, b) {
+  const den = b.re*b.re + b.im*b.im;
+  return complex((a.re*b.re + a.im*b.im)/den, (a.im*b.re - a.re*b.im)/den);
+}
+function cAbs(a) { return Math.sqrt(a.re*a.re + a.im*a.im); }
+function cArg(a) { return Math.atan2(a.im, a.re) * 180 / Math.PI; }
+
+function evalTF(num, den, s) {
+  let n = complex(0,0), d = complex(0,0), sp = complex(1,0);
+  for (let i = 0; i < num.length; i++) {
+    n = cAdd(n, cMul(complex(num[i], 0), sp));
+    sp = cMul(sp, s);
+  }
+  sp = complex(1,0);
+  for (let i = 0; i < den.length; i++) {
+    d = cAdd(d, cMul(complex(den[i], 0), sp));
+    sp = cMul(sp, s);
+  }
+  return cDiv(n, d);
+}
+
+function drawBode(canvasId, freqs, mags, phases) {
+  const canvas = document.getElementById(canvasId);
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const w = rect.width, h = rect.height;
+  const pad = { top: 30, right: 10, bottom: 30, left: 45 };
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#0b1120';
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 5; i++) {
+    const y = pad.top + (h - pad.top - pad.bottom) * i / 5;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
+  }
+
+  const hMag = (h - pad.top - pad.bottom) * 0.45;
+  const maxMag = Math.max(...mags, 10);
+  const minMag = Math.min(...mags, -40);
+  const scaleMag = hMag / (maxMag - minMag);
+
+  ctx.strokeStyle = '#f97316';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < freqs.length; i++) {
+    const x = pad.left + (w - pad.left - pad.right) * i / (freqs.length - 1);
+    const y = pad.top + hMag - (mags[i] - minMag) * scaleMag;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  const topPhase = pad.top + hMag + 10;
+  const hPhase = (h - pad.top - pad.bottom) * 0.45;
+  const maxPhase = 0;
+  const minPhase = -270;
+  const scalePhase = hPhase / (maxPhase - minPhase);
+
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < freqs.length; i++) {
+    const x = pad.left + (w - pad.left - pad.right) * i / (freqs.length - 1);
+    let ph = phases[i];
+    while (ph > 0) ph -= 360;
+    while (ph < -270) ph += 360;
+    const y = topPhase + hPhase - (ph - minPhase) * scalePhase;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 5; i++) {
+    const val = maxMag - (maxMag - minMag) * i / 5;
+    ctx.fillText(val.toFixed(0) + 'dB', pad.left - 4, pad.top + hMag * i / 5 + 4);
+  }
+  for (let i = 0; i <= 3; i++) {
+    const val = 0 - 90 * i;
+    ctx.fillText(val + '°', pad.left - 4, topPhase + hPhase * i / 3 + 4);
+  }
+
+  ctx.textAlign = 'center';
+  const f0 = freqs[0], f1 = freqs[freqs.length - 1];
+  const logF0 = Math.log10(f0), logF1 = Math.log10(f1);
+  for (let exp = Math.ceil(logF0); exp <= Math.floor(logF1); exp++) {
+    const f = Math.pow(10, exp);
+    if (f < f0 || f > f1) continue;
+    const ratio = (Math.log10(f) - logF0) / (logF1 - logF0);
+    const x = pad.left + (w - pad.left - pad.right) * ratio;
+    ctx.fillText(f >= 1000 ? (f/1000).toFixed(0) + 'k' : f.toFixed(0), x, h - 8);
+    ctx.strokeStyle = '#334155';
+    ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, h - pad.bottom); ctx.stroke();
+  }
+
+  ctx.textAlign = 'left';
+  ctx.fillStyle = '#f97316'; ctx.fillText('|L(jω)| dB', w - 90, pad.top + 12);
+  ctx.fillStyle = '#38bdf8'; ctx.fillText('∠L(jω) °', w - 90, pad.top + 24);
+}
+
+function drawStep(canvasId, times, values, settlingLine) {
+  const canvas = document.getElementById(canvasId);
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const w = rect.width, h = rect.height;
+  const pad = { top: 20, right: 15, bottom: 30, left: 45 };
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#0b1120';
+  ctx.fillRect(0, 0, w, h);
+
+  const maxT = times[times.length - 1];
+  const maxV = Math.max(...values, 1.2);
+  const minV = Math.min(...values, -0.1);
+
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
+  }
+
+  ctx.strokeStyle = '#22c55e';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < times.length; i++) {
+    const x = pad.left + (w - pad.left - pad.right) * times[i] / maxT;
+    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (values[i] - minV) / (maxV - minV));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  if (settlingLine !== undefined) {
+    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (settlingLine - minV) / (maxV - minV));
+    ctx.strokeStyle = '#f97316';
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const val = minV + (maxV - minV) * (1 - i / 4);
+    ctx.fillText(val.toFixed(2), pad.left - 4, pad.top + (h - pad.top - pad.bottom) * i / 4 + 4);
+  }
+  ctx.textAlign = 'center';
+  ctx.fillText('0', pad.left, h - 8);
+  ctx.fillText((maxT * 1000).toFixed(1) + 'ms', w - pad.right, h - 8);
+}
+
+function updateCurrentLoop() {
+  const bw = parseInt(document.getElementById('bw_i_slider').value);
+  document.getElementById('bw_i_val').textContent = (bw >= 1000 ? (bw/1000).toFixed(1) + ' kHz' : bw + ' Hz');
+
+  const L = (parseFloat(document.getElementById('L').value) || 2.5) * 1e-3;
+  const R = parseFloat(document.getElementById('R_l').value) || 0.1;
+  const f_sw = (parseFloat(document.getElementById('f_sw').value) || 20) * 1e3;
+
+  const w_bw = 2 * Math.PI * bw;
+  const Kp = L * w_bw;
+  const Ki = R * w_bw;
+
+  document.getElementById('kp_i').textContent = Kp.toFixed(4);
+  document.getElementById('ki_i').textContent = Ki.toFixed(2);
+
+  const numOL = [Ki, Kp];
+  const denOL = [0, R, L];
+
+  const freqs = [], mags = [], phases = [];
+  for (let i = 0; i <= 200; i++) {
+    const f = Math.pow(10, 1 + 4.5 * i / 200);
+    const w = 2 * Math.PI * f;
+    const s = complex(0, w);
+    const H = evalTF(numOL, denOL, s);
+    freqs.push(f);
+    mags.push(20 * Math.log10(cAbs(H)));
+    phases.push(cArg(H));
+  }
+  drawBode('bodeI', freqs, mags, phases);
+
+  let pm = 90, gm = 100;
+  for (let i = 0; i < freqs.length; i++) {
+    if (Math.abs(mags[i]) < 1) { pm = 180 + phases[i]; break; }
+  }
+  for (let i = 0; i < freqs.length; i++) {
+    if (Math.abs(phases[i] + 180) < 5) { gm = -mags[i]; break; }
+  }
+  document.getElementById('pm_i').textContent = pm.toFixed(1);
+  document.getElementById('gm_i').textContent = gm.toFixed(1);
+
+  const badge = document.getElementById('badge_i');
+  if (pm > 60 && bw < f_sw / 10) {
+    badge.innerHTML = '<span class="badge ok">✅ Tuning Ottimale</span>';
+  } else if (pm > 45) {
+    badge.innerHTML = '<span class="badge warn">⚠️ Accettabile, ma puoi migliorare</span>';
+  } else {
+    badge.innerHTML = '<span class="badge bad">❌ Margine di fase insufficiente</span>';
+  }
+
+  const dt = 1e-6;
+  const tEnd = 5 / (w_bw / (2 * Math.PI));
+  const nSteps = Math.min(5000, Math.floor(tEnd / dt));
+  const times = [], vals = [];
+  let i = 0, e_int = 0, r = 1;
+  for (let n = 0; n < nSteps; n += Math.ceil(nSteps / 500)) {
+    const t = n * dt;
+    const e = r - i;
+    const u = Kp * e + Ki * e_int;
+    const di = (u - R * i) / L;
+    i += di * dt;
+    e_int += e * dt;
+    times.push(t);
+    vals.push(i);
+  }
+  drawStep('stepI', times, vals, 1.0);
+}
+
+function updateVoltageLoop() {
+  const bw = parseInt(document.getElementById('bw_v_slider').value);
+  document.getElementById('bw_v_val').textContent = bw + ' Hz';
+
+  const C = (parseFloat(document.getElementById('C_dc').value) || 1000) * 1e-6;
+  const Rload = parseFloat(document.getElementById('R_load').value) || 53.3;
+  const f_line = parseFloat(document.getElementById('f_line').value) || 50;
+
+  const w_bw = 2 * Math.PI * bw;
+  const Kp = C * w_bw * 0.8;
+  const Ki = C * w_bw * w_bw * 0.3;
+
+  document.getElementById('kp_v').textContent = Kp.toFixed(4);
+  document.getElementById('ki_v').textContent = Ki.toFixed(4);
+
+  const numOL = [Ki, Kp];
+  const denOL = [0, 1 / Rload, C];
+
+  const freqs = [], mags = [], phases = [];
+  for (let i = 0; i <= 200; i++) {
+    const f = Math.pow(10, -1 + 3.5 * i / 200);
+    const w = 2 * Math.PI * f;
+    const s = complex(0, w);
+    const H = evalTF(numOL, denOL, s);
+    freqs.push(f);
+    mags.push(20 * Math.log10(cAbs(H)));
+    phases.push(cArg(H));
+  }
+  drawBode('bodeV', freqs, mags, phases);
+
+  let pm = 90, gm = 100;
+  for (let i = 0; i < freqs.length; i++) {
+    if (Math.abs(mags[i]) < 1) { pm = 180 + phases[i]; break; }
+  }
+  for (let i = 0; i < freqs.length; i++) {
+    if (Math.abs(phases[i] + 180) < 5) { gm = -mags[i]; break; }
+  }
+  document.getElementById('pm_v').textContent = pm.toFixed(1);
+  document.getElementById('gm_v').textContent = gm.toFixed(1);
+
+  const badge = document.getElementById('badge_v');
+  if (pm > 45 && bw < f_line / 2) {
+    badge.innerHTML = '<span class="badge ok">✅ Tuning Ottimale</span>';
+  } else if (bw >= f_line / 2) {
+    badge.innerHTML = '<span class="badge bad">❌ BW troppo alta: distorsione corrente!</span>';
+  } else if (pm > 30) {
+    badge.innerHTML = '<span class="badge warn">⚠️ Margine di fase ridotto</span>';
+  } else {
+    badge.innerHTML = '<span class="badge bad">❌ Instabile o quasi</span>';
+  }
+
+  const dt = 1e-4;
+  const tEnd = 10 / bw;
+  const nSteps = Math.min(5000, Math.floor(tEnd / dt));
+  const times = [], vals = [];
+  let v = 0, e_int = 0, r = 1;
+  for (let n = 0; n < nSteps; n += Math.ceil(nSteps / 500)) {
+    const t = n * dt;
+    const e = r - v;
+    const u = Kp * e + Ki * e_int;
+    const dv = (u - v / Rload) / C;
+    v += dv * dt;
+    e_int += e * dt;
+    times.push(t);
+    vals.push(v);
+  }
+  drawStep('stepV', times, vals, 1.0);
+}
+
+function updateSummary() {
+  const tbody = document.getElementById('summaryBody');
+  const v_ac = document.getElementById('v_ac').value;
+  const p_out = document.getElementById('p_out').value;
+  const v_dc = document.getElementById('v_dc').value;
+  const L = document.getElementById('L').value;
+  const C_dc = document.getElementById('C_dc').value;
+  const f_sw = document.getElementById('f_sw').value;
+  const kp_i = document.getElementById('kp_i').textContent;
+  const ki_i = document.getElementById('ki_i').textContent;
+  const kp_v = document.getElementById('kp_v').textContent;
+  const ki_v = document.getElementById('ki_v').textContent;
+  const pm_i = document.getElementById('pm_i').textContent;
+  const pm_v = document.getElementById('pm_v').textContent;
+
+  tbody.innerHTML = `
+    <tr><td>V<sub>AC</sub></td><td>${v_ac}</td><td>V</td></tr>
+    <tr><td>P<sub>out</sub></td><td>${p_out}</td><td>W</td></tr>
+    <tr><td>V<sub>DC</sub></td><td>${v_dc}</td><td>V</td></tr>
+    <tr><td>L</td><td>${L}</td><td>mH</td></tr>
+    <tr><td>C<sub>DC</sub></td><td>${C_dc}</td><td>μF</td></tr>
+    <tr><td>f<sub>sw</sub></td><td>${f_sw}</td><td>kHz</td></tr>
+    <tr><td>K<sub>p</sub> (corrente)</td><td>${kp_i}</td><td>Ω</td></tr>
+    <tr><td>K<sub>i</sub> (corrente)</td><td>${ki_i}</td><td>Ω/s</td></tr>
+    <tr><td>K<sub>p</sub> (tensione)</td><td>${kp_v}</td><td>A/V</td></tr>
+    <tr><td>K<sub>i</sub> (tensione)</td><td>${ki_v}</td><td>A/(V·s)</td></tr>
+    <tr><td>PM (corrente)</td><td>${pm_i}</td><td>°</td></tr>
+    <tr><td>PM (tensione)</td><td>${pm_v}</td><td>°</td></tr>
+  `;
+}
+
+function exportParams() {
+  const data = {
+    system: {
+      v_ac: document.getElementById('v_ac').value,
+      f_line: document.getElementById('f_line').value,
+      p_out: document.getElementById('p_out').value,
+      v_dc: document.getElementById('v_dc').value,
+      L: document.getElementById('L').value,
+      R_l: document.getElementById('R_l').value,
+      C_dc: document.getElementById('C_dc').value,
+      f_sw: document.getElementById('f_sw').value,
+      R_load: document.getElementById('R_load').value
+    },
+    current_loop: {
+      bw: document.getElementById('bw_i_slider').value,
+      Kp: document.getElementById('kp_i').textContent,
+      Ki: document.getElementById('ki_i').textContent,
+      PM: document.getElementById('pm_i').textContent,
+      GM: document.getElementById('gm_i').textContent
+    },
+    voltage_loop: {
+      bw: document.getElementById('bw_v_slider').value,
+      Kp: document.getElementById('kp_v').textContent,
+      Ki: document.getElementById('ki_v').textContent,
+      PM: document.getElementById('pm_v').textContent,
+      GM: document.getElementById('gm_v').textContent
+    }
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'pfc_tuning_params.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+computeSystem();
+updateCurrentLoop();
+updateVoltageLoop();
+</script>
+</body>
+</html>
