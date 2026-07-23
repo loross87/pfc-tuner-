@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0b1120">
-<meta name="description" content="PFC Tuner - Tuning loop di controllo PFC trifase con grafici Bode e risposta al gradino.">
+<meta name="description" content="PFC Tuner - Tuning loop di controllo PFC trifase con grafici Bode, ripple e risposta al gradino.">
 <title>PFC Tuner</title>
-<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjogIlBGQyBUdW5lciIsICJzaG9ydF9uYW1lIjogIlBGQyBUdW5lciIsICJkZXNjcmlwdGlvbiI6ICJUdW5pbmcgaW50ZXJhdHRpdm8gZGVpIGxvb3AgZGkgY29udHJvbGxvIHBlciBQRkMgdHJpZmFzZSBjb24gZ3JhZmljaSBCb2RlIGUgcmlzcG9zdGEgYWwgZ3JhZGluby4iLCAic3RhcnRfdXJsIjogIi4iLCAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwgImJhY2tncm91bmRfY29sb3IiOiAiIzBiMTEyMCIsICJ0aGVtZV9jb2xvciI6ICIjMGIxMTIwIiwgIm9yaWVudGF0aW9uIjogInBvcnRyYWl0IiwgImljb25zIjogW3sic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTkyIDE5MiclM0UlM0NyZWN0IGZpbGw9JyUyMzBiMTEyMCcgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHJ4PSc0MCcvJTNFJTNDdGV4dCB4PSc5NicgeT0nMTIwJyBmb250LXNpemU9JzgwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSclMjNmOTczMTYnJTNFJUUyJTlBJUExJTNDL3RleHQlM0UlM0Mvc3ZnJTNFIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIn0sIHsic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgNTEyIDUxMiclM0UlM0NyZWN0IGZpbGw9JyUyMzBiMTEyMCcgd2lkdGg9JzUxMicgaGVpZ2h0PSc1MTInIHJ4PSc4MCcvJTNFJTNDdGV4dCB4PScyNTYnIHk9JzMyMCcgZm9udC1zaXplPScyNDAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZpbGw9JyUyM2Y5NzMxNiclM0UlRTIlOUElQTElM0MvdGV4dCUzRSUzQy9zdmclM0UiLCAic2l6ZXMiOiAiNTEyeDUxMiIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiLCAicHVycG9zZSI6ICJhbnkgbWFza2FibGUifV19">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjogIlBGQyBUdW5lciIsICJzaG9ydF9uYW1lIjogIlBGQyBUdW5lciIsICJkZXNjcmlwdGlvbiI6ICJUdW5pbmcgaW50ZXJhdHRpdm8gZGVpIGxvb3AgZGkgY29udHJvbGxvIHBlciBQRkMgdHJpZmFzZSBjb24gZ3JhZmljaSBCb2RlLCByaXBwbGUgZSByaXNwb3N0YSBhbCBncmFkaW5vLiIsICJzdGFydF91cmwiOiAiLiIsICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLCAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGIxMTIwIiwgInRoZW1lX2NvbG9yIjogIiMwYjExMjAiLCAib3JpZW50YXRpb24iOiAicG9ydHJhaXQiLCAiaWNvbnMiOiBbeyJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxOTIgMTkyJyUzRSUzQ3JlY3QgZmlsbD0nJTIzMGIxMTIwJyB3aWR0aD0nMTkyJyBoZWlnaHQ9JzE5Micgcng9JzQwJy8lM0UlM0N0ZXh0IHg9Jzk2JyB5PScxMjAnIGZvbnQtc2l6ZT0nODAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZpbGw9JyUyM2Y5NzMxNiclM0UlRTIlOUElQTElM0MvdGV4dCUzRSUzQy9zdmclM0UiLCAic2l6ZXMiOiAiMTkyeDE5MiIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiLCAicHVycG9zZSI6ICJhbnkgbWFza2FibGUifSwgeyJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA1MTIgNTEyJyUzRSUzQ3JlY3QgZmlsbD0nJTIzMGIxMTIwJyB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMicgcng9JzgwJy8lM0UlM0N0ZXh0IHg9JzI1NicgeT0nMzIwJyBmb250LXNpemU9JzI0MCcgdGV4dC1hbmNob3I9J21pZGRsZScgZmlsbD0nJTIzZjk3MzE2JyUzRSVFMiU5QSVBMSUzQy90ZXh0JTNFJTNDL3N2ZyUzRSIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIsICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSJ9XX0=">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%230b1120' width='192' height='192' rx='40'/%3E%3Ctext x='96' y='120' font-size='80' text-anchor='middle' fill='%23f97316'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
 <style>
 :root {
@@ -20,6 +20,9 @@
   --success: #22c55e;
   --warning: #eab308;
   --danger: #ef4444;
+  --phaseA: #f97316;
+  --phaseB: #38bdf8;
+  --phaseC: #22c55e;
   --radius: 12px;
   --shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
@@ -51,12 +54,12 @@ h1 { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
   padding-bottom: 4px;
 }
 .tab {
-  padding: 8px 16px;
+  padding: 8px 14px;
   border-radius: var(--radius);
   border: none;
   background: transparent;
   color: var(--text-2);
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -150,8 +153,10 @@ main { flex: 1; padding: 16px; overflow-y: auto; }
   margin-top: 12px;
   overflow: hidden;
   position: relative;
+  width: 100%;
+  min-height: 220px;
 }
-canvas { display: block; width: 100%; }
+canvas { display: block; width: 100%; height: 100%; }
 .badge {
   display: inline-block;
   padding: 4px 10px;
@@ -213,6 +218,48 @@ canvas { display: block; width: 100%; }
   text-transform: uppercase;
 }
 .summary-table td { font-family: 'Courier New', monospace; }
+.legend-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--text-2);
+}
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.legend-dot.a { background: var(--phaseA); }
+.legend-dot.b { background: var(--phaseB); }
+.legend-dot.c { background: var(--phaseC); }
+.toggle-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.toggle-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--surface-2);
+  background: var(--bg);
+  color: var(--text-2);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.toggle-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
 .install-banner {
   position: fixed;
   bottom: 20px;
@@ -249,6 +296,8 @@ canvas { display: block; width: 100%; }
     <button class="tab active" onclick="switchTab('system')">Sistema</button>
     <button class="tab" onclick="switchTab('current')">Loop Corrente</button>
     <button class="tab" onclick="switchTab('voltage')">Loop Tensione</button>
+    <button class="tab" onclick="switchTab('grid')">Rete</button>
+    <button class="tab" onclick="switchTab('ripple')">Ripple</button>
     <button class="tab" onclick="switchTab('summary')">Riassunto</button>
   </div>
 </header>
@@ -302,11 +351,11 @@ canvas { display: block; width: 100%; }
     </div>
     <div class="card">
       <div class="card-title">📉 Bode Loop Aperto - Corrente</div>
-      <div class="canvas-container"><canvas id="bodeI" height="280"></canvas></div>
+      <div class="canvas-container" id="containerBodeI"><canvas id="bodeI" height="300"></canvas></div>
     </div>
     <div class="card">
       <div class="card-title">📈 Risposta al Gradino - Loop Chiuso</div>
-      <div class="canvas-container"><canvas id="stepI" height="220"></canvas></div>
+      <div class="canvas-container" id="containerStepI"><canvas id="stepI" height="220"></canvas></div>
     </div>
   </div>
 
@@ -329,11 +378,93 @@ canvas { display: block; width: 100%; }
     </div>
     <div class="card">
       <div class="card-title">📉 Bode Loop Aperto - Tensione</div>
-      <div class="canvas-container"><canvas id="bodeV" height="280"></canvas></div>
+      <div class="canvas-container" id="containerBodeV"><canvas id="bodeV" height="300"></canvas></div>
     </div>
     <div class="card">
       <div class="card-title">📈 Risposta al Gradino - Loop Chiuso</div>
-      <div class="canvas-container"><canvas id="stepV" height="220"></canvas></div>
+      <div class="canvas-container" id="containerStepV"><canvas id="stepV" height="220"></canvas></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-grid">
+    <div class="card">
+      <div class="card-title">⚡ Forme d'onda di Rete - PFC Trifase</div>
+      <div class="info-text">Simulazione delle tensioni e correnti di fase. Il PFC attivo forza il fattore di potenza unitario allineando le correnti alle tensioni.</div>
+      <div class="slider-row">
+        <span style="min-width:80px;font-size:0.85rem;">THD I:</span>
+        <input type="range" id="thd_slider" min="0" max="20" value="3" step="0.5" oninput="updateGrid()">
+        <span class="slider-val" id="thd_val">3.0%</span>
+      </div>
+      <div class="slider-row">
+        <span style="min-width:80px;font-size:0.85rem;">PF:</span>
+        <input type="range" id="pf_slider" min="0.85" max="1.0" value="0.99" step="0.01" oninput="updateGrid()">
+        <span class="slider-val" id="pf_val">0.99</span>
+      </div>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="btnV" onclick="setGridMode('v')">Tensioni</button>
+        <button class="toggle-btn" id="btnI" onclick="setGridMode('i')">Correnti</button>
+        <button class="toggle-btn" id="btnBoth" onclick="setGridMode('both')">Entrambe</button>
+      </div>
+      <div class="legend-row">
+        <div class="legend-item"><div class="legend-dot a"></div>Fase A</div>
+        <div class="legend-item"><div class="legend-dot b"></div>Fase B</div>
+        <div class="legend-item"><div class="legend-dot c"></div>Fase C</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 Tensioni di Fase (V)</div>
+      <div class="canvas-container" id="containerVgrid"><canvas id="vGrid" height="240"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 Correnti di Fase (A)</div>
+      <div class="canvas-container" id="containerIgrid"><canvas id="iGrid" height="240"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Parametri di Rete</div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="grid_v_pk">--</div><div class="lbl">V<sub>pk</sub> (V)</div></div>
+        <div class="result-box"><div class="val" id="grid_i_pk">--</div><div class="lbl">I<sub>pk</sub> (A)</div></div>
+        <div class="result-box"><div class="val" id="grid_pf">--</div><div class="lbl">Fattore Potenza</div></div>
+        <div class="result-box"><div class="val" id="grid_thd">--</div><div class="lbl">THD Corrente</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-ripple">
+    <div class="card">
+      <div class="card-title">🔍 Ripple di Corrente sull'Induttore</div>
+      <div class="info-text">Le correnti di fase con il ripple di switching sovrapposto. Il plot inferiore mostra solo la componente ripple (AC coupled), utile per verificare l'ampiezza del ripple rispetto al valore di picco.</div>
+      <div class="slider-row">
+        <span style="min-width:80px;font-size:0.85rem;">Zoom:</span>
+        <input type="range" id="ripple_zoom" min="1" max="10" value="3" step="0.5" oninput="updateRipple()">
+        <span class="slider-val" id="ripple_zoom_val">3x</span>
+      </div>
+      <div class="toggle-row">
+        <button class="toggle-btn active" id="btnRippleFull" onclick="setRippleMode('full')">Completa</button>
+        <button class="toggle-btn" id="btnRippleOnly" onclick="setRippleMode('only')">Solo Ripple</button>
+      </div>
+      <div class="legend-row">
+        <div class="legend-item"><div class="legend-dot a"></div>Fase A</div>
+        <div class="legend-item"><div class="legend-dot b"></div>Fase B</div>
+        <div class="legend-item"><div class="legend-dot c"></div>Fase C</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 Correnti di Fase con Ripple</div>
+      <div class="canvas-container" id="containerRippleFull"><canvas id="rippleFull" height="260"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 Solo Componente Ripple (AC Coupled)</div>
+      <div class="canvas-container" id="containerRippleOnly"><canvas id="rippleOnly" height="260"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Dati Ripple</div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="ripple_delta">--</div><div class="lbl">ΔI<sub>L</sub> max (A)</div></div>
+        <div class="result-box"><div class="val" id="ripple_delta_pk">--</div><div class="lbl">ΔI<sub>L</sub> / I<sub>pk</sub> (%)</div></div>
+        <div class="result-box"><div class="val" id="ripple_fsw">--</div><div class="lbl">f<sub>sw</sub> (kHz)</div></div>
+        <div class="result-box"><div class="val" id="ripple_period">--</div><div class="lbl">T<sub>sw</sub> (μs)</div></div>
+      </div>
     </div>
   </div>
 
@@ -362,7 +493,7 @@ canvas { display: block; width: 100%; }
 
 <script>
 // Inline Service Worker via Blob
-const swCode = `const CACHE_NAME = 'pfc-tuner-v1';
+const swCode = `const CACHE_NAME = 'pfc-tuner-v2';
 const ASSETS = [self.location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
@@ -397,14 +528,34 @@ function installApp() {
   }
 }
 
+let currentTab = 'system';
+let gridMode = 'v';
+let rippleMode = 'full';
 function switchTab(name) {
+  currentTab = name;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   event.target.classList.add('active');
   document.getElementById('panel-' + name).classList.add('active');
-  if (name === 'current') updateCurrentLoop();
-  if (name === 'voltage') updateVoltageLoop();
-  if (name === 'summary') updateSummary();
+  if (name === 'current') { updateCurrentLoop(); }
+  if (name === 'voltage') { updateVoltageLoop(); }
+  if (name === 'grid') { updateGrid(); }
+  if (name === 'ripple') { updateRipple(); }
+  if (name === 'summary') { updateSummary(); }
+}
+
+function setGridMode(mode) {
+  gridMode = mode;
+  document.querySelectorAll('#panel-grid .toggle-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn' + (mode === 'both' ? 'Both' : mode === 'i' ? 'I' : 'V')).classList.add('active');
+  updateGrid();
+}
+
+function setRippleMode(mode) {
+  rippleMode = mode;
+  document.getElementById('btnRippleFull').classList.toggle('active', mode === 'full');
+  document.getElementById('btnRippleOnly').classList.toggle('active', mode === 'only');
+  updateRipple();
 }
 
 function computeSystem() {
@@ -456,21 +607,32 @@ function evalTF(num, den, s) {
   return cDiv(n, d);
 }
 
-function drawBode(canvasId, freqs, mags, phases) {
+function getCanvasWidth(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  const container = canvas.parentElement;
+  const rect = container.getBoundingClientRect();
+  return Math.max(rect.width, window.innerWidth - 64);
+}
+
+function drawBode(canvasId, freqs, mags, phases, targetBw) {
   const canvas = document.getElementById(canvasId);
   const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
+  const wCanvas = getCanvasWidth(canvasId);
+  const hCanvas = parseInt(canvas.getAttribute('height')) || 300;
+  canvas.width = wCanvas * dpr;
+  canvas.height = hCanvas * dpr;
+  canvas.style.width = wCanvas + 'px';
+  canvas.style.height = hCanvas + 'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
-  const w = rect.width, h = rect.height;
-  const pad = { top: 30, right: 10, bottom: 30, left: 45 };
+  const w = wCanvas, h = hCanvas;
+  const pad = { top: 30, right: 10, bottom: 35, left: 50 };
 
   ctx.clearRect(0, 0, w, h);
   ctx.fillStyle = '#0b1120';
   ctx.fillRect(0, 0, w, h);
 
+  // Grid
   ctx.strokeStyle = '#1e293b';
   ctx.lineWidth = 1;
   for (let i = 0; i <= 5; i++) {
@@ -483,8 +645,18 @@ function drawBode(canvasId, freqs, mags, phases) {
   const minMag = Math.min(...mags, -40);
   const scaleMag = hMag / (maxMag - minMag);
 
+  // Find crossover frequency and phase margin
+  let fcIdx = -1, pm = 90;
+  for (let i = 0; i < freqs.length; i++) {
+    if (mags[i] <= 0 && fcIdx < 0) fcIdx = i;
+    if (Math.abs(mags[i]) < 0.5) { pm = 180 + phases[i]; break; }
+  }
+  if (fcIdx < 0) fcIdx = Math.floor(freqs.length / 2);
+  const fc = freqs[fcIdx];
+
+  // Mag plot
   ctx.strokeStyle = '#f97316';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
   for (let i = 0; i < freqs.length; i++) {
     const x = pad.left + (w - pad.left - pad.right) * i / (freqs.length - 1);
@@ -493,14 +665,57 @@ function drawBode(canvasId, freqs, mags, phases) {
   }
   ctx.stroke();
 
-  const topPhase = pad.top + hMag + 10;
+  // 0 dB line in magnitude
+  const y0dB = pad.top + hMag - (0 - minMag) * scaleMag;
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.setLineDash([3, 3]);
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.left, y0dB); ctx.lineTo(w - pad.right, y0dB); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Crossover line in magnitude
+  if (fcIdx >= 0) {
+    const xFc = pad.left + (w - pad.left - pad.right) * fcIdx / (freqs.length - 1);
+    ctx.strokeStyle = '#22c55e';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(xFc, pad.top); ctx.lineTo(xFc, pad.top + hMag); ctx.stroke();
+    ctx.setLineDash([]);
+    // Label
+    ctx.fillStyle = '#22c55e';
+    ctx.font = 'bold 9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('fc', xFc, pad.top - 4);
+  }
+
+  // Target BW line in magnitude
+  if (targetBw) {
+    const logF0 = Math.log10(freqs[0]), logF1 = Math.log10(freqs[freqs.length-1]);
+    const logTarget = Math.log10(targetBw);
+    if (logTarget >= logF0 && logTarget <= logF1) {
+      const ratio = (logTarget - logF0) / (logF1 - logF0);
+      const xTarget = pad.left + (w - pad.left - pad.right) * ratio;
+      ctx.strokeStyle = '#eab308';
+      ctx.setLineDash([6, 3]);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(xTarget, pad.top); ctx.lineTo(xTarget, pad.top + hMag); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#eab308';
+      ctx.font = 'bold 9px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('BW', xTarget, pad.top - 4);
+    }
+  }
+
+  // Phase plot
+  const topPhase = pad.top + hMag + 12;
   const hPhase = (h - pad.top - pad.bottom) * 0.45;
   const maxPhase = 0;
   const minPhase = -270;
   const scalePhase = hPhase / (maxPhase - minPhase);
 
   ctx.strokeStyle = '#38bdf8';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
   for (let i = 0; i < freqs.length; i++) {
     const x = pad.left + (w - pad.left - pad.right) * i / (freqs.length - 1);
@@ -512,6 +727,44 @@ function drawBode(canvasId, freqs, mags, phases) {
   }
   ctx.stroke();
 
+  // -180 line in phase
+  const y180 = topPhase + hPhase - (-180 - minPhase) * scalePhase;
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.setLineDash([3, 3]);
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.left, y180); ctx.lineTo(w - pad.right, y180); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Crossover line in phase + PM arc
+  if (fcIdx >= 0) {
+    const xFc = pad.left + (w - pad.left - pad.right) * fcIdx / (freqs.length - 1);
+    let phAtFc = phases[fcIdx];
+    while (phAtFc > 0) phAtFc -= 360;
+    const yPh = topPhase + hPhase - (phAtFc - minPhase) * scalePhase;
+
+    ctx.strokeStyle = '#22c55e';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(xFc, topPhase); ctx.lineTo(xFc, topPhase + hPhase); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // PM arc
+    ctx.strokeStyle = '#22c55e';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    const arcR = 18;
+    const arcY = y180;
+    ctx.arc(xFc, arcY, arcR, -Math.PI/2, -Math.PI/2 + (pm * Math.PI / 180), false);
+    ctx.stroke();
+
+    // PM label
+    ctx.fillStyle = '#22c55e';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('PM = ' + pm.toFixed(1) + '°', xFc + 6, yPh - 6);
+  }
+
+  // Labels magnitude
   ctx.fillStyle = '#94a3b8';
   ctx.font = '10px sans-serif';
   ctx.textAlign = 'right';
@@ -524,6 +777,7 @@ function drawBode(canvasId, freqs, mags, phases) {
     ctx.fillText(val + '°', pad.left - 4, topPhase + hPhase * i / 3 + 4);
   }
 
+  // Freq labels
   ctx.textAlign = 'center';
   const f0 = freqs[0], f1 = freqs[freqs.length - 1];
   const logF0 = Math.log10(f0), logF1 = Math.log10(f1);
@@ -532,25 +786,31 @@ function drawBode(canvasId, freqs, mags, phases) {
     if (f < f0 || f > f1) continue;
     const ratio = (Math.log10(f) - logF0) / (logF1 - logF0);
     const x = pad.left + (w - pad.left - pad.right) * ratio;
-    ctx.fillText(f >= 1000 ? (f/1000).toFixed(0) + 'k' : f.toFixed(0), x, h - 8);
+    ctx.fillText(f >= 1000 ? (f/1000).toFixed(0) + 'k' : f.toFixed(0), x, h - 6);
     ctx.strokeStyle = '#334155';
     ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, h - pad.bottom); ctx.stroke();
   }
 
+  // Legend
   ctx.textAlign = 'left';
-  ctx.fillStyle = '#f97316'; ctx.fillText('|L(jω)| dB', w - 90, pad.top + 12);
-  ctx.fillStyle = '#38bdf8'; ctx.fillText('∠L(jω) °', w - 90, pad.top + 24);
+  ctx.fillStyle = '#f97316'; ctx.fillText('|L(jω)| dB', w - 100, pad.top + 12);
+  ctx.fillStyle = '#38bdf8'; ctx.fillText('∠L(jω) °', w - 100, pad.top + 24);
+  ctx.fillStyle = '#22c55e'; ctx.fillText('fc / PM', w - 100, pad.top + 36);
+  ctx.fillStyle = '#eab308'; ctx.fillText('BW target', w - 100, pad.top + 48);
 }
 
 function drawStep(canvasId, times, values, settlingLine) {
   const canvas = document.getElementById(canvasId);
   const dpr = window.devicePixelRatio || 1;
-  const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
+  const wCanvas = getCanvasWidth(canvasId);
+  const hCanvas = parseInt(canvas.getAttribute('height')) || 220;
+  canvas.width = wCanvas * dpr;
+  canvas.height = hCanvas * dpr;
+  canvas.style.width = wCanvas + 'px';
+  canvas.style.height = hCanvas + 'px';
   const ctx = canvas.getContext('2d');
   ctx.scale(dpr, dpr);
-  const w = rect.width, h = rect.height;
+  const w = wCanvas, h = hCanvas;
   const pad = { top: 20, right: 15, bottom: 30, left: 45 };
 
   ctx.clearRect(0, 0, w, h);
@@ -569,7 +829,7 @@ function drawStep(canvasId, times, values, settlingLine) {
   }
 
   ctx.strokeStyle = '#22c55e';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2.5;
   ctx.beginPath();
   for (let i = 0; i < times.length; i++) {
     const x = pad.left + (w - pad.left - pad.right) * times[i] / maxT;
@@ -596,6 +856,80 @@ function drawStep(canvasId, times, values, settlingLine) {
   ctx.textAlign = 'center';
   ctx.fillText('0', pad.left, h - 8);
   ctx.fillText((maxT * 1000).toFixed(1) + 'ms', w - pad.right, h - 8);
+}
+
+function drawGridWaveform(canvasId, dataA, dataB, dataC, yLabel, colors) {
+  const canvas = document.getElementById(canvasId);
+  const dpr = window.devicePixelRatio || 1;
+  const wCanvas = getCanvasWidth(canvasId);
+  const hCanvas = parseInt(canvas.getAttribute('height')) || 240;
+  canvas.width = wCanvas * dpr;
+  canvas.height = hCanvas * dpr;
+  canvas.style.width = wCanvas + 'px';
+  canvas.style.height = hCanvas + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const w = wCanvas, h = hCanvas;
+  const pad = { top: 25, right: 15, bottom: 35, left: 50 };
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = '#0b1120';
+  ctx.fillRect(0, 0, w, h);
+
+  const allVals = [...dataA, ...dataB, ...dataC];
+  const maxAbs = Math.max(...allVals.map(Math.abs), 1);
+  const margin = maxAbs * 0.15;
+  const maxV = maxAbs + margin;
+  const minV = -maxAbs - margin;
+
+  ctx.strokeStyle = '#1e293b';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
+  }
+
+  const yZero = pad.top + (h - pad.top - pad.bottom) * (1 - (0 - minV) / (maxV - minV));
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.left, yZero); ctx.lineTo(w - pad.right, yZero); ctx.stroke();
+
+  const datasets = [dataA, dataB, dataC];
+  const lineColors = colors || ['#f97316', '#38bdf8', '#22c55e'];
+
+  for (let d = 0; d < 3; d++) {
+    const data = datasets[d];
+    ctx.strokeStyle = lineColors[d];
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    for (let i = 0; i < data.length; i++) {
+      const x = pad.left + (w - pad.left - pad.right) * i / (data.length - 1);
+      const y = pad.top + (h - pad.top - pad.bottom) * (1 - (data[i] - minV) / (maxV - minV));
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  }
+
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const val = minV + (maxV - minV) * (1 - i / 4);
+    ctx.fillText(val.toFixed(0), pad.left - 4, pad.top + (h - pad.top - pad.bottom) * i / 4 + 4);
+  }
+  ctx.textAlign = 'center';
+  ctx.fillText('0°', pad.left, h - 8);
+  ctx.fillText('360°', w - pad.right, h - 8);
+  ctx.fillText('180°', pad.left + (w - pad.left - pad.right) / 2, h - 8);
+
+  if (yLabel) {
+    ctx.save();
+    ctx.translate(12, h / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center';
+    ctx.fillText(yLabel, 0, 0);
+    ctx.restore();
+  }
 }
 
 function updateCurrentLoop() {
@@ -626,7 +960,7 @@ function updateCurrentLoop() {
     mags.push(20 * Math.log10(cAbs(H)));
     phases.push(cArg(H));
   }
-  drawBode('bodeI', freqs, mags, phases);
+  drawBode('bodeI', freqs, mags, phases, bw);
 
   let pm = 90, gm = 100;
   for (let i = 0; i < freqs.length; i++) {
@@ -693,7 +1027,7 @@ function updateVoltageLoop() {
     mags.push(20 * Math.log10(cAbs(H)));
     phases.push(cArg(H));
   }
-  drawBode('bodeV', freqs, mags, phases);
+  drawBode('bodeV', freqs, mags, phases, bw);
 
   let pm = 90, gm = 100;
   for (let i = 0; i < freqs.length; i++) {
@@ -732,6 +1066,125 @@ function updateVoltageLoop() {
     vals.push(v);
   }
   drawStep('stepV', times, vals, 1.0);
+}
+
+function updateGrid() {
+  const v_ac = parseFloat(document.getElementById('v_ac').value) || 230;
+  const p_out = parseFloat(document.getElementById('p_out').value) || 3000;
+  const f_line = parseFloat(document.getElementById('f_line').value) || 50;
+  const thd = parseFloat(document.getElementById('thd_slider').value) || 3;
+  const pf = parseFloat(document.getElementById('pf_slider').value) || 0.99;
+
+  document.getElementById('thd_val').textContent = thd.toFixed(1) + '%';
+  document.getElementById('pf_val').textContent = pf.toFixed(2);
+
+  const v_pk = v_ac * Math.sqrt(2);
+  const i_pk = Math.sqrt(2) * p_out / (3 * v_ac * pf);
+
+  document.getElementById('grid_v_pk').textContent = v_pk.toFixed(1);
+  document.getElementById('grid_i_pk').textContent = i_pk.toFixed(2);
+  document.getElementById('grid_pf').textContent = pf.toFixed(3);
+  document.getElementById('grid_thd').textContent = thd.toFixed(1) + '%';
+
+  const nPoints = 360;
+  const vA = [], vB = [], vC = [];
+  const iA = [], iB = [], iC = [];
+
+  for (let deg = 0; deg <= nPoints; deg++) {
+    const rad = deg * Math.PI / 180;
+    const va = v_pk * Math.sin(rad);
+    const vb = v_pk * Math.sin(rad - 2 * Math.PI / 3);
+    const vc = v_pk * Math.sin(rad + 2 * Math.PI / 3);
+
+    const phi = Math.acos(pf);
+    const ia_base = i_pk * Math.sin(rad - phi);
+    const ib_base = i_pk * Math.sin(rad - 2 * Math.PI / 3 - phi);
+    const ic_base = i_pk * Math.sin(rad + 2 * Math.PI / 3 - phi);
+
+    const thd_factor = thd / 100;
+    const h3 = thd_factor * 0.5 * i_pk * Math.sin(3 * rad);
+    const h5 = thd_factor * 0.3 * i_pk * Math.sin(5 * rad);
+    const h7 = thd_factor * 0.2 * i_pk * Math.sin(7 * rad);
+
+    vA.push(va); vB.push(vb); vC.push(vc);
+    iA.push(ia_base + h3 + h5 + h7);
+    iB.push(ib_base + h3 + h5 + h7);
+    iC.push(ic_base + h3 + h5 + h7);
+  }
+
+  drawGridWaveform('vGrid', vA, vB, vC, 'V', ['#f97316', '#38bdf8', '#22c55e']);
+  drawGridWaveform('iGrid', iA, iB, iC, 'A', ['#f97316', '#38bdf8', '#22c55e']);
+}
+
+function updateRipple() {
+  const v_ac = parseFloat(document.getElementById('v_ac').value) || 230;
+  const p_out = parseFloat(document.getElementById('p_out').value) || 3000;
+  const v_dc = parseFloat(document.getElementById('v_dc').value) || 400;
+  const L = (parseFloat(document.getElementById('L').value) || 2.5) * 1e-3;
+  const f_sw = (parseFloat(document.getElementById('f_sw').value) || 20) * 1e3;
+  const f_line = parseFloat(document.getElementById('f_line').value) || 50;
+  const zoom = parseFloat(document.getElementById('ripple_zoom').value) || 3;
+
+  document.getElementById('ripple_zoom_val').textContent = zoom.toFixed(1) + 'x';
+
+  const i_pk = Math.sqrt(2) * p_out / (3 * v_ac);
+  const d_max = 1 - (v_ac * Math.sqrt(2)) / v_dc;
+  const delta_i_max = v_dc * d_max * (1 - d_max) / (L * f_sw);
+  const T_sw = 1 / f_sw;
+
+  document.getElementById('ripple_delta').textContent = delta_i_max.toFixed(3);
+  document.getElementById('ripple_delta_pk').textContent = ((delta_i_max / i_pk) * 100).toFixed(1) + '%';
+  document.getElementById('ripple_fsw').textContent = (f_sw / 1000).toFixed(1);
+  document.getElementById('ripple_period').textContent = (T_sw * 1e6).toFixed(1);
+
+  // Simulate 2 line cycles with switching ripple
+  const tEnd = 2 / f_line;
+  const dt = T_sw / 40; // 40 points per switching period
+  const nSteps = Math.floor(tEnd / dt);
+
+  const fullA = [], fullB = [], fullC = [];
+  const ripA = [], ripB = [], ripC = [];
+
+  for (let n = 0; n < nSteps; n += 1) {
+    const t = n * dt;
+    const theta = 2 * Math.PI * f_line * t;
+
+    // Fundamental currents (sinusoidal, PF=1)
+    const iA_fund = i_pk * Math.sin(theta);
+    const iB_fund = i_pk * Math.sin(theta - 2 * Math.PI / 3);
+    const iC_fund = i_pk * Math.sin(theta + 2 * Math.PI / 3);
+
+    // Instantaneous duty and ripple amplitude
+    const v_inst = v_ac * Math.sqrt(2) * Math.abs(Math.sin(theta));
+    const d_inst = 1 - v_inst / v_dc;
+    const d_clamped = Math.max(0.01, Math.min(0.99, d_inst));
+    const delta_i_inst = v_dc * d_clamped * (1 - d_clamped) / (L * f_sw);
+
+    // Triangular ripple based on switching position within period
+    const posInPeriod = (t % T_sw) / T_sw;
+    const tri = (posInPeriod < d_clamped)
+      ? -delta_i_inst/2 + (delta_i_inst/d_clamped) * posInPeriod
+      : delta_i_inst/2 - (delta_i_inst/(1-d_clamped)) * (posInPeriod - d_clamped);
+
+    fullA.push(iA_fund + tri);
+    fullB.push(iB_fund + tri);
+    fullC.push(iC_fund + tri);
+    ripA.push(tri);
+    ripB.push(tri);
+    ripC.push(tri);
+  }
+
+  // Downsample for display
+  const ds = Math.ceil(nSteps / 800);
+  const dsFullA = [], dsFullB = [], dsFullC = [];
+  const dsRipA = [], dsRipB = [], dsRipC = [];
+  for (let i = 0; i < nSteps; i += ds) {
+    dsFullA.push(fullA[i]); dsFullB.push(fullB[i]); dsFullC.push(fullC[i]);
+    dsRipA.push(ripA[i] * zoom); dsRipB.push(ripB[i] * zoom); dsRipC.push(ripC[i] * zoom);
+  }
+
+  drawGridWaveform('rippleFull', dsFullA, dsFullB, dsFullC, 'A', ['#f97316', '#38bdf8', '#22c55e']);
+  drawGridWaveform('rippleOnly', dsRipA, dsRipB, dsRipC, 'A·' + zoom, ['#f97316', '#38bdf8', '#22c55e']);
 }
 
 function updateSummary() {
@@ -802,9 +1255,18 @@ function exportParams() {
   URL.revokeObjectURL(url);
 }
 
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    if (currentTab === 'current') { updateCurrentLoop(); }
+    if (currentTab === 'voltage') { updateVoltageLoop(); }
+    if (currentTab === 'grid') { updateGrid(); }
+    if (currentTab === 'ripple') { updateRipple(); }
+  }, 200);
+});
+
 computeSystem();
-updateCurrentLoop();
-updateVoltageLoop();
 </script>
 </body>
 </html>
