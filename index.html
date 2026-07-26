@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0b1120">
-<meta name="description" content="PFC Tuner - Tuning loop di controllo PFC trifase con grafici Bode, ripple e risposta al gradino.">
+<meta name="description" content="PFC Tuner - Tuning avanzato PFC trifase con PLL, vettore spaziale, potenza istantanea e Bode.">
 <title>PFC Tuner</title>
-<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjogIlBGQyBUdW5lciIsICJzaG9ydF9uYW1lIjogIlBGQyBUdW5lciIsICJkZXNjcmlwdGlvbiI6ICJUdW5pbmcgaW50ZXJhdHRpdm8gZGVpIGxvb3AgZGkgY29udHJvbGxvIHBlciBQRkMgdHJpZmFzZSBjb24gZ3JhZmljaSBCb2RlLCByaXBwbGUgZSByaXNwb3N0YSBhbCBncmFkaW5vLiIsICJzdGFydF91cmwiOiAiLiIsICJkaXNwbGF5IjogInN0YW5kYWxvbmUiLCAiYmFja2dyb3VuZF9jb2xvciI6ICIjMGIxMTIwIiwgInRoZW1lX2NvbG9yIjogIiMwYjExMjAiLCAib3JpZW50YXRpb24iOiAicG9ydHJhaXQiLCAiaWNvbnMiOiBbeyJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxOTIgMTkyJyUzRSUzQ3JlY3QgZmlsbD0nJTIzMGIxMTIwJyB3aWR0aD0nMTkyJyBoZWlnaHQ9JzE5Micgcng9JzQwJy8lM0UlM0N0ZXh0IHg9Jzk2JyB5PScxMjAnIGZvbnQtc2l6ZT0nODAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZpbGw9JyUyM2Y5NzMxNiclM0UlRTIlOUElQTElM0MvdGV4dCUzRSUzQy9zdmclM0UiLCAic2l6ZXMiOiAiMTkyeDE5MiIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiLCAicHVycG9zZSI6ICJhbnkgbWFza2FibGUifSwgeyJzcmMiOiAiZGF0YTppbWFnZS9zdmcreG1sLCUzQ3N2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCA1MTIgNTEyJyUzRSUzQ3JlY3QgZmlsbD0nJTIzMGIxMTIwJyB3aWR0aD0nNTEyJyBoZWlnaHQ9JzUxMicgcng9JzgwJy8lM0UlM0N0ZXh0IHg9JzI1NicgeT0nMzIwJyBmb250LXNpemU9JzI0MCcgdGV4dC1hbmNob3I9J21pZGRsZScgZmlsbD0nJTIzZjk3MzE2JyUzRSVFMiU5QSVBMSUzQy90ZXh0JTNFJTNDL3N2ZyUzRSIsICJzaXplcyI6ICI1MTJ4NTEyIiwgInR5cGUiOiAiaW1hZ2Uvc3ZnK3htbCIsICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSJ9XX0=">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjogIlBGQyBUdW5lciIsICJzaG9ydF9uYW1lIjogIlBGQyBUdW5lciIsICJkZXNjcmlwdGlvbiI6ICJUdW5pbmcgYXZhbnphdG8gUEZDIHRyaWZhc2UgY29uIFBMTCwgdmV0dG9yZSBzcGF6aWFsZSwgcG90ZW56YSBpc3RhbnRhbmVhIGUgQm9kZS4iLCAic3RhcnRfdXJsIjogIi4iLCAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwgImJhY2tncm91bmRfY29sb3IiOiAiIzBiMTEyMCIsICJ0aGVtZV9jb2xvciI6ICIjMGIxMTIwIiwgIm9yaWVudGF0aW9uIjogInBvcnRyYWl0IiwgImljb25zIjogW3sic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTkyIDE5MiclM0UlM0NyZWN0IGZpbGw9JyUyMzBiMTEyMCcgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHJ4PSc0MCcvJTNFJTNDdGV4dCB4PSc5NicgeT0nMTIwJyBmb250LXNpemU9JzgwJyB0ZXh0LWFuY2hvcj0nbWlkZGxlJyBmaWxsPSclMjNmOTczMTYnJTNFJUUyJTlBJUExJTNDL3RleHQlM0UlM0Mvc3ZnJTNFIiwgInNpemVzIjogIjE5MngxOTIiLCAidHlwZSI6ICJpbWFnZS9zdmcreG1sIiwgInB1cnBvc2UiOiAiYW55IG1hc2thYmxlIn0sIHsic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgNTEyIDUxMiclM0UlM0NyZWN0IGZpbGw9JyUyMzBiMTEyMCcgd2lkdGg9JzUxMicgaGVpZ2h0PSc1MTInIHJ4PSc4MCcvJTNFJTNDdGV4dCB4PScyNTYnIHk9JzMyMCcgZm9udC1zaXplPScyNDAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIGZpbGw9JyUyM2Y5NzMxNiclM0UlRTIlOUElQTElM0MvdGV4dCUzRSUzQy9zdmclM0UiLCAic2l6ZXMiOiAiNTEyeDUxMiIsICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiLCAicHVycG9zZSI6ICJhbnkgbWFza2FibGUifV19">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%230b1120' width='192' height='192' rx='40'/%3E%3Ctext x='96' y='120' font-size='80' text-anchor='middle' fill='%23f97316'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
 <style>
 :root {
@@ -23,9 +23,26 @@
   --phaseA: #f97316;
   --phaseB: #38bdf8;
   --phaseC: #22c55e;
+  --ideal: #64748b;
   --radius: 12px;
   --shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
+
+:root[data-theme="light"] {
+  --bg: #f1f5f9;
+  --surface: #ffffff;
+  --surface-2: #e2e8f0;
+  --text: #0f172a;
+  --text-2: #64748b;
+  --accent: #ea580c;
+  --accent-2: #0284c7;
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --danger: #dc2626;
+  --ideal: #94a3b8;
+  --shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -34,6 +51,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  transition: background 0.2s, color 0.2s;
 }
 header {
   padding: 16px 20px;
@@ -46,6 +64,23 @@ header {
 .header-top { display: flex; justify-content: space-between; align-items: center; }
 h1 { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
 .subtitle { font-size: 0.8rem; color: var(--text-2); margin-top: 2px; }
+
+.header-actions { display: flex; gap: 8px; align-items: center; }
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--surface-2);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-btn:active { opacity: 0.7; }
+
 .tabs {
   display: flex;
   gap: 4px;
@@ -54,12 +89,12 @@ h1 { font-size: 1.3rem; font-weight: 700; color: var(--accent); }
   padding-bottom: 4px;
 }
 .tab {
-  padding: 8px 14px;
+  padding: 8px 12px;
   border-radius: var(--radius);
   border: none;
   background: transparent;
   color: var(--text-2);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
@@ -86,15 +121,20 @@ main { flex: 1; padding: 16px; overflow-y: auto; }
   display: flex;
   align-items: center;
   gap: 8px;
+  justify-content: space-between;
 }
+.card-title .title-left { display: flex; align-items: center; gap: 8px; }
 .param-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.param { display: flex; flex-direction: column; gap: 4px; }
+.param { display: flex; flex-direction: column; gap: 4px; position: relative; }
 .param label {
   font-size: 0.75rem;
   color: var(--text-2);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 .param input, .param select {
   padding: 10px 12px;
@@ -107,6 +147,51 @@ main { flex: 1; padding: 16px; overflow-y: auto; }
   width: 100%;
 }
 .param input:focus { border-color: var(--accent); }
+.param input.invalid { border-color: var(--danger); background: rgba(239,68,68,0.06); }
+.param-error {
+  font-size: 0.7rem;
+  color: var(--danger);
+  margin-top: 2px;
+  display: none;
+}
+.param-error.show { display: block; }
+
+.tooltip-trigger {
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--text-2);
+  font-size: 0.65rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.tooltip-box {
+  display: none;
+  position: absolute;
+  z-index: 30;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  box-shadow: var(--shadow);
+  top: 100%;
+  left: 0;
+  margin-top: 4px;
+  width: 240px;
+  max-width: 80vw;
+}
+.tooltip-box.show { display: block; }
+
 .slider-row {
   display: flex;
   align-items: center;
@@ -154,7 +239,12 @@ main { flex: 1; padding: 16px; overflow-y: auto; }
   overflow: hidden;
   position: relative;
   width: 100%;
-  min-height: 220px;
+  contain: layout size;
+}
+.canvas-container canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 canvas { display: block; width: 100%; height: 100%; }
 .badge {
@@ -164,6 +254,7 @@ canvas { display: block; width: 100%; height: 100%; }
   font-size: 0.75rem;
   font-weight: 700;
   margin-top: 8px;
+  margin-right: 6px;
 }
 .badge.ok { background: rgba(34,197,94,0.15); color: var(--success); border: 1px solid var(--success); }
 .badge.warn { background: rgba(234,179,8,0.15); color: var(--warning); border: 1px solid var(--warning); }
@@ -200,6 +291,8 @@ canvas { display: block; width: 100%; height: 100%; }
 }
 .btn:active { opacity: 0.8; }
 .btn-secondary { background: var(--surface-2); color: var(--text); }
+.btn-row { display: flex; gap: 8px; }
+.btn-row .btn { margin-top: 12px; }
 .summary-table {
   width: 100%;
   border-collapse: collapse;
@@ -239,6 +332,13 @@ canvas { display: block; width: 100%; height: 100%; }
 .legend-dot.a { background: var(--phaseA); }
 .legend-dot.b { background: var(--phaseB); }
 .legend-dot.c { background: var(--phaseC); }
+.legend-line {
+  width: 20px;
+  height: 3px;
+  border-radius: 2px;
+}
+.legend-line.ideal { background: var(--ideal); border: 1px dashed var(--ideal); }
+.legend-line.real { background: var(--accent); }
 .toggle-row {
   display: flex;
   gap: 12px;
@@ -260,6 +360,33 @@ canvas { display: block; width: 100%; height: 100%; }
   color: #fff;
   border-color: var(--accent);
 }
+.collapse-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 4px 0;
+}
+.collapse-header h3 {
+  font-size: 0.95rem;
+  color: var(--text-2);
+}
+.collapse-icon {
+  font-size: 1.2rem;
+  color: var(--text-2);
+  transition: transform 0.3s;
+}
+.collapse-header.open .collapse-icon {
+  transform: rotate(180deg);
+}
+.collapse-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-out;
+}
+.collapse-body.open {
+  max-height: 800px;
+}
 .install-banner {
   position: fixed;
   bottom: 20px;
@@ -278,44 +405,256 @@ canvas { display: block; width: 100%; height: 100%; }
   font-size: 0.9rem;
 }
 .install-banner.show { transform: translateX(-50%) translateY(0); }
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(200%);
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow);
+  z-index: 60;
+  transition: transform 0.3s ease-out;
+  white-space: nowrap;
+  max-width: 90vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+.toast.success { border-left: 4px solid var(--success); }
+.toast.error { border-left: 4px solid var(--danger); }
+
+.preset-row {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-top: 10px;
+}
+.preset-chip {
+  padding: 8px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--surface-2);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.preset-chip:active { opacity: 0.7; }
+
+.coherence-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.coherence-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--surface-2);
+}
+.coherence-item .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.coherence-item .dot.ok { background: var(--success); }
+.coherence-item .dot.bad { background: var(--danger); }
+.coherence-item .dot.warn { background: var(--warning); }
+
+.compare-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-2);
+  margin-top: 10px;
+}
+.switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.switch-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: var(--surface-2);
+  border-radius: 22px;
+  transition: 0.2s;
+}
+.switch-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px; width: 16px;
+  left: 3px; bottom: 3px;
+  background: var(--text);
+  border-radius: 50%;
+  transition: 0.2s;
+}
+.switch input:checked + .switch-slider { background: var(--accent); }
+.switch input:checked + .switch-slider:before { transform: translateX(18px); background: #fff; }
+
+.file-input-hidden { display: none; }
+
+.summary-table td.diff-better { color: var(--success); }
+.summary-table td.diff-worse { color: var(--danger); }
+
+.eq-block {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 14px 12px;
+  margin-top: 10px;
+  border-left: 3px solid var(--accent);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.eq-block .katex { font-size: 1.05em; }
+.eq-block .katex-display { margin: 0; }
+
 @media (min-width: 768px) {
   .param-grid { grid-template-columns: 1fr 1fr 1fr; }
   main { max-width: 900px; margin: 0 auto; width: 100%; }
 }
+
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 </head>
 <body>
 <header>
   <div class="header-top">
     <div>
       <h1>⚡ PFC Tuner</h1>
-      <div class="subtitle">Tuning loop di controllo PFC trifase</div>
+      <div class="subtitle">Tuning avanzato PFC trifase</div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="themeToggleBtn" onclick="toggleTheme()" title="Cambia tema">🌙</button>
+      <button class="icon-btn" onclick="triggerImportDialog()" title="Importa configurazione JSON">📥</button>
     </div>
   </div>
+  <input type="file" id="importFileInput" class="file-input-hidden" accept="application/json,.json">
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('system')">Sistema</button>
-    <button class="tab" onclick="switchTab('current')">Loop Corrente</button>
-    <button class="tab" onclick="switchTab('voltage')">Loop Tensione</button>
-    <button class="tab" onclick="switchTab('grid')">Rete</button>
-    <button class="tab" onclick="switchTab('ripple')">Ripple</button>
-    <button class="tab" onclick="switchTab('summary')">Riassunto</button>
+    <button class="tab active" onclick="switchTab('system', event)">Sistema</button>
+    <button class="tab" onclick="switchTab('current', event)">Corrente</button>
+    <button class="tab" onclick="switchTab('voltage', event)">Tensione</button>
+    <button class="tab" onclick="switchTab('pll', event)">PLL</button>
+    <button class="tab" onclick="switchTab('grid', event)">Rete</button>
+    <button class="tab" onclick="switchTab('power', event)">Potenza</button>
+    <button class="tab" onclick="switchTab('ripple', event)">Ripple</button>
+    <button class="tab" onclick="switchTab('robustness', event)">Robustezza</button>
+    <button class="tab" onclick="switchTab('equations', event)">Equazioni</button>
+    <button class="tab" onclick="switchTab('summary', event)">Riassunto</button>
   </div>
 </header>
 
 <main>
   <div class="panel active" id="panel-system">
     <div class="card">
+      <div class="card-title">
+        <div class="title-left">🚀 Preset Rapidi</div>
+      </div>
+      <div class="preset-row">
+        <button class="preset-chip" onclick="applyPreset('small')">3kW / 400V / 20kHz</button>
+        <button class="preset-chip" onclick="applyPreset('medium')">10kW / 700V / 20kHz</button>
+        <button class="preset-chip" onclick="applyPreset('large')">50kW / 800V / 16kHz</button>
+        <button class="preset-chip" onclick="applyPreset('us')">5kW / 480V 60Hz</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="title-left">🏗️ Topologia
+          <span class="tooltip-trigger" onclick="toggleTooltip('topology', event)">?</span>
+          <div class="tooltip-box" id="tt-topology">La topologia determina il vincolo minimo sulla tensione del bus DC. Un boost trifase a 6 switch richiede V<sub>DC</sub> &gt; tensione concatenata di picco (√6·V<sub>fase</sub> ≈ 2.449·V<sub>fase</sub>), non √2·V<sub>fase</sub> come nel caso monofase. Il Vienna Rectifier (3 livelli) condivide lo stesso vincolo minimo sul bus totale, ma dimezza lo stress di tensione per singolo switch (ogni dispositivo vede solo V<sub>DC</sub>/2).</div>
+        </div>
+      </div>
+      <div class="param">
+        <label>Topologia convertitore</label>
+        <select id="topology" onchange="onTopologyChanged()">
+          <option value="boost6">Boost trifase 6-switch</option>
+          <option value="vienna">Vienna Rectifier (3 livelli)</option>
+        </select>
+      </div>
+      <div class="formula" id="topologyFormula">V<sub>DC min</sub> = √6 · V<sub>AC(fase)</sub> ≈ 2.449 · V<sub>AC</sub> &nbsp;(tensione concatenata di picco)</div>
+      <div class="info-text" id="topologyNote">Boost trifase classico a 6 switch: il vincolo di tensione minima è sulla concatenata di picco, non sulla tensione di fase — un errore comune è usare la formula monofase (√2·V<sub>ac</sub>), che sottostima significativamente il V<sub>DC</sub> minimo richiesto.</div>
+    </div>
+
+    <div class="card">
       <div class="card-title">🔧 Parametri del Sistema</div>
       <div class="param-grid">
-        <div class="param"><label>V<sub>AC</sub> (RMS)</label><input type="number" id="v_ac" value="230" step="1"></div>
-        <div class="param"><label>f<sub>linea</sub> (Hz)</label><input type="number" id="f_line" value="50" step="1"></div>
-        <div class="param"><label>P<sub>out</sub> (W)</label><input type="number" id="p_out" value="3000" step="100"></div>
-        <div class="param"><label>V<sub>DC</sub> ref (V)</label><input type="number" id="v_dc" value="400" step="10"></div>
-        <div class="param"><label>L (mH)</label><input type="number" id="L" value="2.5" step="0.1"></div>
-        <div class="param"><label>R<sub>L</sub> (Ω)</label><input type="number" id="R_l" value="0.1" step="0.01"></div>
-        <div class="param"><label>C<sub>DC</sub> (μF)</label><input type="number" id="C_dc" value="1000" step="100"></div>
-        <div class="param"><label>f<sub>sw</sub> (kHz)</label><input type="number" id="f_sw" value="20" step="1"></div>
-        <div class="param"><label>R<sub>load</sub> (Ω)</label><input type="number" id="R_load" value="53.3" step="0.1"></div>
+        <div class="param">
+          <label>V<sub>AC</sub> (RMS)
+            <span class="tooltip-trigger" onclick="toggleTooltip('v_ac', event)">?</span>
+            <div class="tooltip-box" id="tt-v_ac">Tensione di fase RMS lato rete AC.</div>
+          </label>
+          <input type="number" id="v_ac" value="230" step="1">
+        </div>
+        <div class="param">
+          <label>f<sub>linea</sub> (Hz)
+            <span class="tooltip-trigger" onclick="toggleTooltip('f_line', event)">?</span>
+            <div class="tooltip-box" id="tt-f_line">Frequenza fondamentale di rete (50 Hz EU, 60 Hz US).</div>
+          </label>
+          <input type="number" id="f_line" value="50" step="1">
+        </div>
+        <div class="param">
+          <label>P<sub>out</sub> (W)
+            <span class="tooltip-trigger" onclick="toggleTooltip('p_out', event)">?</span>
+            <div class="tooltip-box" id="tt-p_out">Potenza attiva nominale erogata dal PFC.</div>
+          </label>
+          <input type="number" id="p_out" value="3000" step="100">
+        </div>
+        <div class="param">
+          <label>V<sub>DC</sub> ref (V)
+            <span class="tooltip-trigger" onclick="toggleTooltip('v_dc', event)">?</span>
+            <div class="tooltip-box" id="tt-v_dc">Tensione di riferimento sul bus DC. Per un convertitore trifase deve superare la tensione concatenata di picco (vedi card Topologia sopra), non semplicemente V_AC·√2 come nel caso monofase.</div>
+          </label>
+          <input type="number" id="v_dc" value="650" step="10">
+          <div class="param-error" id="err-v_dc"></div>
+        </div>
+        <div class="param">
+          <label>L (mH)
+            <span class="tooltip-trigger" onclick="toggleTooltip('L', event)">?</span>
+            <div class="tooltip-box" id="tt-L">Induttanza di boost per fase. Valori più alti riducono il ripple ma rallentano la dinamica.</div>
+          </label>
+          <input type="number" id="L" value="2.5" step="0.1">
+        </div>
+        <div class="param">
+          <label>R<sub>L</sub> (Ω)
+            <span class="tooltip-trigger" onclick="toggleTooltip('R_l', event)">?</span>
+            <div class="tooltip-box" id="tt-R_l">Resistenza serie parassita dell'induttore, usata per la cancellazione del polo nel loop di corrente.</div>
+          </label>
+          <input type="number" id="R_l" value="0.1" step="0.01">
+        </div>
+        <div class="param">
+          <label>C<sub>DC</sub> (μF)
+            <span class="tooltip-trigger" onclick="toggleTooltip('C_dc', event)">?</span>
+            <div class="tooltip-box" id="tt-C_dc">Capacità del bus DC. Dimensiona il ripple di tensione a 2·f_linea e l'hold-up time.</div>
+          </label>
+          <input type="number" id="C_dc" value="1000" step="100">
+        </div>
+        <div class="param">
+          <label>f<sub>sw</sub> (kHz)
+            <span class="tooltip-trigger" onclick="toggleTooltip('f_sw', event)">?</span>
+            <div class="tooltip-box" id="tt-f_sw">Frequenza di commutazione dei semiconduttori.</div>
+          </label>
+          <input type="number" id="f_sw" value="20" step="1">
+        </div>
+        <div class="param">
+          <label>R<sub>load</sub> (Ω)
+            <span class="tooltip-trigger" onclick="toggleTooltip('R_load', event)">?</span>
+            <div class="tooltip-box" id="tt-R_load">Resistenza di carico equivalente vista dal bus DC, usata nel modello del loop di tensione.</div>
+          </label>
+          <input type="number" id="R_load" value="140.8" step="0.1">
+        </div>
       </div>
       <button class="btn" onclick="computeSystem()">Calcola Parametri Derivati</button>
       <div class="result-grid" id="sysResults" style="display:none;">
@@ -328,7 +667,7 @@ canvas { display: block; width: 100%; height: 100%; }
     <div class="card">
       <div class="card-title">📐 Formule di Riferimento</div>
       <div class="formula">I<sub>pk</sub> = √2 · P / (3 · V<sub>ac</sub> · PF) &nbsp;&nbsp;|&nbsp;&nbsp; ΔI<sub>L</sub> = V<sub>dc</sub>·D·(1-D)/(L·f<sub>sw</sub>)</div>
-      <div class="info-text">Inserisci i parametri del convertitore e premi "Calcola" per ottenere le correnti di picco e il ripple atteso sull'induttanza.</div>
+      <div class="info-text">Inserisci i parametri del convertitore e premi "Calcola" per ottenere le correnti di picco e il ripple atteso sull'induttanza. I campi vengono validati automaticamente e salvati in locale.</div>
     </div>
   </div>
 
@@ -344,14 +683,41 @@ canvas { display: block; width: 100%; height: 100%; }
       <div class="result-grid">
         <div class="result-box"><div class="val" id="kp_i">--</div><div class="lbl">K<sub>p</sub></div></div>
         <div class="result-box"><div class="val" id="ki_i">--</div><div class="lbl">K<sub>i</sub></div></div>
-        <div class="result-box"><div class="val" id="pm_i">--</div><div class="lbl">Margine Fase (°)</div></div>
-        <div class="result-box"><div class="val" id="gm_i">--</div><div class="lbl">Margine Guadagno (dB)</div></div>
+        <div class="result-box"><div class="val" id="pm_i">--</div><div class="lbl">PM ideale (°)</div></div>
+        <div class="result-box"><div class="val" id="pm_i_real">--</div><div class="lbl">PM reale (°)</div></div>
       </div>
       <div id="badge_i"></div>
+      <div class="compare-toggle">
+        <label class="switch">
+          <input type="checkbox" onchange="toggleCompare('current', this.checked)">
+          <span class="switch-slider"></span>
+        </label>
+        <span>Confronta con tuning precedente</span>
+        <button class="icon-btn" style="width:auto;padding:0 10px;height:28px;font-size:0.75rem;" onclick="saveSnapshotForComparison('current')">📌 Salva attuale</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="collapse-header" onclick="toggleCollapse(this)">
+        <h3>🔬 Effetti Parassiti (PWM, Sensing, Digitale)</h3>
+        <span class="collapse-icon">▼</span>
+      </div>
+      <div class="collapse-body" id="collapse-parasitic">
+        <div class="info-text" style="margin-bottom:10px;">I ritardi del sistema reale degradano il margine di fase. Regola questi parametri per vedere l'impatto sul Bode.</div>
+        <div class="param-grid">
+          <div class="param"><label>Ritardo PWM (μs)</label><input type="number" id="td_pwm" value="50" step="5" oninput="updateCurrentLoop()"></div>
+          <div class="param"><label>Polo sensing (kHz)</label><input type="number" id="f_sense" value="50" step="5" oninput="updateCurrentLoop()"></div>
+          <div class="param"><label>Polo AAF (kHz)</label><input type="number" id="f_aaf" value="10" step="1" oninput="updateCurrentLoop()"></div>
+          <div class="param"><label>Ritardo digitale (Ts)</label><input type="number" id="td_dig" value="1.0" step="0.5" oninput="updateCurrentLoop()"></div>
+        </div>
+        <div class="legend-row" style="margin-top:10px;">
+          <div class="legend-item"><div class="legend-line ideal"></div>Loop ideale</div>
+          <div class="legend-item"><div class="legend-line real"></div>Loop reale (con parassiti)</div>
+        </div>
+      </div>
     </div>
     <div class="card">
       <div class="card-title">📉 Bode Loop Aperto - Corrente</div>
-      <div class="canvas-container" id="containerBodeI"><canvas id="bodeI" height="300"></canvas></div>
+      <div class="canvas-container" id="containerBodeI"><canvas id="bodeI" height="320"></canvas></div>
     </div>
     <div class="card">
       <div class="card-title">📈 Risposta al Gradino - Loop Chiuso</div>
@@ -375,6 +741,14 @@ canvas { display: block; width: 100%; height: 100%; }
         <div class="result-box"><div class="val" id="gm_v">--</div><div class="lbl">Margine Guadagno (dB)</div></div>
       </div>
       <div id="badge_v"></div>
+      <div class="compare-toggle">
+        <label class="switch">
+          <input type="checkbox" onchange="toggleCompare('voltage', this.checked)">
+          <span class="switch-slider"></span>
+        </label>
+        <span>Confronta con tuning precedente</span>
+        <button class="icon-btn" style="width:auto;padding:0 10px;height:28px;font-size:0.75rem;" onclick="saveSnapshotForComparison('voltage')">📌 Salva attuale</button>
+      </div>
     </div>
     <div class="card">
       <div class="card-title">📉 Bode Loop Aperto - Tensione</div>
@@ -383,6 +757,88 @@ canvas { display: block; width: 100%; height: 100%; }
     <div class="card">
       <div class="card-title">📈 Risposta al Gradino - Loop Chiuso</div>
       <div class="canvas-container" id="containerStepV"><canvas id="stepV" height="220"></canvas></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-pll">
+    <div class="card">
+      <div class="card-title">🔒 Tuning PLL SRF Trifase</div>
+      <div class="info-text">Il PLL SRF stima l'angolo della tensione di rete. La sua banda passante deve essere &lt; f<sub>linea</sub>/10 per reiettare il ripple a 100 Hz (2·f<sub>linea</sub>).</div>
+      <div class="slider-row">
+        <span style="min-width:80px;font-size:0.85rem;">BW PLL:</span>
+        <input type="range" id="bw_pll_slider" min="1" max="30" value="10" step="0.5" oninput="updatePLL()">
+        <span class="slider-val" id="bw_pll_val">10 Hz</span>
+      </div>
+      <div class="slider-row">
+        <span style="min-width:80px;font-size:0.85rem;">Damping ζ:</span>
+        <input type="range" id="zeta_pll_slider" min="0.5" max="2.0" value="0.707" step="0.05" oninput="updatePLL()">
+        <span class="slider-val" id="zeta_pll_val">0.71</span>
+      </div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="kp_pll">--</div><div class="lbl">K<sub>p</sub> PLL</div></div>
+        <div class="result-box"><div class="val" id="ki_pll">--</div><div class="lbl">K<sub>i</sub> PLL</div></div>
+        <div class="result-box"><div class="val" id="pm_pll">--</div><div class="lbl">Margine Fase (°)</div></div>
+        <div class="result-box"><div class="val" id="ts_pll">--</div><div class="lbl">T<sub>settling</sub> (ms)</div></div>
+      </div>
+      <div id="badge_pll"></div>
+      <div class="compare-toggle">
+        <label class="switch">
+          <input type="checkbox" onchange="toggleCompare('pll', this.checked)">
+          <span class="switch-slider"></span>
+        </label>
+        <span>Confronta con tuning precedente</span>
+        <button class="icon-btn" style="width:auto;padding:0 10px;height:28px;font-size:0.75rem;" onclick="saveSnapshotForComparison('pll')">📌 Salva attuale</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📉 Bode Loop Aperto - PLL</div>
+      <div class="canvas-container" id="containerBodePLL"><canvas id="bodePLL" height="300"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 Risposta a Salto di Frequenza (+0.5 Hz)</div>
+      <div class="canvas-container" id="containerStepFreq"><canvas id="stepFreq" height="220"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 Risposta a Salto di Fase (+30°)</div>
+      <div class="canvas-container" id="containerStepPhase"><canvas id="stepPhase" height="220"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 Theta Stimato vs Reale (con disturbo 100 Hz)</div>
+      <div class="canvas-container" id="containerTheta"><canvas id="thetaPlot" height="220"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        <div class="title-left">🔄 Trasformata di Park (dq0) con θ del PLL
+          <span class="tooltip-trigger" onclick="toggleTooltip('dq0', event)">?</span>
+          <div class="tooltip-box" id="tt-dq0">Le tensioni/correnti αβ vengono proiettate nel frame rotante sincrono usando l'angolo θ stimato dal PLL simulato qui sopra (non un angolo ideale). Se il PLL è ben agganciato, Vd/Id sono costanti; Vq/Iq tendono a zero con orientamento sul vettore tensione. Eventuali oscillazioni residue rivelano errori di tracking del PLL.</div>
+        </div>
+      </div>
+      <div class="info-text">v<sub>d</sub> = v<sub>α</sub>cosθ + v<sub>β</sub>sinθ &nbsp;|&nbsp; v<sub>q</sub> = -v<sub>α</sub>sinθ + v<sub>β</sub>cosθ &nbsp;&nbsp;(orientamento sul vettore tensione: v<sub>q</sub>≈0 a regime). v<sub>0</sub>=i<sub>0</sub>=0 per sistema trifase a 3 fili bilanciato.</div>
+      <div class="legend-row">
+        <div class="legend-item"><div class="legend-line real"></div>d, asse sinistro (diretto)</div>
+        <div class="legend-item"><div class="legend-line" style="background:#38bdf8;width:20px;height:3px;"></div>q, asse destro (quadratura)</div>
+      </div>
+      <div class="info-text" style="margin-top:0;">Nota: d e q usano scale verticali indipendenti (sinistra/destra) perché q è tipicamente molto più piccolo di d — altrimenti apparirebbe sempre come una linea piatta.</div>
+      <div class="canvas-container" id="containerDqV"><canvas id="dqVPlot" height="220"></canvas></div>
+      <div class="info-text" style="margin-top:4px;">Tensioni V<sub>d</sub>, V<sub>q</sub></div>
+      <div class="canvas-container" id="containerDqI"><canvas id="dqIPlot" height="220"></canvas></div>
+      <div class="info-text" style="margin-top:4px;">Correnti I<sub>d</sub>, I<sub>q</sub></div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="dq_vd_avg">--</div><div class="lbl">V<sub>d</sub> medio (V)</div></div>
+        <div class="result-box"><div class="val" id="dq_vq_ripple">--</div><div class="lbl">V<sub>q</sub> ripple (V)</div></div>
+        <div class="result-box"><div class="val" id="dq_id_avg">--</div><div class="lbl">I<sub>d</sub> medio (A)</div></div>
+        <div class="result-box"><div class="val" id="dq_iq_avg">--</div><div class="lbl">I<sub>q</sub> medio (A)</div></div>
+      </div>
+      <div id="badge_dq"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Prestazioni PLL</div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="pll_omega_n">--</div><div class="lbl">ω<sub>n</sub> (rad/s)</div></div>
+        <div class="result-box"><div class="val" id="pll_omega_n_hz">--</div><div class="lbl">f<sub>n</sub> (Hz)</div></div>
+        <div class="result-box"><div class="val" id="pll_rejection">--</div><div class="lbl">Reiezione 100 Hz (dB)</div></div>
+        <div class="result-box"><div class="val" id="pll_overshoot">--</div><div class="lbl">Overshoot (%)</div></div>
+      </div>
     </div>
   </div>
 
@@ -420,12 +876,51 @@ canvas { display: block; width: 100%; height: 100%; }
       <div class="canvas-container" id="containerIgrid"><canvas id="iGrid" height="240"></canvas></div>
     </div>
     <div class="card">
+      <div class="card-title">🎯 Vettore Spaziale nel Piano αβ</div>
+      <div class="info-text">Trasformata di Clarke: il vettore spaziale ruota nel piano αβ. Per un sistema trifase bilanciato perfetto, la traccia è un cerchio. THD e sbilanciamento la deformano.</div>
+      <div class="canvas-container" id="containerSpace" style="min-height:280px;"><canvas id="spaceVector" height="280"></canvas></div>
+    </div>
+    <div class="card">
       <div class="card-title">📊 Parametri di Rete</div>
       <div class="result-grid">
         <div class="result-box"><div class="val" id="grid_v_pk">--</div><div class="lbl">V<sub>pk</sub> (V)</div></div>
         <div class="result-box"><div class="val" id="grid_i_pk">--</div><div class="lbl">I<sub>pk</sub> (A)</div></div>
         <div class="result-box"><div class="val" id="grid_pf">--</div><div class="lbl">Fattore Potenza</div></div>
         <div class="result-box"><div class="val" id="grid_thd">--</div><div class="lbl">THD Corrente</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-power">
+    <div class="card">
+      <div class="card-title">⚡ Potenza Istantanea nel Frame dq</div>
+      <div class="info-text">p(t) = (3/2)(v<sub>d</sub>·i<sub>d</sub> + v<sub>q</sub>·i<sub>q</sub>) &nbsp;&nbsp;|&nbsp;&nbsp; q(t) = (3/2)(v<sub>q</sub>·i<sub>d</sub> - v<sub>d</sub>·i<sub>q</sub>). Per un PFC ideale: p(t) ≈ P<sub>out</sub> costante, q(t) ≈ 0.</div>
+      <div class="slider-row">
+        <span style="min-width:80px;font-size:0.85rem;">THD I:</span>
+        <input type="range" id="thd_slider_p" min="0" max="20" value="3" step="0.5" oninput="updatePower()">
+        <span class="slider-val" id="thd_val_p">3.0%</span>
+      </div>
+      <div class="slider-row">
+        <span style="min-width:80px;font-size:0.85rem;">PF:</span>
+        <input type="range" id="pf_slider_p" min="0.85" max="1.0" value="0.99" step="0.01" oninput="updatePower()">
+        <span class="slider-val" id="pf_val_p">0.99</span>
+      </div>
+      <div class="legend-row">
+        <div class="legend-item"><div class="legend-line real"></div>p(t) attiva (W)</div>
+        <div class="legend-item"><div class="legend-line" style="background:#38bdf8;width:20px;height:3px;"></div>q(t) reattiva (VAR)</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📈 Potenza Attiva p(t) e Reattiva q(t)</div>
+      <div class="canvas-container" id="containerPower"><canvas id="powerPlot" height="260"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Media Potenza su 1 Periodo</div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="p_avg">--</div><div class="lbl">P<sub>avg</sub> (W)</div></div>
+        <div class="result-box"><div class="val" id="q_avg">--</div><div class="lbl">Q<sub>avg</sub> (VAR)</div></div>
+        <div class="result-box"><div class="val" id="p_ripple">--</div><div class="lbl">Ripple p(t) (%)</div></div>
+        <div class="result-box"><div class="val" id="s_app">--</div><div class="lbl">S = √(P²+Q²) (VA)</div></div>
       </div>
     </div>
   </div>
@@ -468,6 +963,146 @@ canvas { display: block; width: 100%; height: 100%; }
     </div>
   </div>
 
+  <div class="panel" id="panel-robustness">
+    <div class="card">
+      <div class="card-title">
+        <div class="title-left">📉 Sweep Parametrico
+          <span class="tooltip-trigger" onclick="toggleTooltip('sweep', event)">?</span>
+          <div class="tooltip-box" id="tt-sweep">Fa variare un singolo parametro su un range attorno al valore nominale e ricalcola il tuning del loop scelto ad ogni punto, mostrando come si spostano PM, GM e overshoot. Utile per capire quanto è sensibile il tuning attuale a variazioni di quel parametro (tolleranze, invecchiamento componenti, temperatura).</div>
+        </div>
+      </div>
+      <div class="param-grid">
+        <div class="param">
+          <label>Loop</label>
+          <select id="sweep_loop" onchange="updateSweepUI()">
+            <option value="current">Corrente</option>
+            <option value="voltage">Tensione</option>
+            <option value="pll">PLL</option>
+          </select>
+        </div>
+        <div class="param">
+          <label>Parametro variabile</label>
+          <select id="sweep_param" onchange="runSweep()"></select>
+        </div>
+      </div>
+      <div class="slider-row">
+        <span style="min-width:80px;font-size:0.85rem;">Range ±:</span>
+        <input type="range" id="sweep_range" min="5" max="50" value="20" step="5" oninput="runSweep()">
+        <span class="slider-val" id="sweep_range_val">±20%</span>
+      </div>
+      <div class="canvas-container" id="containerSweepPM"><canvas id="sweepPMPlot" height="240"></canvas></div>
+      <div class="info-text" style="margin-top:4px;">Margine di Fase (°) vs variazione del parametro</div>
+      <div class="canvas-container" id="containerSweepOS"><canvas id="sweepOSPlot" height="240"></canvas></div>
+      <div class="info-text" style="margin-top:4px;">Overshoot / indicatore di stabilità (%) vs variazione del parametro</div>
+      <div id="badge_sweep"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="title-left">🛡️ Analisi Worst-Case
+          <span class="tooltip-trigger" onclick="toggleTooltip('worstcase', event)">?</span>
+          <div class="tooltip-box" id="tt-worstcase">Combina le tolleranze di più componenti contemporaneamente (peggior caso, non statistico) per stimare il margine di fase minimo garantito nel mondo reale, non solo nel punto nominale. Le combinazioni valutate sono i 4 angoli estremi (L e C ciascuno al proprio ±tolleranza) più il nominale.</div>
+        </div>
+      </div>
+      <div class="param-grid">
+        <div class="param">
+          <label>Tolleranza L (%)</label>
+          <input type="number" id="tol_L" value="20" step="5" min="0" max="50" oninput="runWorstCase()">
+        </div>
+        <div class="param">
+          <label>Tolleranza C<sub>DC</sub> (%)</label>
+          <input type="number" id="tol_C" value="20" step="5" min="0" max="50" oninput="runWorstCase()">
+        </div>
+        <div class="param">
+          <label>Tolleranza R<sub>load</sub> (%)</label>
+          <input type="number" id="tol_Rload" value="10" step="5" min="0" max="50" oninput="runWorstCase()">
+        </div>
+      </div>
+      <table class="summary-table">
+        <thead><tr><th>Caso</th><th>PM Corrente (°)</th><th>PM Tensione (°)</th></tr></thead>
+        <tbody id="worstCaseBody"><tr><td colspan="3" style="text-align:center;color:var(--text-2)">Regola le tolleranze per calcolare</td></tr></tbody>
+      </table>
+      <div id="badge_worstcase"></div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-equations">
+    <div class="card">
+      <div class="card-title">🏗️ Sistema Trifase</div>
+      <div class="eq-block" data-latex="I_{pk} = \dfrac{\sqrt{2}\,P_{out}}{3\,V_{ac}\,PF}"></div>
+      <div class="info-text">Corrente di picco per fase, dalla potenza attiva e dal fattore di potenza.</div>
+      <div class="eq-block" data-latex="I_{rms} = \dfrac{P_{out}}{3\,V_{ac}}"></div>
+      <div class="info-text">Corrente RMS per fase (approssimazione a PF unitario).</div>
+      <div class="eq-block" data-latex="V_{DC,min} = \sqrt{6}\,V_{ac} \approx 2.449\,V_{ac}"></div>
+      <div class="info-text">Vincolo minimo sul bus DC per un convertitore trifase (boost 6-switch o Vienna Rectifier): deve superare la tensione concatenata di picco, non la tensione di fase come nel caso monofase (dove sarebbe √2·V<sub>ac</sub>).</div>
+      <div class="eq-block" data-latex="D_{max} = 1 - \dfrac{\sqrt{6}\,V_{ac}}{V_{DC}}"></div>
+      <div class="info-text">Duty cycle massimo (worst-case, al picco della tensione di rete).</div>
+      <div class="eq-block" data-latex="\Delta I_L = \dfrac{V_{DC}\,D\,(1-D)}{L\,f_{sw}}"></div>
+      <div class="info-text">Ripple di corrente sull'induttore di boost.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎛️ Loop di Corrente (cancellazione del polo)</div>
+      <div class="eq-block" data-latex="G_{plant}(s) = \dfrac{1}{R_L + sL}"></div>
+      <div class="info-text">Funzione di trasferimento del plant (induttore con resistenza serie).</div>
+      <div class="eq-block" data-latex="K_p = L\,\omega_{bw} \qquad K_i = R_L\,\omega_{bw}"></div>
+      <div class="info-text">Guadagni del PI: K<sub>i</sub>/K<sub>p</sub> = R<sub>L</sub>/L cancella esattamente il polo del plant, lasciando un loop aperto con pendenza -20dB/dec fino a ω<sub>bw</sub>.</div>
+      <div class="eq-block" data-latex="L_{OL}(s) = \dfrac{K_i + s K_p}{s(R_L + sL)}"></div>
+      <div class="info-text">Guadagno di anello aperto (loop gain) del loop di corrente.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔋 Loop di Tensione</div>
+      <div class="eq-block" data-latex="G_{plant}(s) = \dfrac{1}{sC_{DC} + \frac{1}{R_{load}}}"></div>
+      <div class="info-text">Funzione di trasferimento del bus DC (capacità con carico resistivo equivalente).</div>
+      <div class="eq-block" data-latex="K_p = 0.8\,C_{DC}\,\omega_{bw} \qquad K_i = 0.3\,C_{DC}\,\omega_{bw}^2"></div>
+      <div class="info-text">Guadagni del PI, scelti per una banda passante target molto più lenta del loop di corrente (regola pratica: almeno 10× più lenta).</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔒 PLL SRF (Synchronous Reference Frame)</div>
+      <div class="eq-block" data-latex="K_p = 2\zeta\,\omega_n \qquad K_i = \omega_n^2"></div>
+      <div class="info-text">Guadagni del PI del PLL, da banda passante desiderata ω<sub>n</sub> e coefficiente di smorzamento ζ (tipicamente ζ=0.707 per risposta Butterworth).</div>
+      <div class="eq-block" data-latex="\omega_n = 2\pi \cdot BW_{PLL}"></div>
+      <div class="eq-block" data-latex="M_p = e^{-\pi\zeta/\sqrt{1-\zeta^2}} \times 100\%"></div>
+      <div class="info-text">Overshoot percentuale stimato per un sistema del secondo ordine sottosmorzato (ζ&lt;1).</div>
+      <div class="eq-block" data-latex="t_{s} \approx \dfrac{4}{\zeta\,\omega_n}"></div>
+      <div class="info-text">Tempo di assestamento al 2% (regola pratica del secondo ordine).</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔄 Trasformate di Clarke e Park</div>
+      <div class="eq-block" data-latex="v_\alpha = v_a \qquad v_\beta = \dfrac{v_b - v_c}{\sqrt{3}}"></div>
+      <div class="info-text">Trasformata di Clarke (abc → αβ), forma amplitude-invariant.</div>
+      <div class="eq-block" data-latex="v_d = v_\alpha\cos\theta + v_\beta\sin\theta \qquad v_q = -v_\alpha\sin\theta + v_\beta\cos\theta"></div>
+      <div class="info-text">Trasformata di Park (αβ → dq), rotazione sincrona con l'angolo θ stimato dal PLL. Con orientamento sul vettore tensione, a regime v<sub>q</sub>≈0.</div>
+      <div class="eq-block" data-latex="v_0 = i_0 = 0 \quad \text{(sistema trifase a 3 fili bilanciato)}"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚡ Potenza Istantanea (teoria p-q)</div>
+      <div class="eq-block" data-latex="p(t) = \tfrac{3}{2}\left(v_d i_d + v_q i_q\right)"></div>
+      <div class="info-text">Potenza attiva istantanea nel frame dq.</div>
+      <div class="eq-block" data-latex="q(t) = \tfrac{3}{2}\left(v_q i_d - v_d i_q\right)"></div>
+      <div class="info-text">Potenza reattiva istantanea nel frame dq.</div>
+      <div class="eq-block" data-latex="q(t) = \tfrac{3}{2}\left(\beta_v \alpha_i - \alpha_v \beta_i\right)"></div>
+      <div class="info-text">Formulazione equivalente in αβ (teoria p-q di Akagi), usata nel tab Potenza per il calcolo diretto senza passare da θ.</div>
+      <div class="eq-block" data-latex="S = \sqrt{P_{avg}^2 + Q_{avg}^2}"></div>
+      <div class="info-text">Potenza apparente media.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🛡️ Robustezza</div>
+      <div class="eq-block" data-latex="\zeta_{approx} \approx \dfrac{PM}{100}"></div>
+      <div class="info-text">Approssimazione pratica di controllo: stima dello smorzamento equivalente da un margine di fase noto, usata per stimare l'overshoot nello sweep parametrico dei loop di corrente/tensione (non applicabile al PLL, che ha già una relazione ζ↔overshoot esatta).</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💡 Nota</div>
+      <div class="info-text">Le equazioni sono renderizzate con <a href="https://katex.org" target="_blank" style="color:var(--accent-2)">KaTeX</a> caricato da CDN. Se la connessione internet non è disponibile al primo avvio, le formule in questo tab potrebbero non renderizzarsi correttamente (il resto dell'app funziona comunque offline via Service Worker).</div>
+    </div>
+  </div>
+
   <div class="panel" id="panel-summary">
     <div class="card">
       <div class="card-title">📋 Parametri Finali</div>
@@ -475,15 +1110,26 @@ canvas { display: block; width: 100%; height: 100%; }
         <thead><tr><th>Parametro</th><th>Valore</th><th>Unità</th></tr></thead>
         <tbody id="summaryBody"><tr><td colspan="3" style="text-align:center;color:var(--text-2)">Calcola i loop nelle schede precedenti</td></tr></tbody>
       </table>
-      <button class="btn btn-secondary" onclick="exportParams()">📤 Esporta JSON</button>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="exportParams()">📤 Esporta JSON</button>
+        <button class="btn btn-secondary" onclick="triggerImportDialog()">📥 Importa JSON</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🧭 Coerenza Multi-Loop</div>
+      <div class="info-text">Verifica automatica del rapporto tra le bande passanti dei vari loop annidati. Un buon design richiede almeno un fattore 10x tra loop consecutivi (corrente → tensione → PLL) per garantire separazione dinamica.</div>
+      <div class="coherence-list" id="coherenceList">
+        <div class="coherence-item"><span style="color:var(--text-2)">Visita le schede Corrente, Tensione e PLL per popolare questa verifica.</span></div>
+      </div>
     </div>
     <div class="card">
       <div class="card-title">💡 Suggerimenti di Tuning</div>
       <div class="info-text" id="suggestions">
         1. Mantieni la banda del loop di corrente &lt; f<sub>sw</sub>/10 per evitare interferenze con lo switching.<br>
         2. La banda del loop di tensione deve essere &lt; f<sub>linea</sub>/2 per non distorcere la forma d'onda di corrente.<br>
-        3. Se il margine di fase è &lt; 45°, riduci la banda passante o aggiungi un filtro passa-basso.<br>
-        4. Verifica sempre la risposta al gradino: sovraelongazione &lt; 10% è ideale per il loop di tensione.
+        3. La banda del PLL deve essere &lt; f<sub>linea</sub>/10 per reiettare il ripple a 2·f<sub>linea</sub>.<br>
+        4. Se il margine di fase reale è &lt; 45°, riduci la banda passante o aumenta i poli di sensing/AAF.<br>
+        5. Rispetta un fattore ≥10x tra bande passanti di loop annidati (vedi pannello Coerenza Multi-Loop qui sopra).
       </div>
     </div>
   </div>
@@ -493,7 +1139,7 @@ canvas { display: block; width: 100%; height: 100%; }
 
 <script>
 // Inline Service Worker via Blob
-const swCode = `const CACHE_NAME = 'pfc-tuner-v2';
+const swCode = `const CACHE_NAME = 'pfc-tuner-v6';
 const ASSETS = [self.location.href];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));
@@ -525,100 +1171,460 @@ function installApp() {
       document.getElementById('installBanner').classList.remove('show');
       deferredPrompt = null;
     });
+  } else {
+    // iOS Safari (and others without beforeinstallprompt) fallback
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (isIOS) {
+      showToast('Su iPhone: tocca Condividi → "Aggiungi a Home"', 'success', 3500);
+    } else {
+      showToast('Installazione non disponibile in questo browser', 'error', 2500);
+    }
+  }
+}
+</script>
+<script>
+// ===================== CORE: theme, toast, storage, validation, presets =====================
+
+const STORAGE_KEY = 'pfc_tuner_params_v1';
+
+// ---------- Toast ----------
+function showToast(msg, type = 'success', duration = 2200) {
+  let toast = document.getElementById('appToast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'appToast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.className = 'toast ' + type;
+  requestAnimationFrame(() => toast.classList.add('show'));
+  clearTimeout(toast._hideTimer);
+  toast._hideTimer = setTimeout(() => toast.classList.remove('show'), duration);
+}
+
+// ---------- Theme ----------
+function initTheme() {
+  const saved = localStorage.getItem('pfc_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeIcon(saved);
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('pfc_theme', next);
+  updateThemeIcon(next);
+  // Redraw charts with new theme colors on the active tab
+  if (typeof refreshCurrentTab === 'function') refreshCurrentTab();
+}
+function updateThemeIcon(theme) {
+  const btn = document.getElementById('themeToggleBtn');
+  if (btn) btn.textContent = theme === 'dark' ? '☀️' : '🌙';
+}
+
+// ---------- Equations tab (KaTeX rendering) ----------
+let _equationsRendered = false;
+
+function renderEquations(retryCount) {
+  retryCount = retryCount || 0;
+  if (typeof katex === 'undefined') {
+    // KaTeX is loaded with `defer`, so on a fast tab switch right after page
+    // load it might not be registered yet. Retry a few times before giving up.
+    if (retryCount < 20) {
+      setTimeout(() => renderEquations(retryCount + 1), 150);
+    } else {
+      document.querySelectorAll('#panel-equations .eq-block').forEach(el => {
+        if (!el.textContent) el.textContent = el.dataset.latex || '';
+      });
+    }
+    return;
+  }
+  document.querySelectorAll('#panel-equations .eq-block').forEach(el => {
+    const tex = el.dataset.latex;
+    if (!tex) return;
+    try {
+      katex.render(tex, el, { throwOnError: false, displayMode: true });
+    } catch (e) {
+      el.textContent = tex;
+      console.warn('Errore rendering KaTeX:', e);
+    }
+  });
+  _equationsRendered = true;
+}
+function toggleTooltip(id, event) {
+  if (event) event.stopPropagation();
+  document.querySelectorAll('.tooltip-box.show').forEach(t => {
+    if (t.id !== 'tt-' + id) t.classList.remove('show');
+  });
+  const box = document.getElementById('tt-' + id);
+  if (box) box.classList.toggle('show');
+}
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.tooltip-trigger') && !e.target.closest('.tooltip-box')) {
+    document.querySelectorAll('.tooltip-box.show').forEach(t => t.classList.remove('show'));
+  }
+});
+
+// ---------- Topology-aware Vdc minimum ----------
+// Both supported three-phase topologies (6-switch boost and Vienna rectifier)
+// share the same minimum bus voltage constraint: it must exceed the peak
+// line-to-line voltage, not the peak phase voltage as in a single-phase boost.
+// Vdc_min = sqrt(2) * V_LL(rms) = sqrt(2) * sqrt(3) * V_phase(rms) = sqrt(6) * V_phase
+function getVdcMinFactor() {
+  // Currently identical for both topologies; kept as a lookup so a future
+  // topology with a different constraint (e.g. a true multilevel NPC with
+  // different modulation limits) can override it in one place.
+  const topology = document.getElementById('topology')?.value || 'boost6';
+  const factors = { boost6: Math.sqrt(6), vienna: Math.sqrt(6) };
+  return factors[topology] || Math.sqrt(6);
+}
+
+function onTopologyChanged() {
+  const topology = document.getElementById('topology').value;
+  const formulaEl = document.getElementById('topologyFormula');
+  const noteEl = document.getElementById('topologyNote');
+  if (topology === 'vienna') {
+    formulaEl.innerHTML = 'V<sub>DC min</sub> = √6 · V<sub>AC(fase)</sub> ≈ 2.449 · V<sub>AC</sub> &nbsp;(tensione concatenata di picco)';
+    noteEl.innerHTML = 'Vienna Rectifier a 3 livelli: stesso vincolo minimo sul bus totale del boost a 6 switch, ma ogni switch vede solo V<sub>DC</sub>/2 — utile per ridurre lo stress di tensione sui semiconduttori o abilitare f<sub>sw</sub> più alte a parità di dispositivo.';
+  } else {
+    formulaEl.innerHTML = 'V<sub>DC min</sub> = √6 · V<sub>AC(fase)</sub> ≈ 2.449 · V<sub>AC</sub> &nbsp;(tensione concatenata di picco)';
+    noteEl.innerHTML = 'Boost trifase classico a 6 switch: il vincolo di tensione minima è sulla concatenata di picco, non sulla tensione di fase — un errore comune è usare la formula monofase (√2·V<sub>ac</sub>), che sottostima significativamente il V<sub>DC</sub> minimo richiesto.';
+  }
+  applyValidationUI();
+  computeSystem();
+  saveToStorage();
+  if (typeof refreshCurrentTab === 'function') refreshCurrentTab();
+}
+
+// ---------- All input field IDs used across the app ----------
+const ALL_PARAM_IDS = [
+  'v_ac', 'f_line', 'p_out', 'v_dc', 'L', 'R_l', 'C_dc', 'f_sw', 'R_load',
+  'td_pwm', 'f_sense', 'f_aaf', 'td_dig'
+];
+
+// ---------- Validation rules ----------
+// Each rule: fn(values) -> null | { field, message, severity: 'error'|'warn' }
+function getFormValues() {
+  const v = {};
+  ALL_PARAM_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    v[id] = el ? parseFloat(el.value) : NaN;
+  });
+  return v;
+}
+
+function validateAll() {
+  const v = getFormValues();
+  const issues = [];
+
+  // Basic NaN / range checks
+  ALL_PARAM_IDS.forEach(id => {
+    if (isNaN(v[id])) {
+      issues.push({ field: id, message: 'Valore non valido', severity: 'error' });
+    } else if (v[id] <= 0 && id !== 'td_dig') {
+      // td_dig could theoretically be 0, but not negative; others must be > 0
+      if (v[id] < 0) issues.push({ field: id, message: 'Il valore non può essere negativo', severity: 'error' });
+      else if (v[id] === 0 && !['td_pwm','td_dig'].includes(id)) issues.push({ field: id, message: 'Il valore deve essere maggiore di zero', severity: 'error' });
+    }
+  });
+
+  // Domain-specific: three-phase converter requires V_DC > peak line-to-line voltage
+  if (!isNaN(v.v_dc) && !isNaN(v.v_ac)) {
+    const vdcMinFactor = getVdcMinFactor();
+    const vpk = v.v_ac * vdcMinFactor;
+    if (v.v_dc <= vpk) {
+      issues.push({
+        field: 'v_dc',
+        message: `V_DC deve essere > √6·V_AC (${vpk.toFixed(0)} V) per un convertitore trifase`,
+        severity: 'error'
+      });
+    } else if (v.v_dc < vpk * 1.05) {
+      issues.push({
+        field: 'v_dc',
+        message: `V_DC molto vicino al minimo trifase: duty max si avvicina a 0, ripple elevato`,
+        severity: 'warn'
+      });
+    }
+  }
+
+  // Switching frequency vs line frequency
+  if (!isNaN(v.f_sw) && !isNaN(v.f_line)) {
+    if (v.f_sw * 1000 < v.f_line * 20) {
+      issues.push({ field: 'f_sw', message: 'f_sw troppo bassa rispetto a f_linea', severity: 'warn' });
+    }
+  }
+
+  return issues;
+}
+
+function applyValidationUI() {
+  const issues = validateAll();
+  // Clear all
+  ALL_PARAM_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    const err = document.getElementById('err-' + id);
+    if (el) el.classList.remove('invalid');
+    if (err) { err.classList.remove('show'); err.textContent = ''; }
+  });
+  // Apply
+  const byField = {};
+  issues.forEach(iss => {
+    if (!byField[iss.field] || iss.severity === 'error') byField[iss.field] = iss;
+  });
+  Object.keys(byField).forEach(field => {
+    const iss = byField[field];
+    const el = document.getElementById(field);
+    const err = document.getElementById('err-' + field);
+    if (el && iss.severity === 'error') el.classList.add('invalid');
+    if (err) {
+      err.textContent = (iss.severity === 'error' ? '⚠ ' : 'ℹ ') + iss.message;
+      err.classList.add('show');
+      err.style.color = iss.severity === 'error' ? 'var(--danger)' : 'var(--warning)';
+    }
+  });
+  return issues.filter(i => i.severity === 'error').length === 0;
+}
+
+// ---------- Presets ----------
+const PRESETS = {
+  small: {
+    label: '3kW / 650V / 20kHz',
+    values: { v_ac: 230, f_line: 50, p_out: 3000, v_dc: 650, L: 2.5, R_l: 0.1, C_dc: 1000, f_sw: 20, R_load: 141 }
+  },
+  medium: {
+    label: '10kW / 1100V / 20kHz',
+    values: { v_ac: 400, f_line: 50, p_out: 10000, v_dc: 1100, L: 1.2, R_l: 0.05, C_dc: 2200, f_sw: 20, R_load: 121 }
+  },
+  large: {
+    label: '50kW / 1150V / 16kHz',
+    values: { v_ac: 400, f_line: 50, p_out: 50000, v_dc: 1150, L: 0.4, R_l: 0.01, C_dc: 6800, f_sw: 16, R_load: 26.5 }
+  },
+  us: {
+    label: '5kW / 800V / 50kHz (60Hz)',
+    values: { v_ac: 277, f_line: 60, p_out: 5000, v_dc: 800, L: 0.8, R_l: 0.03, C_dc: 1500, f_sw: 50, R_load: 128 }
+  }
+};
+
+function applyPreset(key) {
+  const preset = PRESETS[key];
+  if (!preset) return;
+  Object.entries(preset.values).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+  applyValidationUI();
+  computeSystem();
+  saveToStorage();
+  showToast(`Preset "${preset.label}" applicato`, 'success');
+}
+
+// ---------- LocalStorage persistence ----------
+function collectAllParams() {
+  const data = { system: {}, parasitics: {}, loops: {} };
+  ['v_ac','f_line','p_out','v_dc','L','R_l','C_dc','f_sw','R_load','topology'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data.system[id] = el.value;
+  });
+  ['td_pwm','f_sense','f_aaf','td_dig'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data.parasitics[id] = el.value;
+  });
+  ['bw_i_slider','bw_v_slider','bw_pll_slider','zeta_pll_slider'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data.loops[id] = el.value;
+  });
+  return data;
+}
+
+function saveToStorage() {
+  try {
+    const data = collectAllParams();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.warn('Impossibile salvare in localStorage', e);
   }
 }
 
-let currentTab = 'system';
-let gridMode = 'v';
-let rippleMode = 'full';
-function switchTab(name) {
-  currentTab = name;
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('panel-' + name).classList.add('active');
-  if (name === 'current') { updateCurrentLoop(); }
-  if (name === 'voltage') { updateVoltageLoop(); }
-  if (name === 'grid') { updateGrid(); }
-  if (name === 'ripple') { updateRipple(); }
-  if (name === 'summary') { updateSummary(); }
-}
-
-function setGridMode(mode) {
-  gridMode = mode;
-  document.querySelectorAll('#panel-grid .toggle-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('btn' + (mode === 'both' ? 'Both' : mode === 'i' ? 'I' : 'V')).classList.add('active');
-  updateGrid();
-}
-
-function setRippleMode(mode) {
-  rippleMode = mode;
-  document.getElementById('btnRippleFull').classList.toggle('active', mode === 'full');
-  document.getElementById('btnRippleOnly').classList.toggle('active', mode === 'only');
-  updateRipple();
-}
-
-function computeSystem() {
-  const v_ac = parseFloat(document.getElementById('v_ac').value) || 230;
-  const p_out = parseFloat(document.getElementById('p_out').value) || 3000;
-  const v_dc = parseFloat(document.getElementById('v_dc').value) || 400;
-  const L = (parseFloat(document.getElementById('L').value) || 2.5) * 1e-3;
-  const f_sw = (parseFloat(document.getElementById('f_sw').value) || 20) * 1e3;
-
-  const i_pk = Math.sqrt(2) * p_out / (3 * v_ac);
-  const i_rms = p_out / (3 * v_ac);
-  const d_max = 1 - (v_ac * Math.sqrt(2)) / v_dc;
-  const delta_i = v_dc * d_max * (1 - d_max) / (L * f_sw);
-  const ripple_pct = (delta_i / (i_pk * 2)) * 100;
-
-  document.getElementById('res_i_pk').textContent = i_pk.toFixed(2);
-  document.getElementById('res_i_rms').textContent = i_rms.toFixed(2);
-  document.getElementById('res_duty').textContent = d_max.toFixed(3);
-  document.getElementById('res_ripple').textContent = ripple_pct.toFixed(1) + '%';
-  document.getElementById('sysResults').style.display = 'grid';
-
-  const maxBw = Math.floor(f_sw / 10);
-  const slider = document.getElementById('bw_i_slider');
-  slider.max = maxBw;
-  if (parseInt(slider.value) > maxBw) slider.value = Math.floor(maxBw / 2);
-}
-
-function complex(re, im) { return { re, im }; }
-function cAdd(a, b) { return complex(a.re + b.re, a.im + b.im); }
-function cMul(a, b) { return complex(a.re*b.re - a.im*b.im, a.re*b.im + a.im*b.re); }
-function cDiv(a, b) {
-  const den = b.re*b.re + b.im*b.im;
-  return complex((a.re*b.re + a.im*b.im)/den, (a.im*b.re - a.re*b.im)/den);
-}
-function cAbs(a) { return Math.sqrt(a.re*a.re + a.im*a.im); }
-function cArg(a) { return Math.atan2(a.im, a.re) * 180 / Math.PI; }
-
-function evalTF(num, den, s) {
-  let n = complex(0,0), d = complex(0,0), sp = complex(1,0);
-  for (let i = 0; i < num.length; i++) {
-    n = cAdd(n, cMul(complex(num[i], 0), sp));
-    sp = cMul(sp, s);
+function loadFromStorageIfPresent() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    applyLoadedData(data);
+    return true;
+  } catch (e) {
+    console.warn('Impossibile caricare da localStorage', e);
+    return false;
   }
-  sp = complex(1,0);
-  for (let i = 0; i < den.length; i++) {
-    d = cAdd(d, cMul(complex(den[i], 0), sp));
-    sp = cMul(sp, s);
+}
+
+function applyLoadedData(data) {
+  if (!data) return;
+  if (data.system) Object.entries(data.system).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+  if (data.parasitics) Object.entries(data.parasitics).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+  if (data.loops) Object.entries(data.loops).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+  // Refresh topology-dependent formula/note text if a topology was restored
+  if (data.system && 'topology' in data.system && typeof onTopologyChanged === 'function') {
+    const topoSelect = document.getElementById('topology');
+    if (topoSelect) {
+      const formulaEl = document.getElementById('topologyFormula');
+      const noteEl = document.getElementById('topologyNote');
+      if (topoSelect.value === 'vienna' && formulaEl && noteEl) {
+        noteEl.innerHTML = 'Vienna Rectifier a 3 livelli: stesso vincolo minimo sul bus totale del boost a 6 switch, ma ogni switch vede solo V<sub>DC</sub>/2 — utile per ridurre lo stress di tensione sui semiconduttori o abilitare f<sub>sw</sub> più alte a parità di dispositivo.';
+      }
+    }
   }
-  return cDiv(n, d);
+}
+
+// ---------- Import / Export JSON ----------
+function exportFullConfig() {
+  const data = collectAllParams();
+  data.exportedAt = new Date().toISOString();
+  data.version = 1;
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'pfc_tuning_config.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Configurazione esportata', 'success');
+}
+
+function triggerImportDialog() {
+  document.getElementById('importFileInput').click();
+}
+
+function handleImportFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.system && !data.loops) {
+        showToast('File JSON non riconosciuto', 'error');
+        return;
+      }
+      applyLoadedData(data);
+      applyValidationUI();
+      computeSystem();
+      saveToStorage();
+      if (typeof refreshCurrentTab === 'function') refreshCurrentTab();
+      showToast('Configurazione importata correttamente', 'success');
+    } catch (err) {
+      showToast('Errore nel parsing del file JSON', 'error');
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ---------- Multi-loop coherence check ----------
+function checkLoopCoherence() {
+  const bwI = parseFloat(document.getElementById('bw_i_slider')?.value) || 0;
+  const bwV = parseFloat(document.getElementById('bw_v_slider')?.value) || 0;
+  const bwPLL = parseFloat(document.getElementById('bw_pll_slider')?.value) || 0;
+  const fSw = (parseFloat(document.getElementById('f_sw')?.value) || 20) * 1000;
+  const fLine = parseFloat(document.getElementById('f_line')?.value) || 50;
+
+  const items = [];
+
+  // Current loop BW vs switching freq
+  const ratioSwI = fSw / bwI;
+  items.push({
+    label: `BW corrente vs f_sw`,
+    detail: `${bwI} Hz vs ${fSw} Hz (rapporto ${ratioSwI.toFixed(1)}x)`,
+    status: ratioSwI >= 10 ? 'ok' : (ratioSwI >= 5 ? 'warn' : 'bad')
+  });
+
+  // Voltage loop BW vs Current loop BW
+  const ratioIV = bwI / bwV;
+  items.push({
+    label: `BW corrente vs BW tensione`,
+    detail: `${bwI} Hz vs ${bwV} Hz (rapporto ${ratioIV.toFixed(1)}x)`,
+    status: ratioIV >= 10 ? 'ok' : (ratioIV >= 5 ? 'warn' : 'bad')
+  });
+
+  // PLL BW vs Voltage loop BW
+  const ratioVPLL = bwV / bwPLL;
+  items.push({
+    label: `BW tensione vs BW PLL`,
+    detail: `${bwV} Hz vs ${bwPLL} Hz (rapporto ${ratioVPLL.toFixed(1)}x)`,
+    status: ratioVPLL >= 2 ? 'ok' : (ratioVPLL >= 1 ? 'warn' : 'bad')
+  });
+
+  // PLL BW vs line frequency (100Hz rejection)
+  const ratioLinePLL = (fLine / 10) / bwPLL;
+  items.push({
+    label: `BW PLL vs f_linea/10`,
+    detail: `${bwPLL} Hz vs limite ${(fLine/10).toFixed(1)} Hz`,
+    status: bwPLL <= fLine / 10 ? 'ok' : (bwPLL <= fLine / 6 ? 'warn' : 'bad')
+  });
+
+  return items;
+}
+
+function renderCoherenceList() {
+  const container = document.getElementById('coherenceList');
+  if (!container) return;
+  const items = checkLoopCoherence();
+  container.innerHTML = items.map(it => `
+    <div class="coherence-item">
+      <div class="dot ${it.status}"></div>
+      <div><strong>${it.label}</strong><br><span style="color:var(--text-2);font-size:0.78rem;">${it.detail}</span></div>
+    </div>
+  `).join('');
+}
+
+</script>
+<script>
+// ===================== RENDERING (canvas) =====================
+
+function themeColor(varName) {
+  return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
 }
 
 function getCanvasWidth(canvasId) {
   const canvas = document.getElementById(canvasId);
   const container = canvas.parentElement;
+
+  // Pin the container's height to the canvas's declared height attribute
+  // (e.g. height="320") exactly once. Previously the container had no fixed
+  // height (only min-height) and the canvas was laid out in normal flow, so
+  // canvas.style.height set during drawing could nudge the container's own
+  // measured height by a sub-pixel amount; that triggered another 'resize'
+  // event, which re-ran this same draw code with a still-changed size,
+  // compounding every ~1s until the chart grew unbounded. Fixing the
+  // container height from the canvas attribute (not from measuring layout)
+  // and taking the canvas out of flow (position:absolute, see CSS) removes
+  // the feedback path entirely.
+  if (!container.dataset.pinnedHeight) {
+    const declaredHeight = parseInt(canvas.getAttribute('height')) || 220;
+    container.style.height = declaredHeight + 'px';
+    container.dataset.pinnedHeight = '1';
+  }
+
   const rect = container.getBoundingClientRect();
   return Math.max(rect.width, window.innerWidth - 64);
 }
 
-function drawBode(canvasId, freqs, mags, phases, targetBw) {
+function drawBodeDual(canvasId, freqs, magsIdeal, phasesIdeal, magsReal, phasesReal, targetBw, prevCurve) {
   const canvas = document.getElementById(canvasId);
   const dpr = window.devicePixelRatio || 1;
   const wCanvas = getCanvasWidth(canvasId);
-  const hCanvas = parseInt(canvas.getAttribute('height')) || 300;
+  const hCanvas = parseInt(canvas.getAttribute('height')) || 320;
   canvas.width = wCanvas * dpr;
   canvas.height = hCanvas * dpr;
   canvas.style.width = wCanvas + 'px';
@@ -628,12 +1634,20 @@ function drawBode(canvasId, freqs, mags, phases, targetBw) {
   const w = wCanvas, h = hCanvas;
   const pad = { top: 30, right: 10, bottom: 35, left: 50 };
 
+  const bgColor = themeColor('--bg');
+  const gridColor = themeColor('--surface-2');
+  const textColor = themeColor('--text-2');
+  const idealColor = themeColor('--ideal');
+  const accentColor = themeColor('--accent');
+  const accent2Color = themeColor('--accent-2');
+  const successColor = themeColor('--success');
+  const warnColor = themeColor('--warning');
+
   ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = '#0b1120';
+  ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, w, h);
 
-  // Grid
-  ctx.strokeStyle = '#1e293b';
+  ctx.strokeStyle = gridColor;
   ctx.lineWidth = 1;
   for (let i = 0; i <= 5; i++) {
     const y = pad.top + (h - pad.top - pad.bottom) * i / 5;
@@ -641,85 +1655,124 @@ function drawBode(canvasId, freqs, mags, phases, targetBw) {
   }
 
   const hMag = (h - pad.top - pad.bottom) * 0.45;
-  const maxMag = Math.max(...mags, 10);
-  const minMag = Math.min(...mags, -40);
+  const allMagsForScale = [...magsIdeal, ...magsReal, ...(prevCurve ? prevCurve.mags : [])];
+  const maxMag = Math.max(...allMagsForScale, 10);
+  const minMag = Math.min(...allMagsForScale, -40);
   const scaleMag = hMag / (maxMag - minMag);
 
-  // Find crossover frequency and phase margin
-  let fcIdx = -1, pm = 90;
+  let fcIdxReal = -1, pmReal = 90;
   for (let i = 0; i < freqs.length; i++) {
-    if (mags[i] <= 0 && fcIdx < 0) fcIdx = i;
-    if (Math.abs(mags[i]) < 0.5) { pm = 180 + phases[i]; break; }
+    if (magsReal[i] <= 0 && fcIdxReal < 0) fcIdxReal = i;
+    if (Math.abs(magsReal[i]) < 0.5) { pmReal = 180 + phasesReal[i]; break; }
   }
-  if (fcIdx < 0) fcIdx = Math.floor(freqs.length / 2);
-  const fc = freqs[fcIdx];
+  if (fcIdxReal < 0) fcIdxReal = Math.floor(freqs.length / 2);
 
-  // Mag plot
-  ctx.strokeStyle = '#f97316';
+  // Previous (comparison) curve, drawn faint
+  if (prevCurve) {
+    ctx.strokeStyle = accent2Color;
+    ctx.globalAlpha = 0.35;
+    ctx.lineWidth = 2;
+    ctx.setLineDash([2, 3]);
+    ctx.beginPath();
+    for (let i = 0; i < freqs.length; i++) {
+      const x = pad.left + (w - pad.left - pad.right) * i / (freqs.length - 1);
+      const y = pad.top + hMag - (prevCurve.mags[i] - minMag) * scaleMag;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
+  }
+
+  // Ideal magnitude (dashed)
+  ctx.strokeStyle = idealColor;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  for (let i = 0; i < freqs.length; i++) {
+    const x = pad.left + (w - pad.left - pad.right) * i / (freqs.length - 1);
+    const y = pad.top + hMag - (magsIdeal[i] - minMag) * scaleMag;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Real magnitude
+  ctx.strokeStyle = accentColor;
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   for (let i = 0; i < freqs.length; i++) {
     const x = pad.left + (w - pad.left - pad.right) * i / (freqs.length - 1);
-    const y = pad.top + hMag - (mags[i] - minMag) * scaleMag;
+    const y = pad.top + hMag - (magsReal[i] - minMag) * scaleMag;
     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
   ctx.stroke();
 
-  // 0 dB line in magnitude
   const y0dB = pad.top + hMag - (0 - minMag) * scaleMag;
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.strokeStyle = 'rgba(128,128,128,0.25)';
   ctx.setLineDash([3, 3]);
   ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(pad.left, y0dB); ctx.lineTo(w - pad.right, y0dB); ctx.stroke();
   ctx.setLineDash([]);
 
-  // Crossover line in magnitude
-  if (fcIdx >= 0) {
-    const xFc = pad.left + (w - pad.left - pad.right) * fcIdx / (freqs.length - 1);
-    ctx.strokeStyle = '#22c55e';
+  if (fcIdxReal >= 0) {
+    const xFc = pad.left + (w - pad.left - pad.right) * fcIdxReal / (freqs.length - 1);
+    ctx.strokeStyle = successColor;
     ctx.setLineDash([4, 4]);
     ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(xFc, pad.top); ctx.lineTo(xFc, pad.top + hMag); ctx.stroke();
     ctx.setLineDash([]);
-    // Label
-    ctx.fillStyle = '#22c55e';
+    ctx.fillStyle = successColor;
     ctx.font = 'bold 9px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillText('fc', xFc, pad.top - 4);
   }
 
-  // Target BW line in magnitude
   if (targetBw) {
     const logF0 = Math.log10(freqs[0]), logF1 = Math.log10(freqs[freqs.length-1]);
     const logTarget = Math.log10(targetBw);
     if (logTarget >= logF0 && logTarget <= logF1) {
       const ratio = (logTarget - logF0) / (logF1 - logF0);
       const xTarget = pad.left + (w - pad.left - pad.right) * ratio;
-      ctx.strokeStyle = '#eab308';
+      ctx.strokeStyle = warnColor;
       ctx.setLineDash([6, 3]);
       ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(xTarget, pad.top); ctx.lineTo(xTarget, pad.top + hMag); ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle = '#eab308';
+      ctx.fillStyle = warnColor;
       ctx.font = 'bold 9px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('BW', xTarget, pad.top - 4);
     }
   }
 
-  // Phase plot
   const topPhase = pad.top + hMag + 12;
   const hPhase = (h - pad.top - pad.bottom) * 0.45;
   const maxPhase = 0;
   const minPhase = -270;
   const scalePhase = hPhase / (maxPhase - minPhase);
 
-  ctx.strokeStyle = '#38bdf8';
+  ctx.strokeStyle = idealColor;
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([6, 4]);
+  ctx.beginPath();
+  for (let i = 0; i < freqs.length; i++) {
+    const x = pad.left + (w - pad.left - pad.right) * i / (freqs.length - 1);
+    let ph = phasesIdeal[i];
+    while (ph > 0) ph -= 360;
+    while (ph < -270) ph += 360;
+    const y = topPhase + hPhase - (ph - minPhase) * scalePhase;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.strokeStyle = accent2Color;
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   for (let i = 0; i < freqs.length; i++) {
     const x = pad.left + (w - pad.left - pad.right) * i / (freqs.length - 1);
-    let ph = phases[i];
+    let ph = phasesReal[i];
     while (ph > 0) ph -= 360;
     while (ph < -270) ph += 360;
     const y = topPhase + hPhase - (ph - minPhase) * scalePhase;
@@ -727,45 +1780,40 @@ function drawBode(canvasId, freqs, mags, phases, targetBw) {
   }
   ctx.stroke();
 
-  // -180 line in phase
   const y180 = topPhase + hPhase - (-180 - minPhase) * scalePhase;
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.strokeStyle = 'rgba(128,128,128,0.25)';
   ctx.setLineDash([3, 3]);
   ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(pad.left, y180); ctx.lineTo(w - pad.right, y180); ctx.stroke();
   ctx.setLineDash([]);
 
-  // Crossover line in phase + PM arc
-  if (fcIdx >= 0) {
-    const xFc = pad.left + (w - pad.left - pad.right) * fcIdx / (freqs.length - 1);
-    let phAtFc = phases[fcIdx];
+  if (fcIdxReal >= 0) {
+    const xFc = pad.left + (w - pad.left - pad.right) * fcIdxReal / (freqs.length - 1);
+    let phAtFc = phasesReal[fcIdxReal];
     while (phAtFc > 0) phAtFc -= 360;
     const yPh = topPhase + hPhase - (phAtFc - minPhase) * scalePhase;
 
-    ctx.strokeStyle = '#22c55e';
+    ctx.strokeStyle = successColor;
     ctx.setLineDash([4, 4]);
     ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.moveTo(xFc, topPhase); ctx.lineTo(xFc, topPhase + hPhase); ctx.stroke();
     ctx.setLineDash([]);
 
-    // PM arc
-    ctx.strokeStyle = '#22c55e';
+    ctx.strokeStyle = successColor;
     ctx.lineWidth = 2;
     ctx.beginPath();
     const arcR = 18;
     const arcY = y180;
-    ctx.arc(xFc, arcY, arcR, -Math.PI/2, -Math.PI/2 + (pm * Math.PI / 180), false);
+    ctx.arc(xFc, arcY, arcR, -Math.PI/2, -Math.PI/2 + (pmReal * Math.PI / 180), false);
     ctx.stroke();
 
-    // PM label
-    ctx.fillStyle = '#22c55e';
+    ctx.fillStyle = successColor;
     ctx.font = 'bold 10px sans-serif';
     ctx.textAlign = 'left';
-    ctx.fillText('PM = ' + pm.toFixed(1) + '°', xFc + 6, yPh - 6);
+    ctx.fillText('PM = ' + pmReal.toFixed(1) + '°', xFc + 6, yPh - 6);
   }
 
-  // Labels magnitude
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillStyle = textColor;
   ctx.font = '10px sans-serif';
   ctx.textAlign = 'right';
   for (let i = 0; i <= 5; i++) {
@@ -777,7 +1825,6 @@ function drawBode(canvasId, freqs, mags, phases, targetBw) {
     ctx.fillText(val + '°', pad.left - 4, topPhase + hPhase * i / 3 + 4);
   }
 
-  // Freq labels
   ctx.textAlign = 'center';
   const f0 = freqs[0], f1 = freqs[freqs.length - 1];
   const logF0 = Math.log10(f0), logF1 = Math.log10(f1);
@@ -787,16 +1834,20 @@ function drawBode(canvasId, freqs, mags, phases, targetBw) {
     const ratio = (Math.log10(f) - logF0) / (logF1 - logF0);
     const x = pad.left + (w - pad.left - pad.right) * ratio;
     ctx.fillText(f >= 1000 ? (f/1000).toFixed(0) + 'k' : f.toFixed(0), x, h - 6);
-    ctx.strokeStyle = '#334155';
+    ctx.strokeStyle = gridColor;
     ctx.beginPath(); ctx.moveTo(x, pad.top); ctx.lineTo(x, h - pad.bottom); ctx.stroke();
   }
 
-  // Legend
   ctx.textAlign = 'left';
-  ctx.fillStyle = '#f97316'; ctx.fillText('|L(jω)| dB', w - 100, pad.top + 12);
-  ctx.fillStyle = '#38bdf8'; ctx.fillText('∠L(jω) °', w - 100, pad.top + 24);
-  ctx.fillStyle = '#22c55e'; ctx.fillText('fc / PM', w - 100, pad.top + 36);
-  ctx.fillStyle = '#eab308'; ctx.fillText('BW target', w - 100, pad.top + 48);
+  ctx.font = '9px sans-serif';
+  let legendY = pad.top + 12;
+  ctx.fillStyle = accentColor; ctx.fillText('|L(jω)| reale', w - 112, legendY); legendY += 12;
+  ctx.fillStyle = idealColor; ctx.fillText('|L(jω)| ideale', w - 112, legendY); legendY += 12;
+  ctx.fillStyle = accent2Color; ctx.fillText('∠L(jω) reale', w - 112, legendY); legendY += 12;
+  ctx.fillStyle = idealColor; ctx.fillText('∠L(jω) ideale', w - 112, legendY); legendY += 12;
+  ctx.fillStyle = successColor; ctx.fillText('fc / PM reale', w - 112, legendY); legendY += 12;
+  ctx.fillStyle = warnColor; ctx.fillText('BW target', w - 112, legendY); legendY += 12;
+  if (prevCurve) { ctx.fillStyle = accent2Color; ctx.globalAlpha = 0.6; ctx.fillText('|L| precedente', w - 112, legendY); ctx.globalAlpha = 1; }
 }
 
 function drawStep(canvasId, times, values, settlingLine) {
@@ -813,22 +1864,28 @@ function drawStep(canvasId, times, values, settlingLine) {
   const w = wCanvas, h = hCanvas;
   const pad = { top: 20, right: 15, bottom: 30, left: 45 };
 
+  const bgColor = themeColor('--bg');
+  const gridColor = themeColor('--surface-2');
+  const textColor = themeColor('--text-2');
+  const successColor = themeColor('--success');
+  const accentColor = themeColor('--accent');
+
   ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = '#0b1120';
+  ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, w, h);
 
   const maxT = times[times.length - 1];
   const maxV = Math.max(...values, 1.2);
   const minV = Math.min(...values, -0.1);
 
-  ctx.strokeStyle = '#1e293b';
+  ctx.strokeStyle = gridColor;
   ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i++) {
     const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
     ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
   }
 
-  ctx.strokeStyle = '#22c55e';
+  ctx.strokeStyle = successColor;
   ctx.lineWidth = 2.5;
   ctx.beginPath();
   for (let i = 0; i < times.length; i++) {
@@ -840,13 +1897,13 @@ function drawStep(canvasId, times, values, settlingLine) {
 
   if (settlingLine !== undefined) {
     const y = pad.top + (h - pad.top - pad.bottom) * (1 - (settlingLine - minV) / (maxV - minV));
-    ctx.strokeStyle = '#f97316';
+    ctx.strokeStyle = accentColor;
     ctx.setLineDash([4, 4]);
     ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
     ctx.setLineDash([]);
   }
 
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillStyle = textColor;
   ctx.font = '10px sans-serif';
   ctx.textAlign = 'right';
   for (let i = 0; i <= 4; i++) {
@@ -872,8 +1929,13 @@ function drawGridWaveform(canvasId, dataA, dataB, dataC, yLabel, colors) {
   const w = wCanvas, h = hCanvas;
   const pad = { top: 25, right: 15, bottom: 35, left: 50 };
 
+  const bgColor = themeColor('--bg');
+  const gridColor = themeColor('--surface-2');
+  const textColor = themeColor('--text-2');
+  const zeroColor = themeColor('--surface-2');
+
   ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = '#0b1120';
+  ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, w, h);
 
   const allVals = [...dataA, ...dataB, ...dataC];
@@ -882,7 +1944,7 @@ function drawGridWaveform(canvasId, dataA, dataB, dataC, yLabel, colors) {
   const maxV = maxAbs + margin;
   const minV = -maxAbs - margin;
 
-  ctx.strokeStyle = '#1e293b';
+  ctx.strokeStyle = gridColor;
   ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i++) {
     const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
@@ -890,12 +1952,12 @@ function drawGridWaveform(canvasId, dataA, dataB, dataC, yLabel, colors) {
   }
 
   const yZero = pad.top + (h - pad.top - pad.bottom) * (1 - (0 - minV) / (maxV - minV));
-  ctx.strokeStyle = '#475569';
+  ctx.strokeStyle = zeroColor;
   ctx.lineWidth = 1;
   ctx.beginPath(); ctx.moveTo(pad.left, yZero); ctx.lineTo(w - pad.right, yZero); ctx.stroke();
 
   const datasets = [dataA, dataB, dataC];
-  const lineColors = colors || ['#f97316', '#38bdf8', '#22c55e'];
+  const lineColors = colors || [themeColor('--phaseA'), themeColor('--phaseB'), themeColor('--phaseC')];
 
   for (let d = 0; d < 3; d++) {
     const data = datasets[d];
@@ -910,7 +1972,7 @@ function drawGridWaveform(canvasId, dataA, dataB, dataC, yLabel, colors) {
     ctx.stroke();
   }
 
-  ctx.fillStyle = '#94a3b8';
+  ctx.fillStyle = textColor;
   ctx.font = '10px sans-serif';
   ctx.textAlign = 'right';
   for (let i = 0; i <= 4; i++) {
@@ -932,341 +1994,421 @@ function drawGridWaveform(canvasId, dataA, dataB, dataC, yLabel, colors) {
   }
 }
 
-function updateCurrentLoop() {
-  const bw = parseInt(document.getElementById('bw_i_slider').value);
-  document.getElementById('bw_i_val').textContent = (bw >= 1000 ? (bw/1000).toFixed(1) + ' kHz' : bw + ' Hz');
+function drawXY(canvasId, xData, yData, yData2, labels, colors) {
+  const canvas = document.getElementById(canvasId);
+  const dpr = window.devicePixelRatio || 1;
+  const wCanvas = getCanvasWidth(canvasId);
+  const hCanvas = parseInt(canvas.getAttribute('height')) || 220;
+  canvas.width = wCanvas * dpr;
+  canvas.height = hCanvas * dpr;
+  canvas.style.width = wCanvas + 'px';
+  canvas.style.height = hCanvas + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const w = wCanvas, h = hCanvas;
+  const pad = { top: 20, right: 15, bottom: 30, left: 45 };
 
-  const L = (parseFloat(document.getElementById('L').value) || 2.5) * 1e-3;
-  const R = parseFloat(document.getElementById('R_l').value) || 0.1;
-  const f_sw = (parseFloat(document.getElementById('f_sw').value) || 20) * 1e3;
+  const bgColor = themeColor('--bg');
+  const gridColor = themeColor('--surface-2');
+  const textColor = themeColor('--text-2');
 
-  const w_bw = 2 * Math.PI * bw;
-  const Kp = L * w_bw;
-  const Ki = R * w_bw;
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, w, h);
 
-  document.getElementById('kp_i').textContent = Kp.toFixed(4);
-  document.getElementById('ki_i').textContent = Ki.toFixed(2);
+  const allY = [...yData, ...(yData2 || [])];
+  const maxY = Math.max(...allY, 1);
+  const minY = Math.min(...allY, -1);
+  const marginY = (maxY - minY) * 0.1;
+  const maxV = maxY + marginY;
+  const minV = minY - marginY;
+  const maxX = xData[xData.length - 1];
 
-  const numOL = [Ki, Kp];
-  const denOL = [0, R, L];
-
-  const freqs = [], mags = [], phases = [];
-  for (let i = 0; i <= 200; i++) {
-    const f = Math.pow(10, 1 + 4.5 * i / 200);
-    const w = 2 * Math.PI * f;
-    const s = complex(0, w);
-    const H = evalTF(numOL, denOL, s);
-    freqs.push(f);
-    mags.push(20 * Math.log10(cAbs(H)));
-    phases.push(cArg(H));
-  }
-  drawBode('bodeI', freqs, mags, phases, bw);
-
-  let pm = 90, gm = 100;
-  for (let i = 0; i < freqs.length; i++) {
-    if (Math.abs(mags[i]) < 1) { pm = 180 + phases[i]; break; }
-  }
-  for (let i = 0; i < freqs.length; i++) {
-    if (Math.abs(phases[i] + 180) < 5) { gm = -mags[i]; break; }
-  }
-  document.getElementById('pm_i').textContent = pm.toFixed(1);
-  document.getElementById('gm_i').textContent = gm.toFixed(1);
-
-  const badge = document.getElementById('badge_i');
-  if (pm > 60 && bw < f_sw / 10) {
-    badge.innerHTML = '<span class="badge ok">✅ Tuning Ottimale</span>';
-  } else if (pm > 45) {
-    badge.innerHTML = '<span class="badge warn">⚠️ Accettabile, ma puoi migliorare</span>';
-  } else {
-    badge.innerHTML = '<span class="badge bad">❌ Margine di fase insufficiente</span>';
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
   }
 
-  const dt = 1e-6;
-  const tEnd = 5 / (w_bw / (2 * Math.PI));
-  const nSteps = Math.min(5000, Math.floor(tEnd / dt));
-  const times = [], vals = [];
-  let i = 0, e_int = 0, r = 1;
-  for (let n = 0; n < nSteps; n += Math.ceil(nSteps / 500)) {
-    const t = n * dt;
-    const e = r - i;
-    const u = Kp * e + Ki * e_int;
-    const di = (u - R * i) / L;
-    i += di * dt;
-    e_int += e * dt;
-    times.push(t);
-    vals.push(i);
+  const lineColors = colors || [themeColor('--accent'), themeColor('--accent-2')];
+
+  ctx.strokeStyle = lineColors[0];
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i < xData.length; i++) {
+    const x = pad.left + (w - pad.left - pad.right) * xData[i] / maxX;
+    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (yData[i] - minV) / (maxV - minV));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
   }
-  drawStep('stepI', times, vals, 1.0);
-}
+  ctx.stroke();
 
-function updateVoltageLoop() {
-  const bw = parseInt(document.getElementById('bw_v_slider').value);
-  document.getElementById('bw_v_val').textContent = bw + ' Hz';
-
-  const C = (parseFloat(document.getElementById('C_dc').value) || 1000) * 1e-6;
-  const Rload = parseFloat(document.getElementById('R_load').value) || 53.3;
-  const f_line = parseFloat(document.getElementById('f_line').value) || 50;
-
-  const w_bw = 2 * Math.PI * bw;
-  const Kp = C * w_bw * 0.8;
-  const Ki = C * w_bw * w_bw * 0.3;
-
-  document.getElementById('kp_v').textContent = Kp.toFixed(4);
-  document.getElementById('ki_v').textContent = Ki.toFixed(4);
-
-  const numOL = [Ki, Kp];
-  const denOL = [0, 1 / Rload, C];
-
-  const freqs = [], mags = [], phases = [];
-  for (let i = 0; i <= 200; i++) {
-    const f = Math.pow(10, -1 + 3.5 * i / 200);
-    const w = 2 * Math.PI * f;
-    const s = complex(0, w);
-    const H = evalTF(numOL, denOL, s);
-    freqs.push(f);
-    mags.push(20 * Math.log10(cAbs(H)));
-    phases.push(cArg(H));
-  }
-  drawBode('bodeV', freqs, mags, phases, bw);
-
-  let pm = 90, gm = 100;
-  for (let i = 0; i < freqs.length; i++) {
-    if (Math.abs(mags[i]) < 1) { pm = 180 + phases[i]; break; }
-  }
-  for (let i = 0; i < freqs.length; i++) {
-    if (Math.abs(phases[i] + 180) < 5) { gm = -mags[i]; break; }
-  }
-  document.getElementById('pm_v').textContent = pm.toFixed(1);
-  document.getElementById('gm_v').textContent = gm.toFixed(1);
-
-  const badge = document.getElementById('badge_v');
-  if (pm > 45 && bw < f_line / 2) {
-    badge.innerHTML = '<span class="badge ok">✅ Tuning Ottimale</span>';
-  } else if (bw >= f_line / 2) {
-    badge.innerHTML = '<span class="badge bad">❌ BW troppo alta: distorsione corrente!</span>';
-  } else if (pm > 30) {
-    badge.innerHTML = '<span class="badge warn">⚠️ Margine di fase ridotto</span>';
-  } else {
-    badge.innerHTML = '<span class="badge bad">❌ Instabile o quasi</span>';
-  }
-
-  const dt = 1e-4;
-  const tEnd = 10 / bw;
-  const nSteps = Math.min(5000, Math.floor(tEnd / dt));
-  const times = [], vals = [];
-  let v = 0, e_int = 0, r = 1;
-  for (let n = 0; n < nSteps; n += Math.ceil(nSteps / 500)) {
-    const t = n * dt;
-    const e = r - v;
-    const u = Kp * e + Ki * e_int;
-    const dv = (u - v / Rload) / C;
-    v += dv * dt;
-    e_int += e * dt;
-    times.push(t);
-    vals.push(v);
-  }
-  drawStep('stepV', times, vals, 1.0);
-}
-
-function updateGrid() {
-  const v_ac = parseFloat(document.getElementById('v_ac').value) || 230;
-  const p_out = parseFloat(document.getElementById('p_out').value) || 3000;
-  const f_line = parseFloat(document.getElementById('f_line').value) || 50;
-  const thd = parseFloat(document.getElementById('thd_slider').value) || 3;
-  const pf = parseFloat(document.getElementById('pf_slider').value) || 0.99;
-
-  document.getElementById('thd_val').textContent = thd.toFixed(1) + '%';
-  document.getElementById('pf_val').textContent = pf.toFixed(2);
-
-  const v_pk = v_ac * Math.sqrt(2);
-  const i_pk = Math.sqrt(2) * p_out / (3 * v_ac * pf);
-
-  document.getElementById('grid_v_pk').textContent = v_pk.toFixed(1);
-  document.getElementById('grid_i_pk').textContent = i_pk.toFixed(2);
-  document.getElementById('grid_pf').textContent = pf.toFixed(3);
-  document.getElementById('grid_thd').textContent = thd.toFixed(1) + '%';
-
-  const nPoints = 360;
-  const vA = [], vB = [], vC = [];
-  const iA = [], iB = [], iC = [];
-
-  for (let deg = 0; deg <= nPoints; deg++) {
-    const rad = deg * Math.PI / 180;
-    const va = v_pk * Math.sin(rad);
-    const vb = v_pk * Math.sin(rad - 2 * Math.PI / 3);
-    const vc = v_pk * Math.sin(rad + 2 * Math.PI / 3);
-
-    const phi = Math.acos(pf);
-    const ia_base = i_pk * Math.sin(rad - phi);
-    const ib_base = i_pk * Math.sin(rad - 2 * Math.PI / 3 - phi);
-    const ic_base = i_pk * Math.sin(rad + 2 * Math.PI / 3 - phi);
-
-    const thd_factor = thd / 100;
-    const h3 = thd_factor * 0.5 * i_pk * Math.sin(3 * rad);
-    const h5 = thd_factor * 0.3 * i_pk * Math.sin(5 * rad);
-    const h7 = thd_factor * 0.2 * i_pk * Math.sin(7 * rad);
-
-    vA.push(va); vB.push(vb); vC.push(vc);
-    iA.push(ia_base + h3 + h5 + h7);
-    iB.push(ib_base + h3 + h5 + h7);
-    iC.push(ic_base + h3 + h5 + h7);
-  }
-
-  drawGridWaveform('vGrid', vA, vB, vC, 'V', ['#f97316', '#38bdf8', '#22c55e']);
-  drawGridWaveform('iGrid', iA, iB, iC, 'A', ['#f97316', '#38bdf8', '#22c55e']);
-}
-
-function updateRipple() {
-  const v_ac = parseFloat(document.getElementById('v_ac').value) || 230;
-  const p_out = parseFloat(document.getElementById('p_out').value) || 3000;
-  const v_dc = parseFloat(document.getElementById('v_dc').value) || 400;
-  const L = (parseFloat(document.getElementById('L').value) || 2.5) * 1e-3;
-  const f_sw = (parseFloat(document.getElementById('f_sw').value) || 20) * 1e3;
-  const f_line = parseFloat(document.getElementById('f_line').value) || 50;
-  const zoom = parseFloat(document.getElementById('ripple_zoom').value) || 3;
-
-  document.getElementById('ripple_zoom_val').textContent = zoom.toFixed(1) + 'x';
-
-  const i_pk = Math.sqrt(2) * p_out / (3 * v_ac);
-  const d_max = 1 - (v_ac * Math.sqrt(2)) / v_dc;
-  const delta_i_max = v_dc * d_max * (1 - d_max) / (L * f_sw);
-  const T_sw = 1 / f_sw;
-
-  document.getElementById('ripple_delta').textContent = delta_i_max.toFixed(3);
-  document.getElementById('ripple_delta_pk').textContent = ((delta_i_max / i_pk) * 100).toFixed(1) + '%';
-  document.getElementById('ripple_fsw').textContent = (f_sw / 1000).toFixed(1);
-  document.getElementById('ripple_period').textContent = (T_sw * 1e6).toFixed(1);
-
-  // Simulate 2 line cycles with switching ripple
-  const tEnd = 2 / f_line;
-  const dt = T_sw / 40; // 40 points per switching period
-  const nSteps = Math.floor(tEnd / dt);
-
-  const fullA = [], fullB = [], fullC = [];
-  const ripA = [], ripB = [], ripC = [];
-
-  for (let n = 0; n < nSteps; n += 1) {
-    const t = n * dt;
-    const theta = 2 * Math.PI * f_line * t;
-
-    // Fundamental currents (sinusoidal, PF=1)
-    const iA_fund = i_pk * Math.sin(theta);
-    const iB_fund = i_pk * Math.sin(theta - 2 * Math.PI / 3);
-    const iC_fund = i_pk * Math.sin(theta + 2 * Math.PI / 3);
-
-    // Instantaneous duty and ripple amplitude
-    const v_inst = v_ac * Math.sqrt(2) * Math.abs(Math.sin(theta));
-    const d_inst = 1 - v_inst / v_dc;
-    const d_clamped = Math.max(0.01, Math.min(0.99, d_inst));
-    const delta_i_inst = v_dc * d_clamped * (1 - d_clamped) / (L * f_sw);
-
-    // Triangular ripple based on switching position within period
-    const posInPeriod = (t % T_sw) / T_sw;
-    const tri = (posInPeriod < d_clamped)
-      ? -delta_i_inst/2 + (delta_i_inst/d_clamped) * posInPeriod
-      : delta_i_inst/2 - (delta_i_inst/(1-d_clamped)) * (posInPeriod - d_clamped);
-
-    fullA.push(iA_fund + tri);
-    fullB.push(iB_fund + tri);
-    fullC.push(iC_fund + tri);
-    ripA.push(tri);
-    ripB.push(tri);
-    ripC.push(tri);
-  }
-
-  // Downsample for display
-  const ds = Math.ceil(nSteps / 800);
-  const dsFullA = [], dsFullB = [], dsFullC = [];
-  const dsRipA = [], dsRipB = [], dsRipC = [];
-  for (let i = 0; i < nSteps; i += ds) {
-    dsFullA.push(fullA[i]); dsFullB.push(fullB[i]); dsFullC.push(fullC[i]);
-    dsRipA.push(ripA[i] * zoom); dsRipB.push(ripB[i] * zoom); dsRipC.push(ripC[i] * zoom);
-  }
-
-  drawGridWaveform('rippleFull', dsFullA, dsFullB, dsFullC, 'A', ['#f97316', '#38bdf8', '#22c55e']);
-  drawGridWaveform('rippleOnly', dsRipA, dsRipB, dsRipC, 'A·' + zoom, ['#f97316', '#38bdf8', '#22c55e']);
-}
-
-function updateSummary() {
-  const tbody = document.getElementById('summaryBody');
-  const v_ac = document.getElementById('v_ac').value;
-  const p_out = document.getElementById('p_out').value;
-  const v_dc = document.getElementById('v_dc').value;
-  const L = document.getElementById('L').value;
-  const C_dc = document.getElementById('C_dc').value;
-  const f_sw = document.getElementById('f_sw').value;
-  const kp_i = document.getElementById('kp_i').textContent;
-  const ki_i = document.getElementById('ki_i').textContent;
-  const kp_v = document.getElementById('kp_v').textContent;
-  const ki_v = document.getElementById('ki_v').textContent;
-  const pm_i = document.getElementById('pm_i').textContent;
-  const pm_v = document.getElementById('pm_v').textContent;
-
-  tbody.innerHTML = `
-    <tr><td>V<sub>AC</sub></td><td>${v_ac}</td><td>V</td></tr>
-    <tr><td>P<sub>out</sub></td><td>${p_out}</td><td>W</td></tr>
-    <tr><td>V<sub>DC</sub></td><td>${v_dc}</td><td>V</td></tr>
-    <tr><td>L</td><td>${L}</td><td>mH</td></tr>
-    <tr><td>C<sub>DC</sub></td><td>${C_dc}</td><td>μF</td></tr>
-    <tr><td>f<sub>sw</sub></td><td>${f_sw}</td><td>kHz</td></tr>
-    <tr><td>K<sub>p</sub> (corrente)</td><td>${kp_i}</td><td>Ω</td></tr>
-    <tr><td>K<sub>i</sub> (corrente)</td><td>${ki_i}</td><td>Ω/s</td></tr>
-    <tr><td>K<sub>p</sub> (tensione)</td><td>${kp_v}</td><td>A/V</td></tr>
-    <tr><td>K<sub>i</sub> (tensione)</td><td>${ki_v}</td><td>A/(V·s)</td></tr>
-    <tr><td>PM (corrente)</td><td>${pm_i}</td><td>°</td></tr>
-    <tr><td>PM (tensione)</td><td>${pm_v}</td><td>°</td></tr>
-  `;
-}
-
-function exportParams() {
-  const data = {
-    system: {
-      v_ac: document.getElementById('v_ac').value,
-      f_line: document.getElementById('f_line').value,
-      p_out: document.getElementById('p_out').value,
-      v_dc: document.getElementById('v_dc').value,
-      L: document.getElementById('L').value,
-      R_l: document.getElementById('R_l').value,
-      C_dc: document.getElementById('C_dc').value,
-      f_sw: document.getElementById('f_sw').value,
-      R_load: document.getElementById('R_load').value
-    },
-    current_loop: {
-      bw: document.getElementById('bw_i_slider').value,
-      Kp: document.getElementById('kp_i').textContent,
-      Ki: document.getElementById('ki_i').textContent,
-      PM: document.getElementById('pm_i').textContent,
-      GM: document.getElementById('gm_i').textContent
-    },
-    voltage_loop: {
-      bw: document.getElementById('bw_v_slider').value,
-      Kp: document.getElementById('kp_v').textContent,
-      Ki: document.getElementById('ki_v').textContent,
-      PM: document.getElementById('pm_v').textContent,
-      GM: document.getElementById('gm_v').textContent
+  if (yData2) {
+    ctx.strokeStyle = lineColors[1];
+    ctx.lineWidth = 2;
+    ctx.setLineDash([4, 4]);
+    ctx.beginPath();
+    for (let i = 0; i < xData.length; i++) {
+      const x = pad.left + (w - pad.left - pad.right) * xData[i] / maxX;
+      const y = pad.top + (h - pad.top - pad.bottom) * (1 - (yData2[i] - minV) / (maxV - minV));
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     }
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'pfc_tuning_params.json';
-  a.click();
-  URL.revokeObjectURL(url);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  ctx.fillStyle = textColor;
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const val = minV + (maxV - minV) * (1 - i / 4);
+    ctx.fillText(val.toFixed(2), pad.left - 4, pad.top + (h - pad.top - pad.bottom) * i / 4 + 4);
+  }
+  ctx.textAlign = 'center';
+  ctx.fillText('0', pad.left, h - 8);
+  ctx.fillText((maxX * 1000).toFixed(0) + 'ms', w - pad.right, h - 8);
 }
 
-let resizeTimer;
-window.addEventListener('resize', () => {
-  clearTimeout(resizeTimer);
-  resizeTimer = setTimeout(() => {
-    if (currentTab === 'current') { updateCurrentLoop(); }
-    if (currentTab === 'voltage') { updateVoltageLoop(); }
-    if (currentTab === 'grid') { updateGrid(); }
-    if (currentTab === 'ripple') { updateRipple(); }
-  }, 200);
-});
+// Like drawXY, but each series gets its OWN y-axis scale. Needed for d/q pairs
+// where the d component (large, ~constant) and q component (small, near zero)
+// would otherwise be squashed onto the same range and q would look like a flat
+// line even when it carries meaningful ripple information.
+function drawXYDualScale(canvasId, xData, yDataD, yDataQ, colors) {
+  const canvas = document.getElementById(canvasId);
+  const dpr = window.devicePixelRatio || 1;
+  const wCanvas = getCanvasWidth(canvasId);
+  const hCanvas = parseInt(canvas.getAttribute('height')) || 220;
+  canvas.width = wCanvas * dpr;
+  canvas.height = hCanvas * dpr;
+  canvas.style.width = wCanvas + 'px';
+  canvas.style.height = hCanvas + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const w = wCanvas, h = hCanvas;
+  const pad = { top: 20, right: 45, bottom: 30, left: 45 };
 
-computeSystem();
-</script>
-</body>
-</html>
+  const bgColor = themeColor('--bg');
+  const gridColor = themeColor('--surface-2');
+  const textColor = themeColor('--text-2');
+  const lineColors = colors || [themeColor('--accent'), themeColor('--accent-2')];
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, w, h);
+
+  const maxD = Math.max(...yDataD, 1), minD = Math.min(...yDataD, -1);
+  const marginD = (maxD - minD) * 0.15 || 1;
+  const maxVD = maxD + marginD, minVD = minD - marginD;
+
+  const maxQ = Math.max(...yDataQ, 1), minQ = Math.min(...yDataQ, -1);
+  const marginQ = (maxQ - minQ) * 0.15 || 1;
+  const maxVQ = maxQ + marginQ, minVQ = minQ - marginQ;
+
+  const maxX = xData[xData.length - 1];
+
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
+  }
+
+  // D curve (left axis)
+  ctx.strokeStyle = lineColors[0];
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i < xData.length; i++) {
+    const x = pad.left + (w - pad.left - pad.right) * xData[i] / maxX;
+    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (yDataD[i] - minVD) / (maxVD - minVD));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Q curve (right axis)
+  ctx.strokeStyle = lineColors[1];
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i < xData.length; i++) {
+    const x = pad.left + (w - pad.left - pad.right) * xData[i] / maxX;
+    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (yDataQ[i] - minVQ) / (maxVQ - minVQ));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  ctx.font = '10px sans-serif';
+  ctx.fillStyle = lineColors[0];
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const val = minVD + (maxVD - minVD) * (1 - i / 4);
+    ctx.fillText(val.toFixed(1), pad.left - 4, pad.top + (h - pad.top - pad.bottom) * i / 4 + 4);
+  }
+  ctx.fillStyle = lineColors[1];
+  ctx.textAlign = 'left';
+  for (let i = 0; i <= 4; i++) {
+    const val = minVQ + (maxVQ - minVQ) * (1 - i / 4);
+    ctx.fillText(val.toFixed(2), w - pad.right + 4, pad.top + (h - pad.top - pad.bottom) * i / 4 + 4);
+  }
+
+  ctx.fillStyle = textColor;
+  ctx.textAlign = 'center';
+  ctx.fillText('0', pad.left, h - 8);
+  ctx.fillText((maxX * 1000).toFixed(0) + 'ms', pad.left + (w - pad.left - pad.right) / 2, h - 8);
+}
+
+// Simple line chart for parametric sweeps: x = swept parameter value, y = metric
+// (PM or overshoot), with an optional horizontal threshold line and a marker at
+// the nominal (center) point.
+function drawSweepLine(canvasId, xVals, yVals, thresholdY, yLabel) {
+  const canvas = document.getElementById(canvasId);
+  const dpr = window.devicePixelRatio || 1;
+  const wCanvas = getCanvasWidth(canvasId);
+  const hCanvas = parseInt(canvas.getAttribute('height')) || 240;
+  canvas.width = wCanvas * dpr;
+  canvas.height = hCanvas * dpr;
+  canvas.style.width = wCanvas + 'px';
+  canvas.style.height = hCanvas + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const w = wCanvas, h = hCanvas;
+  const pad = { top: 20, right: 15, bottom: 32, left: 48 };
+
+  const bgColor = themeColor('--bg');
+  const gridColor = themeColor('--surface-2');
+  const textColor = themeColor('--text-2');
+  const accentColor = themeColor('--accent');
+  const successColor = themeColor('--success');
+  const warnColor = themeColor('--warning');
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, w, h);
+
+  const minX = Math.min(...xVals), maxX = Math.max(...xVals);
+  const allY = [...yVals, thresholdY];
+  const maxY = Math.max(...allY) * 1.1;
+  const minY = Math.min(0, Math.min(...allY) * 1.1);
+
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
+  }
+
+  // Threshold line
+  if (thresholdY !== undefined && thresholdY !== null) {
+    const yT = pad.top + (h - pad.top - pad.bottom) * (1 - (thresholdY - minY) / (maxY - minY));
+    ctx.strokeStyle = warnColor;
+    ctx.setLineDash([5, 4]);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(pad.left, yT); ctx.lineTo(w - pad.right, yT); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = warnColor;
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('soglia ' + thresholdY, pad.left + 4, yT - 4);
+  }
+
+  // Main curve
+  ctx.strokeStyle = accentColor;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i < xVals.length; i++) {
+    const x = pad.left + (w - pad.left - pad.right) * (xVals[i] - minX) / (maxX - minX || 1);
+    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (yVals[i] - minY) / (maxY - minY));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Nominal point marker (center of sweep)
+  const midIdx = Math.floor(xVals.length / 2);
+  const xMid = pad.left + (w - pad.left - pad.right) * (xVals[midIdx] - minX) / (maxX - minX || 1);
+  const yMid = pad.top + (h - pad.top - pad.bottom) * (1 - (yVals[midIdx] - minY) / (maxY - minY));
+  ctx.fillStyle = successColor;
+  ctx.beginPath();
+  ctx.arc(xMid, yMid, 4, 0, 2 * Math.PI);
+  ctx.fill();
+
+  ctx.fillStyle = textColor;
+  ctx.font = '10px sans-serif';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const val = minY + (maxY - minY) * (1 - i / 4);
+    ctx.fillText(val.toFixed(0), pad.left - 4, pad.top + (h - pad.top - pad.bottom) * i / 4 + 4);
+  }
+  ctx.textAlign = 'center';
+  ctx.fillText(minX < 1 ? minX.toFixed(3) : minX.toFixed(1), pad.left, h - 8);
+  ctx.fillText(maxX < 1 ? maxX.toFixed(3) : maxX.toFixed(1), w - pad.right, h - 8);
+  if (yLabel) {
+    ctx.textAlign = 'left';
+    ctx.font = '9px sans-serif';
+    ctx.fillStyle = accentColor;
+    ctx.fillText(yLabel, pad.left + 4, pad.top + 10);
+  }
+}
+
+function drawSpaceVector(canvasId, alphaV, betaV, alphaI, betaI) {
+  const canvas = document.getElementById(canvasId);
+  const dpr = window.devicePixelRatio || 1;
+  const wCanvas = getCanvasWidth(canvasId);
+  const hCanvas = parseInt(canvas.getAttribute('height')) || 280;
+  canvas.width = wCanvas * dpr;
+  canvas.height = hCanvas * dpr;
+  canvas.style.width = wCanvas + 'px';
+  canvas.style.height = hCanvas + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const w = wCanvas, h = hCanvas;
+  const cx = w / 2, cy = h / 2;
+  const radius = Math.min(w, h) * 0.38;
+
+  const bgColor = themeColor('--bg');
+  const gridColor = themeColor('--surface-2');
+  const textColor = themeColor('--text-2');
+  const accentColor = themeColor('--accent');
+  const accent2Color = themeColor('--accent-2');
+  const idealColor = themeColor('--ideal');
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  for (let r = 0.25; r <= 1; r += 0.25) {
+    ctx.beginPath();
+    ctx.arc(cx, cy, radius * r, 0, 2 * Math.PI);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(cx - radius - 10, cy); ctx.lineTo(cx + radius + 10, cy); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx, cy - radius - 10); ctx.lineTo(cx, cy + radius + 10); ctx.stroke();
+
+  ctx.fillStyle = textColor;
+  ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('α', cx + radius + 15, cy + 4);
+  ctx.textAlign = 'right';
+  ctx.fillText('β', cx - 4, cy - radius - 12);
+
+  ctx.strokeStyle = idealColor;
+  ctx.globalAlpha = 0.5;
+  ctx.setLineDash([6, 4]);
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.globalAlpha = 1;
+
+  const maxV = Math.max(...alphaV.map(Math.abs), ...betaV.map(Math.abs), 1);
+  const scale = radius / maxV;
+
+  ctx.strokeStyle = accentColor;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < alphaV.length; i++) {
+    const x = cx + alphaV[i] * scale;
+    const y = cy - betaV[i] * scale;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  const maxI = Math.max(...alphaI.map(Math.abs), ...betaI.map(Math.abs), 1);
+  const scaleI = radius / maxI * 0.6;
+  ctx.strokeStyle = accent2Color;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  for (let i = 0; i < alphaI.length; i++) {
+    const x = cx + alphaI[i] * scaleI;
+    const y = cy - betaI[i] * scaleI;
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  const lastI = alphaI.length - 1;
+  const tipX = cx + alphaI[lastI] * scaleI;
+  const tipY = cy - betaI[lastI] * scaleI;
+  ctx.fillStyle = accent2Color;
+  ctx.beginPath();
+  ctx.arc(tipX, tipY, 4, 0, 2 * Math.PI);
+  ctx.fill();
+
+  const lastV = alphaV.length - 1;
+  const tipVX = cx + alphaV[lastV] * scale;
+  const tipVY = cy - betaV[lastV] * scale;
+  ctx.fillStyle = accentColor;
+  ctx.beginPath();
+  ctx.arc(tipVX, tipVY, 4, 0, 2 * Math.PI);
+  ctx.fill();
+
+  ctx.textAlign = 'left';
+  ctx.font = '10px sans-serif';
+  ctx.fillStyle = accentColor; ctx.fillText('Vettore Tensione (V)', 10, 18);
+  ctx.fillStyle = accent2Color; ctx.fillText('Vettore Corrente (A, scalato)', 10, 32);
+  ctx.fillStyle = idealColor; ctx.fillText('Cerchio ideale', 10, 46);
+}
+
+function drawPower(canvasId, times, pData, qData) {
+  const canvas = document.getElementById(canvasId);
+  const dpr = window.devicePixelRatio || 1;
+  const wCanvas = getCanvasWidth(canvasId);
+  const hCanvas = parseInt(canvas.getAttribute('height')) || 260;
+  canvas.width = wCanvas * dpr;
+  canvas.height = hCanvas * dpr;
+  canvas.style.width = wCanvas + 'px';
+  canvas.style.height = hCanvas + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  const w = wCanvas, h = hCanvas;
+  const pad = { top: 25, right: 15, bottom: 35, left: 55 };
+
+  const bgColor = themeColor('--bg');
+  const gridColor = themeColor('--surface-2');
+  const textColor = themeColor('--text-2');
+  const zeroColor = themeColor('--surface-2');
+  const accentColor = themeColor('--accent');
+  const accent2Color = themeColor('--accent-2');
+
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = bgColor;
+  ctx.fillRect(0, 0, w, h);
+
+  const allY = [...pData, ...qData];
+  const maxAbs = Math.max(...allY.map(Math.abs), 100);
+  const margin = maxAbs * 0.15;
+  const maxV = maxAbs + margin;
+  const minV = -maxAbs - margin;
+  const maxT = times[times.length - 1];
+
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
+    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
+  }
+
+  const yZero = pad.top + (h - pad.top - pad.bottom) * (1 - (0 - minV) / (maxV - minV));
+  ctx.strokeStyle = zeroColor;
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.left, yZero); ctx.lineTo(w - pad.right, yZero); ctx.stroke();
+
+  ctx.strokeStyle = accentColor;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i < times.length; i++) {
+    const x = pad.left + (w - pad.left - pad.right) * times[i] / maxT;
+    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (pData[i] - minV) / (maxV - minV));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle = accent2Color;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i < times.length; i++) {
+    const x = pad.left + (w - pad.left - pad.right) * times[i] / maxT;
+    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (qData[i] - minV) / (maxV - minV));
+    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x
