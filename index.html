@@ -524,6 +524,42 @@ canvas { display: block; width: 100%; height: 100%; }
   main { max-width: 900px; margin: 0 auto; width: 100%; }
 }
 
+/* ---------- Print / PDF report layout ---------- */
+#printReportRoot { display: none; }
+@media print {
+  body > *:not(#printReportRoot) { display: none !important; }
+  #printReportRoot {
+    display: block !important;
+    background: #fff;
+    color: #111;
+    padding: 20px;
+    font-family: -apple-system, Helvetica, Arial, sans-serif;
+  }
+  #printReportRoot h1 { font-size: 1.4rem; margin-bottom: 4px; color: #ea580c; }
+  #printReportRoot h2 {
+    font-size: 1.05rem;
+    margin: 18px 0 8px;
+    padding-bottom: 4px;
+    border-bottom: 2px solid #ea580c;
+    page-break-after: avoid;
+  }
+  #printReportRoot .print-meta { font-size: 0.8rem; color: #555; margin-bottom: 16px; }
+  #printReportRoot table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 0.82rem; }
+  #printReportRoot th, #printReportRoot td { padding: 5px 8px; border-bottom: 1px solid #ddd; text-align: left; }
+  #printReportRoot th { background: #f1f5f9; }
+  #printReportRoot .print-chart { width: 100%; max-width: 650px; margin: 8px 0 16px; page-break-inside: avoid; border: 1px solid #ddd; }
+  #printReportRoot .print-section { page-break-inside: avoid; margin-bottom: 10px; }
+  #printReportRoot .print-badge {
+    display: inline-block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 5px;
+    margin: 4px 4px 4px 0;
+    border: 1px solid #999;
+  }
+}
+
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
@@ -563,10 +599,45 @@ canvas { display: block; width: 100%; height: 100%; }
         <div class="title-left">🚀 Preset Rapidi</div>
       </div>
       <div class="preset-row">
-        <button class="preset-chip" onclick="applyPreset('small')">3kW / 400V / 20kHz</button>
-        <button class="preset-chip" onclick="applyPreset('medium')">10kW / 700V / 20kHz</button>
-        <button class="preset-chip" onclick="applyPreset('large')">50kW / 800V / 16kHz</button>
-        <button class="preset-chip" onclick="applyPreset('us')">5kW / 480V 60Hz</button>
+        <button class="preset-chip" onclick="applyPreset('small')">3kW / 650V / 20kHz</button>
+        <button class="preset-chip" onclick="applyPreset('medium')">10kW / 1100V / 20kHz</button>
+        <button class="preset-chip" onclick="applyPreset('large')">50kW / 1150V / 16kHz</button>
+        <button class="preset-chip" onclick="applyPreset('us')">5kW / 800V 60Hz</button>
+      </div>
+      <div class="collapse-header" onclick="toggleCollapse(this)" style="margin-top:14px;">
+        <h3>⚖️ Confronta due preset</h3>
+        <span class="collapse-icon">▼</span>
+      </div>
+      <div class="collapse-body" id="collapse-presetcompare">
+        <div class="param-grid">
+          <div class="param">
+            <label>Preset A</label>
+            <select id="compare_preset_a" onchange="updatePresetComparison()">
+              <option value="small">3kW / 650V / 20kHz</option>
+              <option value="medium">10kW / 1100V / 20kHz</option>
+              <option value="large">50kW / 1150V / 16kHz</option>
+              <option value="us">5kW / 800V 60Hz</option>
+            </select>
+          </div>
+          <div class="param">
+            <label>Preset B</label>
+            <select id="compare_preset_b" onchange="updatePresetComparison()">
+              <option value="small">3kW / 650V / 20kHz</option>
+              <option value="medium" selected>10kW / 1100V / 20kHz</option>
+              <option value="large">50kW / 1150V / 16kHz</option>
+              <option value="us">5kW / 800V 60Hz</option>
+            </select>
+          </div>
+        </div>
+        <table class="summary-table">
+          <thead><tr><th>Parametro</th><th id="compareHeadA">A</th><th id="compareHeadB">B</th></tr></thead>
+          <tbody id="presetCompareBody"></tbody>
+        </table>
+        <div class="info-text">Confronto puramente informativo tra le specifiche dei due preset — non modifica i parametri correnti del tab. Usa "Applica" per caricare uno dei due nel form.</div>
+        <div class="btn-row">
+          <button class="btn btn-secondary" onclick="applyPresetFromCompare('a')">Applica A</button>
+          <button class="btn btn-secondary" onclick="applyPresetFromCompare('b')">Applica B</button>
+        </div>
       </div>
     </div>
 
@@ -668,6 +739,50 @@ canvas { display: block; width: 100%; height: 100%; }
       <div class="card-title">📐 Formule di Riferimento</div>
       <div class="formula">I<sub>pk</sub> = √2 · P / (3 · V<sub>ac</sub> · PF) &nbsp;&nbsp;|&nbsp;&nbsp; ΔI<sub>L</sub> = V<sub>dc</sub>·D·(1-D)/(L·f<sub>sw</sub>)</div>
       <div class="info-text">Inserisci i parametri del convertitore e premi "Calcola" per ottenere le correnti di picco e il ripple atteso sull'induttanza. I campi vengono validati automaticamente e salvati in locale.</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="title-left">🔋 Dimensionamento C<sub>DC</sub> da Ripple Target
+          <span class="tooltip-trigger" onclick="toggleTooltip('csize', event)">?</span>
+          <div class="tooltip-box" id="tt-csize">Calcolo inverso rispetto al tab Ripple: invece di verificare il ripple dato un C_DC scelto, qui specifichi il ripple di tensione massimo accettabile sul bus (dominato dalla componente a 2·f_linea per un PFC trifase, molto più contenuta che nel caso monofase) e ottieni la capacità minima necessaria.</div>
+        </div>
+      </div>
+      <div class="param-grid">
+        <div class="param">
+          <label>Ripple V<sub>DC</sub> target (%)</label>
+          <input type="number" id="ripple_target_pct" value="2" step="0.5" min="0.1" max="20" oninput="updateCapacitorSizing()">
+        </div>
+      </div>
+      <div class="eq-block" data-latex="C_{min} = \dfrac{P_{out}}{2\pi \cdot (2f_{line}) \cdot V_{DC} \cdot \Delta V_{DC}}"></div>
+      <div class="info-text">Stima basata sul ripple residuo a 2·f<sub>linea</sub> tipico di un PFC trifase bilanciato (molto minore rispetto al 100Hz dominante di un PFC monofase, dove servirebbe una capacità enormemente maggiore).</div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="cmin_result">--</div><div class="lbl">C<sub>min</sub> richiesto (μF)</div></div>
+        <div class="result-box"><div class="val" id="cmin_vs_actual">--</div><div class="lbl">C<sub>DC</sub> attuale vs minimo</div></div>
+      </div>
+      <div id="badge_csize"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="title-left">⏱️ Hold-up Time
+          <span class="tooltip-trigger" onclick="toggleTooltip('holdup', event)">?</span>
+          <div class="tooltip-box" id="tt-holdup">Tempo durante il quale il bus DC riesce a sostenere il carico durante un'interruzione di rete, prima che la tensione scenda sotto la soglia minima operativa del convertitore a valle. Parametro standard richiesto nei datasheet PFC (tipicamente 10-20ms, corrispondente a mezzo-un ciclo di rete).</div>
+        </div>
+      </div>
+      <div class="param-grid">
+        <div class="param">
+          <label>V<sub>DC</sub> minima operativa (V)</label>
+          <input type="number" id="holdup_vmin" value="350" step="10" oninput="updateCapacitorSizing()">
+        </div>
+      </div>
+      <div class="eq-block" data-latex="t_{hold} = \dfrac{C_{DC}\left(V_{DC}^2 - V_{DC,min}^2\right)}{2\,P_{out}}"></div>
+      <div class="info-text">Energia immagazzinata nel condensatore tra V<sub>DC</sub> nominale e la soglia minima, divisa per la potenza erogata (approssimazione a potenza costante durante l'interruzione).</div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="holdup_time">--</div><div class="lbl">t<sub>hold</sub> (ms)</div></div>
+        <div class="result-box"><div class="val" id="holdup_cycles">--</div><div class="lbl">Cicli di rete equivalenti</div></div>
+      </div>
+      <div id="badge_holdup"></div>
     </div>
   </div>
 
@@ -830,6 +945,32 @@ canvas { display: block; width: 100%; height: 100%; }
         <div class="result-box"><div class="val" id="dq_iq_avg">--</div><div class="lbl">I<sub>q</sub> medio (A)</div></div>
       </div>
       <div id="badge_dq"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">
+        <div class="title-left">🔗 Feedforward Disaccoppiato
+          <span class="tooltip-trigger" onclick="toggleTooltip('ff', event)">?</span>
+          <div class="tooltip-box" id="tt-ff">Simula l'effetto di un gradino di corrente sull'asse q (es. un transitorio) sulla risposta dell'asse d, con e senza il termine di compensazione ∓ωL·i<sub>q,d</sub>. Senza feedforward l'asse d viene perturbato dall'accoppiamento induttivo; con feedforward la perturbazione è (idealmente) cancellata.</div>
+        </div>
+      </div>
+      <div class="info-text">v<sub>d,ref</sub> = PI(e<sub>d</sub>) − ωL·i<sub>q</sub> &nbsp;|&nbsp; v<sub>q,ref</sub> = PI(e<sub>q</sub>) + ωL·i<sub>d</sub>. Il grafico mostra i<sub>d</sub>(t) in risposta a un gradino di riferimento su i<sub>q</sub> a metà simulazione, con e senza compensazione.</div>
+      <div class="compare-toggle" style="margin-top:10px;">
+        <label class="switch">
+          <input type="checkbox" id="ffEnabledToggle" checked onchange="updateFeedforward()">
+          <span class="switch-slider"></span>
+        </label>
+        <span>Feedforward attivo (curva verde)</span>
+      </div>
+      <div class="canvas-container" id="containerFF"><canvas id="ffPlot" height="240"></canvas></div>
+      <div class="legend-row">
+        <div class="legend-item"><div class="legend-line" style="background:#ef4444;width:20px;height:3px;"></div>i<sub>d</sub> senza FF (accoppiato)</div>
+        <div class="legend-item"><div class="legend-line real"></div>i<sub>d</sub> con FF (disaccoppiato)</div>
+      </div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="ff_peak_no">--</div><div class="lbl">Picco perturbazione i<sub>d</sub> senza FF (A)</div></div>
+        <div class="result-box"><div class="val" id="ff_peak_yes">--</div><div class="lbl">Picco perturbazione i<sub>d</sub> con FF (A)</div></div>
+      </div>
+      <div id="badge_ff"></div>
     </div>
     <div class="card">
       <div class="card-title">📊 Prestazioni PLL</div>
@@ -1080,6 +1221,15 @@ canvas { display: block; width: 100%; height: 100%; }
     </div>
 
     <div class="card">
+      <div class="card-title">🔗 Feedforward Disaccoppiato (Vector Control)</div>
+      <div class="eq-block" data-latex="v_{d,ref} = K_p e_d + K_i\!\!\int\!\! e_d\,dt \;-\; \omega L\, i_q"></div>
+      <div class="eq-block" data-latex="v_{q,ref} = K_p e_q + K_i\!\!\int\!\! e_q\,dt \;+\; \omega L\, i_d"></div>
+      <div class="info-text">In un controllo vettoriale a correnti d/q, i due assi sono accoppiati dal termine ωL nell'equazione dell'induttore (ogni asse "vede" l'altro come disturbo). I termini ∓ωL·i<sub>q,d</sub> vengono sommati al riferimento del PI per cancellare esattamente questo accoppiamento incrociato, permettendo ai due loop d/q di comportarsi come se fossero indipendenti.</div>
+      <div class="eq-block" data-latex="\text{Senza FF:}\quad \dfrac{v_d}{i_d}\Big|_{i_q\ne 0} \ne \dfrac{v_d}{i_d}\Big|_{i_q=0}"></div>
+      <div class="info-text">Senza feedforward, una variazione di i<sub>q</sub> perturba la risposta dell'asse d (e viceversa) — visibile come oscillazioni residue nel grafico dq del tab PLL quando il feedforward è disattivato.</div>
+    </div>
+
+    <div class="card">
       <div class="card-title">⚡ Potenza Istantanea (teoria p-q)</div>
       <div class="eq-block" data-latex="p(t) = \tfrac{3}{2}\left(v_d i_d + v_q i_q\right)"></div>
       <div class="info-text">Potenza attiva istantanea nel frame dq.</div>
@@ -1114,6 +1264,7 @@ canvas { display: block; width: 100%; height: 100%; }
         <button class="btn btn-secondary" onclick="exportParams()">📤 Esporta JSON</button>
         <button class="btn btn-secondary" onclick="triggerImportDialog()">📥 Importa JSON</button>
       </div>
+      <button class="btn" onclick="exportPDFReport()">📄 Genera Report PDF</button>
     </div>
     <div class="card">
       <div class="card-title">🧭 Coerenza Multi-Loop</div>
@@ -1134,6 +1285,8 @@ canvas { display: block; width: 100%; height: 100%; }
     </div>
   </div>
 </main>
+
+<div id="printReportRoot"></div>
 
 <div class="install-banner" id="installBanner" onclick="installApp()">📲 Installa PFC Tuner</div>
 
@@ -1419,10 +1572,63 @@ function applyPreset(key) {
   showToast(`Preset "${preset.label}" applicato`, 'success');
 }
 
+// ---------- Side-by-side preset comparison ----------
+const PRESET_COMPARE_ROWS = [
+  { key: 'v_ac', label: 'V_AC (fase)', unit: 'V' },
+  { key: 'f_line', label: 'f_linea', unit: 'Hz' },
+  { key: 'p_out', label: 'P_out', unit: 'W' },
+  { key: 'v_dc', label: 'V_DC ref', unit: 'V' },
+  { key: 'L', label: 'L', unit: 'mH' },
+  { key: 'R_l', label: 'R_L', unit: 'Ω' },
+  { key: 'C_dc', label: 'C_DC', unit: 'μF' },
+  { key: 'f_sw', label: 'f_sw', unit: 'kHz' },
+  { key: 'R_load', label: 'R_load', unit: 'Ω' }
+];
+
+function updatePresetComparison() {
+  const keyA = document.getElementById('compare_preset_a')?.value;
+  const keyB = document.getElementById('compare_preset_b')?.value;
+  const presetA = PRESETS[keyA];
+  const presetB = PRESETS[keyB];
+  if (!presetA || !presetB) return;
+
+  document.getElementById('compareHeadA').textContent = presetA.label;
+  document.getElementById('compareHeadB').textContent = presetB.label;
+
+  const tbody = document.getElementById('presetCompareBody');
+  tbody.innerHTML = PRESET_COMPARE_ROWS.map(row => {
+    const valA = presetA.values[row.key];
+    const valB = presetB.values[row.key];
+    const diffClass = valA === valB ? '' : (valA > valB ? '' : '');
+    return `<tr><td>${row.label} (${row.unit})</td><td>${valA}</td><td>${valB}</td></tr>`;
+  }).join('');
+
+  // Derived comparison: computed peak current and Vdc headroom for each,
+  // useful context beyond the raw input parameters.
+  const derivedA = computePresetDerived(presetA.values);
+  const derivedB = computePresetDerived(presetB.values);
+  tbody.innerHTML += `
+    <tr><td><strong>I_pk (calcolata)</strong></td><td>${derivedA.iPk.toFixed(2)} A</td><td>${derivedB.iPk.toFixed(2)} A</td></tr>
+    <tr><td><strong>Margine V_DC su minimo</strong></td><td>${derivedA.headroom.toFixed(0)}%</td><td>${derivedB.headroom.toFixed(0)}%</td></tr>
+  `;
+}
+
+function computePresetDerived(values) {
+  const iPk = Math.sqrt(2) * values.p_out / (3 * values.v_ac);
+  const vdcMin = Math.sqrt(6) * values.v_ac;
+  const headroom = ((values.v_dc - vdcMin) / vdcMin) * 100;
+  return { iPk, headroom };
+}
+
+function applyPresetFromCompare(which) {
+  const key = document.getElementById('compare_preset_' + which)?.value;
+  if (key) applyPreset(key);
+}
+
 // ---------- LocalStorage persistence ----------
 function collectAllParams() {
   const data = { system: {}, parasitics: {}, loops: {} };
-  ['v_ac','f_line','p_out','v_dc','L','R_l','C_dc','f_sw','R_load','topology'].forEach(id => {
+  ['v_ac','f_line','p_out','v_dc','L','R_l','C_dc','f_sw','R_load','topology','ripple_target_pct','holdup_vmin'].forEach(id => {
     const el = document.getElementById(id);
     if (el) data.system[id] = el.value;
   });
@@ -1531,7 +1737,120 @@ function handleImportFile(event) {
   event.target.value = '';
 }
 
-// ---------- Multi-loop coherence check ----------
+// ---------- PDF report export (client-side, via window.print()) ----------
+// This app is a fully offline-capable PWA with no backend, so PDF generation
+// is done client-side using the browser's native print-to-PDF, driven by a
+// dedicated print stylesheet (@media print) and a hidden DOM tree built here.
+// Canvases are captured as static images via toDataURL so the printed report
+// isn't dependent on canvas re-render timing.
+function captureCanvasAsImg(canvasId, altText) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || canvas.width === 0) return '';
+  try {
+    const dataUrl = canvas.toDataURL('image/png');
+    return `<img class="print-chart" src="${dataUrl}" alt="${altText}">`;
+  } catch (e) {
+    console.warn('Impossibile catturare canvas ' + canvasId, e);
+    return '';
+  }
+}
+
+function exportPDFReport() {
+  // Make sure every tab whose canvases we want to capture has actually been
+  // rendered at least once in this session (canvases start empty otherwise).
+  const savedTab = currentTab;
+  ['current', 'voltage', 'pll', 'robustness'].forEach(tab => {
+    currentTab = tab;
+    refreshCurrentTab();
+  });
+  currentTab = savedTab;
+  refreshCurrentTab();
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('it-IT') + ' ' + now.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+
+  const topology = document.getElementById('topology')?.value === 'vienna' ? 'Vienna Rectifier (3 livelli)' : 'Boost trifase 6-switch';
+
+  const sysRows = [
+    ['V_AC (fase, RMS)', document.getElementById('v_ac').value, 'V'],
+    ['f_linea', document.getElementById('f_line').value, 'Hz'],
+    ['P_out', document.getElementById('p_out').value, 'W'],
+    ['V_DC ref', document.getElementById('v_dc').value, 'V'],
+    ['L', document.getElementById('L').value, 'mH'],
+    ['R_L', document.getElementById('R_l').value, 'Ω'],
+    ['C_DC', document.getElementById('C_dc').value, 'μF'],
+    ['f_sw', document.getElementById('f_sw').value, 'kHz'],
+    ['R_load', document.getElementById('R_load').value, 'Ω']
+  ];
+
+  const loopRows = [
+    ['K_p (corrente)', document.getElementById('kp_i')?.textContent || '--', 'Ω'],
+    ['K_i (corrente)', document.getElementById('ki_i')?.textContent || '--', 'Ω/s'],
+    ['PM ideale (corrente)', document.getElementById('pm_i')?.textContent || '--', '°'],
+    ['PM reale (corrente)', document.getElementById('pm_i_real')?.textContent || '--', '°'],
+    ['K_p (tensione)', document.getElementById('kp_v')?.textContent || '--', 'A/V'],
+    ['K_i (tensione)', document.getElementById('ki_v')?.textContent || '--', 'A/(V·s)'],
+    ['PM (tensione)', document.getElementById('pm_v')?.textContent || '--', '°'],
+    ['K_p (PLL)', document.getElementById('kp_pll')?.textContent || '--', 'rad/s'],
+    ['K_i (PLL)', document.getElementById('ki_pll')?.textContent || '--', 'rad/s²'],
+    ['PM (PLL)', document.getElementById('pm_pll')?.textContent || '--', '°']
+  ];
+
+  const coherenceItems = checkLoopCoherence();
+  const coherenceHTML = coherenceItems.map(it =>
+    `<span class="print-badge" style="border-color:${it.status === 'ok' ? '#16a34a' : it.status === 'warn' ? '#ca8a04' : '#dc2626'}">${it.label}: ${it.detail}</span>`
+  ).join(' ');
+
+  const root = document.getElementById('printReportRoot');
+  root.innerHTML = `
+    <h1>⚡ PFC Tuner — Report di Tuning</h1>
+    <div class="print-meta">Generato il ${dateStr} &nbsp;|&nbsp; Topologia: ${topology}</div>
+
+    <div class="print-section">
+      <h2>Parametri del Sistema</h2>
+      <table>
+        <thead><tr><th>Parametro</th><th>Valore</th><th>Unità</th></tr></thead>
+        <tbody>${sysRows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>
+
+    <div class="print-section">
+      <h2>Guadagni e Margini dei Loop</h2>
+      <table>
+        <thead><tr><th>Parametro</th><th>Valore</th><th>Unità</th></tr></thead>
+        <tbody>${loopRows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>
+
+    <div class="print-section">
+      <h2>Coerenza Multi-Loop</h2>
+      <div>${coherenceHTML}</div>
+    </div>
+
+    <div class="print-section">
+      <h2>Bode Loop di Corrente</h2>
+      ${captureCanvasAsImg('bodeI', 'Bode loop corrente')}
+    </div>
+
+    <div class="print-section">
+      <h2>Bode Loop di Tensione</h2>
+      ${captureCanvasAsImg('bodeV', 'Bode loop tensione')}
+    </div>
+
+    <div class="print-section">
+      <h2>Bode PLL</h2>
+      ${captureCanvasAsImg('bodePLL', 'Bode PLL')}
+    </div>
+
+    <div class="print-section">
+      <h2>Analisi Worst-Case</h2>
+      ${document.getElementById('worstCaseBody') ? document.getElementById('worstCaseBody').closest('table').outerHTML : '<p>Non calcolato in questa sessione.</p>'}
+    </div>
+  `;
+
+  showToast('Apertura anteprima di stampa…', 'success', 1500);
+  setTimeout(() => window.print(), 300);
+}
 function checkLoopCoherence() {
   const bwI = parseFloat(document.getElementById('bw_i_slider')?.value) || 0;
   const bwV = parseFloat(document.getElementById('bw_v_slider')?.value) || 0;
@@ -1947,468 +2266,4 @@ function drawGridWaveform(canvasId, dataA, dataB, dataC, yLabel, colors) {
   ctx.strokeStyle = gridColor;
   ctx.lineWidth = 1;
   for (let i = 0; i <= 4; i++) {
-    const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
-    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
-  }
-
-  const yZero = pad.top + (h - pad.top - pad.bottom) * (1 - (0 - minV) / (maxV - minV));
-  ctx.strokeStyle = zeroColor;
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(pad.left, yZero); ctx.lineTo(w - pad.right, yZero); ctx.stroke();
-
-  const datasets = [dataA, dataB, dataC];
-  const lineColors = colors || [themeColor('--phaseA'), themeColor('--phaseB'), themeColor('--phaseC')];
-
-  for (let d = 0; d < 3; d++) {
-    const data = datasets[d];
-    ctx.strokeStyle = lineColors[d];
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    for (let i = 0; i < data.length; i++) {
-      const x = pad.left + (w - pad.left - pad.right) * i / (data.length - 1);
-      const y = pad.top + (h - pad.top - pad.bottom) * (1 - (data[i] - minV) / (maxV - minV));
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-  }
-
-  ctx.fillStyle = textColor;
-  ctx.font = '10px sans-serif';
-  ctx.textAlign = 'right';
-  for (let i = 0; i <= 4; i++) {
-    const val = minV + (maxV - minV) * (1 - i / 4);
-    ctx.fillText(val.toFixed(0), pad.left - 4, pad.top + (h - pad.top - pad.bottom) * i / 4 + 4);
-  }
-  ctx.textAlign = 'center';
-  ctx.fillText('0°', pad.left, h - 8);
-  ctx.fillText('360°', w - pad.right, h - 8);
-  ctx.fillText('180°', pad.left + (w - pad.left - pad.right) / 2, h - 8);
-
-  if (yLabel) {
-    ctx.save();
-    ctx.translate(12, h / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.textAlign = 'center';
-    ctx.fillText(yLabel, 0, 0);
-    ctx.restore();
-  }
-}
-
-function drawXY(canvasId, xData, yData, yData2, labels, colors) {
-  const canvas = document.getElementById(canvasId);
-  const dpr = window.devicePixelRatio || 1;
-  const wCanvas = getCanvasWidth(canvasId);
-  const hCanvas = parseInt(canvas.getAttribute('height')) || 220;
-  canvas.width = wCanvas * dpr;
-  canvas.height = hCanvas * dpr;
-  canvas.style.width = wCanvas + 'px';
-  canvas.style.height = hCanvas + 'px';
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  const w = wCanvas, h = hCanvas;
-  const pad = { top: 20, right: 15, bottom: 30, left: 45 };
-
-  const bgColor = themeColor('--bg');
-  const gridColor = themeColor('--surface-2');
-  const textColor = themeColor('--text-2');
-
-  ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = bgColor;
-  ctx.fillRect(0, 0, w, h);
-
-  const allY = [...yData, ...(yData2 || [])];
-  const maxY = Math.max(...allY, 1);
-  const minY = Math.min(...allY, -1);
-  const marginY = (maxY - minY) * 0.1;
-  const maxV = maxY + marginY;
-  const minV = minY - marginY;
-  const maxX = xData[xData.length - 1];
-
-  ctx.strokeStyle = gridColor;
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) {
-    const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
-    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
-  }
-
-  const lineColors = colors || [themeColor('--accent'), themeColor('--accent-2')];
-
-  ctx.strokeStyle = lineColors[0];
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  for (let i = 0; i < xData.length; i++) {
-    const x = pad.left + (w - pad.left - pad.right) * xData[i] / maxX;
-    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (yData[i] - minV) / (maxV - minV));
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  if (yData2) {
-    ctx.strokeStyle = lineColors[1];
-    ctx.lineWidth = 2;
-    ctx.setLineDash([4, 4]);
-    ctx.beginPath();
-    for (let i = 0; i < xData.length; i++) {
-      const x = pad.left + (w - pad.left - pad.right) * xData[i] / maxX;
-      const y = pad.top + (h - pad.top - pad.bottom) * (1 - (yData2[i] - minV) / (maxV - minV));
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.stroke();
-    ctx.setLineDash([]);
-  }
-
-  ctx.fillStyle = textColor;
-  ctx.font = '10px sans-serif';
-  ctx.textAlign = 'right';
-  for (let i = 0; i <= 4; i++) {
-    const val = minV + (maxV - minV) * (1 - i / 4);
-    ctx.fillText(val.toFixed(2), pad.left - 4, pad.top + (h - pad.top - pad.bottom) * i / 4 + 4);
-  }
-  ctx.textAlign = 'center';
-  ctx.fillText('0', pad.left, h - 8);
-  ctx.fillText((maxX * 1000).toFixed(0) + 'ms', w - pad.right, h - 8);
-}
-
-// Like drawXY, but each series gets its OWN y-axis scale. Needed for d/q pairs
-// where the d component (large, ~constant) and q component (small, near zero)
-// would otherwise be squashed onto the same range and q would look like a flat
-// line even when it carries meaningful ripple information.
-function drawXYDualScale(canvasId, xData, yDataD, yDataQ, colors) {
-  const canvas = document.getElementById(canvasId);
-  const dpr = window.devicePixelRatio || 1;
-  const wCanvas = getCanvasWidth(canvasId);
-  const hCanvas = parseInt(canvas.getAttribute('height')) || 220;
-  canvas.width = wCanvas * dpr;
-  canvas.height = hCanvas * dpr;
-  canvas.style.width = wCanvas + 'px';
-  canvas.style.height = hCanvas + 'px';
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  const w = wCanvas, h = hCanvas;
-  const pad = { top: 20, right: 45, bottom: 30, left: 45 };
-
-  const bgColor = themeColor('--bg');
-  const gridColor = themeColor('--surface-2');
-  const textColor = themeColor('--text-2');
-  const lineColors = colors || [themeColor('--accent'), themeColor('--accent-2')];
-
-  ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = bgColor;
-  ctx.fillRect(0, 0, w, h);
-
-  const maxD = Math.max(...yDataD, 1), minD = Math.min(...yDataD, -1);
-  const marginD = (maxD - minD) * 0.15 || 1;
-  const maxVD = maxD + marginD, minVD = minD - marginD;
-
-  const maxQ = Math.max(...yDataQ, 1), minQ = Math.min(...yDataQ, -1);
-  const marginQ = (maxQ - minQ) * 0.15 || 1;
-  const maxVQ = maxQ + marginQ, minVQ = minQ - marginQ;
-
-  const maxX = xData[xData.length - 1];
-
-  ctx.strokeStyle = gridColor;
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) {
-    const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
-    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
-  }
-
-  // D curve (left axis)
-  ctx.strokeStyle = lineColors[0];
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  for (let i = 0; i < xData.length; i++) {
-    const x = pad.left + (w - pad.left - pad.right) * xData[i] / maxX;
-    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (yDataD[i] - minVD) / (maxVD - minVD));
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  // Q curve (right axis)
-  ctx.strokeStyle = lineColors[1];
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  for (let i = 0; i < xData.length; i++) {
-    const x = pad.left + (w - pad.left - pad.right) * xData[i] / maxX;
-    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (yDataQ[i] - minVQ) / (maxVQ - minVQ));
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  ctx.font = '10px sans-serif';
-  ctx.fillStyle = lineColors[0];
-  ctx.textAlign = 'right';
-  for (let i = 0; i <= 4; i++) {
-    const val = minVD + (maxVD - minVD) * (1 - i / 4);
-    ctx.fillText(val.toFixed(1), pad.left - 4, pad.top + (h - pad.top - pad.bottom) * i / 4 + 4);
-  }
-  ctx.fillStyle = lineColors[1];
-  ctx.textAlign = 'left';
-  for (let i = 0; i <= 4; i++) {
-    const val = minVQ + (maxVQ - minVQ) * (1 - i / 4);
-    ctx.fillText(val.toFixed(2), w - pad.right + 4, pad.top + (h - pad.top - pad.bottom) * i / 4 + 4);
-  }
-
-  ctx.fillStyle = textColor;
-  ctx.textAlign = 'center';
-  ctx.fillText('0', pad.left, h - 8);
-  ctx.fillText((maxX * 1000).toFixed(0) + 'ms', pad.left + (w - pad.left - pad.right) / 2, h - 8);
-}
-
-// Simple line chart for parametric sweeps: x = swept parameter value, y = metric
-// (PM or overshoot), with an optional horizontal threshold line and a marker at
-// the nominal (center) point.
-function drawSweepLine(canvasId, xVals, yVals, thresholdY, yLabel) {
-  const canvas = document.getElementById(canvasId);
-  const dpr = window.devicePixelRatio || 1;
-  const wCanvas = getCanvasWidth(canvasId);
-  const hCanvas = parseInt(canvas.getAttribute('height')) || 240;
-  canvas.width = wCanvas * dpr;
-  canvas.height = hCanvas * dpr;
-  canvas.style.width = wCanvas + 'px';
-  canvas.style.height = hCanvas + 'px';
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  const w = wCanvas, h = hCanvas;
-  const pad = { top: 20, right: 15, bottom: 32, left: 48 };
-
-  const bgColor = themeColor('--bg');
-  const gridColor = themeColor('--surface-2');
-  const textColor = themeColor('--text-2');
-  const accentColor = themeColor('--accent');
-  const successColor = themeColor('--success');
-  const warnColor = themeColor('--warning');
-
-  ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = bgColor;
-  ctx.fillRect(0, 0, w, h);
-
-  const minX = Math.min(...xVals), maxX = Math.max(...xVals);
-  const allY = [...yVals, thresholdY];
-  const maxY = Math.max(...allY) * 1.1;
-  const minY = Math.min(0, Math.min(...allY) * 1.1);
-
-  ctx.strokeStyle = gridColor;
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) {
-    const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
-    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
-  }
-
-  // Threshold line
-  if (thresholdY !== undefined && thresholdY !== null) {
-    const yT = pad.top + (h - pad.top - pad.bottom) * (1 - (thresholdY - minY) / (maxY - minY));
-    ctx.strokeStyle = warnColor;
-    ctx.setLineDash([5, 4]);
-    ctx.lineWidth = 1.5;
-    ctx.beginPath(); ctx.moveTo(pad.left, yT); ctx.lineTo(w - pad.right, yT); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = warnColor;
-    ctx.font = '9px sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText('soglia ' + thresholdY, pad.left + 4, yT - 4);
-  }
-
-  // Main curve
-  ctx.strokeStyle = accentColor;
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  for (let i = 0; i < xVals.length; i++) {
-    const x = pad.left + (w - pad.left - pad.right) * (xVals[i] - minX) / (maxX - minX || 1);
-    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (yVals[i] - minY) / (maxY - minY));
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  // Nominal point marker (center of sweep)
-  const midIdx = Math.floor(xVals.length / 2);
-  const xMid = pad.left + (w - pad.left - pad.right) * (xVals[midIdx] - minX) / (maxX - minX || 1);
-  const yMid = pad.top + (h - pad.top - pad.bottom) * (1 - (yVals[midIdx] - minY) / (maxY - minY));
-  ctx.fillStyle = successColor;
-  ctx.beginPath();
-  ctx.arc(xMid, yMid, 4, 0, 2 * Math.PI);
-  ctx.fill();
-
-  ctx.fillStyle = textColor;
-  ctx.font = '10px sans-serif';
-  ctx.textAlign = 'right';
-  for (let i = 0; i <= 4; i++) {
-    const val = minY + (maxY - minY) * (1 - i / 4);
-    ctx.fillText(val.toFixed(0), pad.left - 4, pad.top + (h - pad.top - pad.bottom) * i / 4 + 4);
-  }
-  ctx.textAlign = 'center';
-  ctx.fillText(minX < 1 ? minX.toFixed(3) : minX.toFixed(1), pad.left, h - 8);
-  ctx.fillText(maxX < 1 ? maxX.toFixed(3) : maxX.toFixed(1), w - pad.right, h - 8);
-  if (yLabel) {
-    ctx.textAlign = 'left';
-    ctx.font = '9px sans-serif';
-    ctx.fillStyle = accentColor;
-    ctx.fillText(yLabel, pad.left + 4, pad.top + 10);
-  }
-}
-
-function drawSpaceVector(canvasId, alphaV, betaV, alphaI, betaI) {
-  const canvas = document.getElementById(canvasId);
-  const dpr = window.devicePixelRatio || 1;
-  const wCanvas = getCanvasWidth(canvasId);
-  const hCanvas = parseInt(canvas.getAttribute('height')) || 280;
-  canvas.width = wCanvas * dpr;
-  canvas.height = hCanvas * dpr;
-  canvas.style.width = wCanvas + 'px';
-  canvas.style.height = hCanvas + 'px';
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  const w = wCanvas, h = hCanvas;
-  const cx = w / 2, cy = h / 2;
-  const radius = Math.min(w, h) * 0.38;
-
-  const bgColor = themeColor('--bg');
-  const gridColor = themeColor('--surface-2');
-  const textColor = themeColor('--text-2');
-  const accentColor = themeColor('--accent');
-  const accent2Color = themeColor('--accent-2');
-  const idealColor = themeColor('--ideal');
-
-  ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = bgColor;
-  ctx.fillRect(0, 0, w, h);
-
-  ctx.strokeStyle = gridColor;
-  ctx.lineWidth = 1;
-  for (let r = 0.25; r <= 1; r += 0.25) {
-    ctx.beginPath();
-    ctx.arc(cx, cy, radius * r, 0, 2 * Math.PI);
-    ctx.stroke();
-  }
-
-  ctx.strokeStyle = gridColor;
-  ctx.lineWidth = 1.5;
-  ctx.beginPath(); ctx.moveTo(cx - radius - 10, cy); ctx.lineTo(cx + radius + 10, cy); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cx, cy - radius - 10); ctx.lineTo(cx, cy + radius + 10); ctx.stroke();
-
-  ctx.fillStyle = textColor;
-  ctx.font = 'bold 11px sans-serif';
-  ctx.textAlign = 'center';
-  ctx.fillText('α', cx + radius + 15, cy + 4);
-  ctx.textAlign = 'right';
-  ctx.fillText('β', cx - 4, cy - radius - 12);
-
-  ctx.strokeStyle = idealColor;
-  ctx.globalAlpha = 0.5;
-  ctx.setLineDash([6, 4]);
-  ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
-  ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.globalAlpha = 1;
-
-  const maxV = Math.max(...alphaV.map(Math.abs), ...betaV.map(Math.abs), 1);
-  const scale = radius / maxV;
-
-  ctx.strokeStyle = accentColor;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  for (let i = 0; i < alphaV.length; i++) {
-    const x = cx + alphaV[i] * scale;
-    const y = cy - betaV[i] * scale;
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  const maxI = Math.max(...alphaI.map(Math.abs), ...betaI.map(Math.abs), 1);
-  const scaleI = radius / maxI * 0.6;
-  ctx.strokeStyle = accent2Color;
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  for (let i = 0; i < alphaI.length; i++) {
-    const x = cx + alphaI[i] * scaleI;
-    const y = cy - betaI[i] * scaleI;
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  const lastI = alphaI.length - 1;
-  const tipX = cx + alphaI[lastI] * scaleI;
-  const tipY = cy - betaI[lastI] * scaleI;
-  ctx.fillStyle = accent2Color;
-  ctx.beginPath();
-  ctx.arc(tipX, tipY, 4, 0, 2 * Math.PI);
-  ctx.fill();
-
-  const lastV = alphaV.length - 1;
-  const tipVX = cx + alphaV[lastV] * scale;
-  const tipVY = cy - betaV[lastV] * scale;
-  ctx.fillStyle = accentColor;
-  ctx.beginPath();
-  ctx.arc(tipVX, tipVY, 4, 0, 2 * Math.PI);
-  ctx.fill();
-
-  ctx.textAlign = 'left';
-  ctx.font = '10px sans-serif';
-  ctx.fillStyle = accentColor; ctx.fillText('Vettore Tensione (V)', 10, 18);
-  ctx.fillStyle = accent2Color; ctx.fillText('Vettore Corrente (A, scalato)', 10, 32);
-  ctx.fillStyle = idealColor; ctx.fillText('Cerchio ideale', 10, 46);
-}
-
-function drawPower(canvasId, times, pData, qData) {
-  const canvas = document.getElementById(canvasId);
-  const dpr = window.devicePixelRatio || 1;
-  const wCanvas = getCanvasWidth(canvasId);
-  const hCanvas = parseInt(canvas.getAttribute('height')) || 260;
-  canvas.width = wCanvas * dpr;
-  canvas.height = hCanvas * dpr;
-  canvas.style.width = wCanvas + 'px';
-  canvas.style.height = hCanvas + 'px';
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  const w = wCanvas, h = hCanvas;
-  const pad = { top: 25, right: 15, bottom: 35, left: 55 };
-
-  const bgColor = themeColor('--bg');
-  const gridColor = themeColor('--surface-2');
-  const textColor = themeColor('--text-2');
-  const zeroColor = themeColor('--surface-2');
-  const accentColor = themeColor('--accent');
-  const accent2Color = themeColor('--accent-2');
-
-  ctx.clearRect(0, 0, w, h);
-  ctx.fillStyle = bgColor;
-  ctx.fillRect(0, 0, w, h);
-
-  const allY = [...pData, ...qData];
-  const maxAbs = Math.max(...allY.map(Math.abs), 100);
-  const margin = maxAbs * 0.15;
-  const maxV = maxAbs + margin;
-  const minV = -maxAbs - margin;
-  const maxT = times[times.length - 1];
-
-  ctx.strokeStyle = gridColor;
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) {
-    const y = pad.top + (h - pad.top - pad.bottom) * i / 4;
-    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
-  }
-
-  const yZero = pad.top + (h - pad.top - pad.bottom) * (1 - (0 - minV) / (maxV - minV));
-  ctx.strokeStyle = zeroColor;
-  ctx.lineWidth = 1;
-  ctx.beginPath(); ctx.moveTo(pad.left, yZero); ctx.lineTo(w - pad.right, yZero); ctx.stroke();
-
-  ctx.strokeStyle = accentColor;
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  for (let i = 0; i < times.length; i++) {
-    const x = pad.left + (w - pad.left - pad.right) * times[i] / maxT;
-    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (pData[i] - minV) / (maxV - minV));
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  ctx.strokeStyle = accent2Color;
-  ctx.lineWidth = 2.5;
-  ctx.beginPath();
-  for (let i = 0; i < times.length; i++) {
-    const x = pad.left + (w - pad.left - pad.right) * times[i] / maxT;
-    const y = pad.top + (h - pad.top - pad.bottom) * (1 - (qData[i] - minV) / (maxV - minV));
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x
+    const y = pad.top + (h - pad.top - pa
