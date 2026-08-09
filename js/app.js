@@ -560,8 +560,22 @@ function updateDiscretizationCompare(canvasId, Kp, Ki, fsKHz) {
 }
 
 function updateCurrentLoop() {
-  const bw = parseInt(document.getElementById('bw_i_slider').value);
-  document.getElementById('bw_i_val').textContent = (bw >= 1000 ? (bw/1000).toFixed(1) + ' kHz' : bw + ' Hz');
+  const bwSliderEl = document.getElementById('bw_i_slider');
+  const bw = parseInt(bwSliderEl.value);
+  const bwLabel = (bw >= 1000 ? (bw/1000).toFixed(1) + ' kHz' : bw + ' Hz');
+  document.getElementById('bw_i_val').textContent = bwLabel;
+
+  // Mantiene la barra BW duplicata (accanto alla step response) sincronizzata
+  // con quella principale: stesso range e stesso valore, in entrambe le direzioni.
+  const bwSlider2 = document.getElementById('bw_i_slider_2');
+  if (bwSlider2) {
+    bwSlider2.min = bwSliderEl.min;
+    bwSlider2.max = bwSliderEl.max;
+    bwSlider2.step = bwSliderEl.step;
+    bwSlider2.value = bw;
+    const bwVal2 = document.getElementById('bw_i_val_2');
+    if (bwVal2) bwVal2.textContent = bwLabel;
+  }
 
   const L = (parseFloat(document.getElementById('L').value) || 2.5) * 1e-3;
   const R = parseFloat(document.getElementById('R_l').value) || 0.1;
