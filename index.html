@@ -238,6 +238,7 @@
     <div class="card">
       <div class="card-title">🎛️ Tuning Loop di Corrente (Inner)</div>
       <div class="info-text">Metodo: cancellazione del polo del plant. Il controllore PI annulla il polo dell'induttore (R/L) e imposta la banda passante desiderata.</div>
+      <div class="eq-block" id="formula_i_design"></div>
       <div class="slider-row">
         <span style="min-width:80px;font-size:0.85rem;">BW:</span>
         <input type="range" id="bw_i_slider" min="100" max="5000" value="2000" step="50" oninput="updateCurrentLoop()">
@@ -380,6 +381,7 @@
       <div class="card-title">🔋 Tuning Loop di Tensione (Outer)</div>
       <div class="info-text">Il loop di tensione deve essere molto più lento del loop di corrente (tipicamente 5–20 Hz) per evitare distorsione della corrente di rete.</div>
       <div class="info-text">Metodo: qui, a differenza del loop di Corrente, non si cancella il polo del plant (dipenderebbe da R<sub>load</sub>, che varia col carico — cancellare un bersaglio mobile non sarebbe robusto). K<sub>p</sub> e K<sub>i</sub> sono invece scalati direttamente dalla BW scelta con un rapporto fisso. Anche qui BW resta quindi l'unico parametro di progetto: il margine di fase mostrato sotto è un risultato calcolato, non un secondo grado di libertà.</div>
+      <div class="eq-block" id="formula_v_design"></div>
       <div class="slider-row">
         <span style="min-width:80px;font-size:0.85rem;">BW:</span>
         <input type="range" id="bw_v_slider" min="1" max="50" value="10" step="1" oninput="updateVoltageLoop()">
