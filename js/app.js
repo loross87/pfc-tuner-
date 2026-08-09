@@ -565,6 +565,15 @@ function updateCurrentLoop() {
   const bwLabel = (bw >= 1000 ? (bw/1000).toFixed(1) + ' kHz' : bw + ' Hz');
   document.getElementById('bw_i_val').textContent = bwLabel;
 
+  const formulaElIDesign = document.getElementById('formula_i_design');
+  if (formulaElIDesign && typeof katex !== 'undefined') {
+    try {
+      katex.render(`K_p = L\\,\\omega_{bw} \\qquad K_i = R_L\\,\\omega_{bw}`, formulaElIDesign, { throwOnError: false, displayMode: true });
+    } catch (e) { formulaElIDesign.textContent = 'Kp = L·ωbw   Ki = R_L·ωbw'; }
+  } else if (formulaElIDesign) {
+    formulaElIDesign.textContent = 'Kp = L·ωbw   Ki = R_L·ωbw';
+  }
+
   // Mantiene la barra BW duplicata (accanto alla step response) sincronizzata
   // con quella principale: stesso range e stesso valore, in entrambe le direzioni.
   const bwSlider2 = document.getElementById('bw_i_slider_2');
@@ -703,6 +712,15 @@ function updateVoltageLoop() {
   const bwSliderElV = document.getElementById('bw_v_slider');
   const bw = parseInt(bwSliderElV.value);
   document.getElementById('bw_v_val').textContent = bw + ' Hz';
+
+  const formulaElVDesign = document.getElementById('formula_v_design');
+  if (formulaElVDesign && typeof katex !== 'undefined') {
+    try {
+      katex.render(`K_p = 0.8\\,C_{DC}\\,\\omega_{bw} \\qquad K_i = 0.3\\,C_{DC}\\,\\omega_{bw}^2`, formulaElVDesign, { throwOnError: false, displayMode: true });
+    } catch (e) { formulaElVDesign.textContent = 'Kp = 0.8·C_DC·ωbw   Ki = 0.3·C_DC·ωbw²'; }
+  } else if (formulaElVDesign) {
+    formulaElVDesign.textContent = 'Kp = 0.8·C_DC·ωbw   Ki = 0.3·C_DC·ωbw²';
+  }
 
   // Mantiene la barra BW duplicata (accanto alla step response) sincronizzata
   // con quella principale: stesso range e stesso valore, in entrambe le direzioni.
