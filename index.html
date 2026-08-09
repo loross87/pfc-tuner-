@@ -383,7 +383,11 @@
     <div class="card">
       <div class="card-title">🔋 Tuning Loop di Tensione (Outer)</div>
       <div class="info-text">Il loop di tensione deve essere molto più lento del loop di corrente (tipicamente 5–20 Hz) per evitare distorsione della corrente di rete.</div>
-      <div class="info-text">Metodo: qui, a differenza del loop di Corrente, non si cancella il polo del plant (dipenderebbe da R<sub>load</sub>, che varia col carico — cancellare un bersaglio mobile non sarebbe robusto). K<sub>p</sub> e K<sub>i</sub> sono invece scalati direttamente dalla BW scelta con un rapporto fisso. Anche qui BW resta quindi l'unico parametro di progetto: il margine di fase mostrato sotto è un risultato calcolato, non un secondo grado di libertà.</div>
+      <div class="info-text">Metodo: due opzioni. <strong>Cancellazione del polo</strong> (default) piazza lo zero del PI esattamente sul polo del plant 1/(R<sub>load</sub>·C<sub>DC</sub>) — come nel loop di Corrente, ma qui R<sub>load</sub> (impostato nel tab Sistema) entra esplicitamente nel calcolo di K<sub>i</sub>: margine di fase quasi ideale al carico nominale, ma degrada se il carico reale si allontana da quello assunto (verificabile in Robustezza → Robustezza al Carico). <strong>Scaling da BW</strong> (il metodo storico di questo tool) ignora deliberatamente R<sub>load</sub> e scala K<sub>p</sub>/K<sub>i</sub> con un rapporto fisso: meno preciso, ma insensibile a quanto R<sub>load</sub> è stimato correttamente.</div>
+      <div class="toggle-row" style="margin-top:4px;">
+        <button class="toggle-btn active" id="btnVMethodCancel" onclick="setVoltDesignMethod('cancel')">Cancellazione polo (R<sub>load</sub>)</button>
+        <button class="toggle-btn" id="btnVMethodScaled" onclick="setVoltDesignMethod('scaled')">Scaling da BW</button>
+      </div>
       <div class="eq-block" id="formula_v_design"></div>
       <div class="slider-row">
         <span style="min-width:80px;font-size:0.85rem;">BW:</span>
@@ -399,12 +403,20 @@
       <div id="badge_v"></div>
       <div class="compare-toggle">
         <label class="switch">
-          <input type="checkbox" onchange="toggleCompare('voltage', this.checked)">
+          <input type="checkbox" id="voltCompareToggle" onchange="toggleCompare('voltage', this.checked)">
           <span class="switch-slider"></span>
         </label>
         <span>Confronta con tuning precedente</span>
         <button class="icon-btn" style="width:auto;padding:0 10px;height:28px;font-size:0.75rem;" onclick="saveSnapshotForComparison('voltage')">📌 Salva attuale</button>
       </div>
+      <div class="compare-toggle">
+        <label class="switch">
+          <input type="checkbox" id="voltMethodCompareToggle" onchange="toggleVoltMethodCompare(this.checked)">
+          <span class="switch-slider"></span>
+        </label>
+        <span>Confronta i due metodi (cancellazione vs scaling)</span>
+      </div>
+      <div class="info-text" id="voltMethodCompareInfo" style="display:none;"></div>
     </div>
     <div class="card">
       <div class="card-title">

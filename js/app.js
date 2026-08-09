@@ -6,6 +6,12 @@ let rippleMode = 'full';
 let compareEnabled = { current: false, voltage: false, pll: false };
 let prevCurves = { current: null, voltage: null, pll: null };
 
+// Metodo di design del loop di Tensione: 'cancel' (cancellazione del polo,
+// R_load esplicito — default) oppure 'scaled' (scaling fisso da BW, storico,
+// robusto a variazioni di carico). Vedi computeVoltageLoopGains() più sotto.
+let voltDesignMethod = 'cancel';
+let voltMethodCompareEnabled = false;
+
 function switchTab(name, evt) {
   currentTab = name;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -59,6 +65,15 @@ function setRippleMode(mode) {
 
 function toggleCompare(loopName, checked) {
   compareEnabled[loopName] = checked;
+  // Mutua esclusione col confronto fra i due metodi di design del loop di
+  // Tensione: sono entrambi overlay tratteggiati sullo stesso Bode, tenerli
+  // insieme renderebbe la curva tratteggiata ambigua (quale dei due
+  // rappresenta?).
+  if (loopName === 'voltage' && checked && voltMethodCompareEnabled) {
+    voltMethodCompareEnabled = false;
+    const cb = document.getElementById('voltMethodCompareToggle');
+    if (cb) cb.checked = false;
+  }
   if (loopName === 'current') updateCurrentLoop();
   if (loopName === 'voltage') updateVoltageLoop();
   if (loopName === 'pll') updatePLL();
@@ -66,6 +81,25 @@ function toggleCompare(loopName, checked) {
 
 function snapshotCurve(loopName, freqs, mags) {
   prevCurves[loopName] = { freqs: freqs.slice(), mags: mags.slice() };
+}
+
+function setVoltDesignMethod(method) {
+  voltDesignMethod = method;
+  document.getElementById('btnVMethodCancel').classList.toggle('active', method === 'cancel');
+  document.getElementById('btnVMethodScaled').classList.toggle('active', method === 'scaled');
+  updateVoltageLoop();
+}
+
+function toggleVoltMethodCompare(checked) {
+  voltMethodCompareEnabled = checked;
+  // Mutua esclusione con "Confronta con tuning precedente" (stesso motivo:
+  // un solo overlay tratteggiato disponibile sul Bode).
+  if (checked && compareEnabled.voltage) {
+    compareEnabled.voltage = false;
+    const cb = document.getElementById('voltCompareToggle');
+    if (cb) cb.checked = false;
+  }
+  updateVoltageLoop();
 }
 
 function onParamInputChanged() {
@@ -726,13 +760,19 @@ function updateVoltageLoop() {
   const bw = parseInt(bwSliderElV.value);
   document.getElementById('bw_v_val').textContent = bw + ' Hz';
 
+  const formulaTexV = voltDesignMethod === 'cancel'
+    ? `K_p = C_{DC}\\,\\omega_{bw} \\qquad K_i = \\dfrac{\\omega_{bw}}{R_{load}}`
+    : `K_p = 0.8\\,C_{DC}\\,\\omega_{bw} \\qquad K_i = 0.3\\,C_{DC}\\,\\omega_{bw}^2`;
+  const formulaFallbackV = voltDesignMethod === 'cancel'
+    ? 'Kp = C_DC·ωbw   Ki = ωbw / R_load'
+    : 'Kp = 0.8·C_DC·ωbw   Ki = 0.3·C_DC·ωbw²';
   const formulaElVDesign = document.getElementById('formula_v_design');
   if (formulaElVDesign && typeof katex !== 'undefined') {
     try {
-      katex.render(`K_p = 0.8\\,C_{DC}\\,\\omega_{bw} \\qquad K_i = 0.3\\,C_{DC}\\,\\omega_{bw}^2`, formulaElVDesign, { throwOnError: false, displayMode: true });
-    } catch (e) { formulaElVDesign.textContent = 'Kp = 0.8·C_DC·ωbw   Ki = 0.3·C_DC·ωbw²'; }
+      katex.render(formulaTexV, formulaElVDesign, { throwOnError: false, displayMode: true });
+    } catch (e) { formulaElVDesign.textContent = formulaFallbackV; }
   } else if (formulaElVDesign) {
-    formulaElVDesign.textContent = 'Kp = 0.8·C_DC·ωbw   Ki = 0.3·C_DC·ωbw²';
+    formulaElVDesign.textContent = formulaFallbackV;
   }
 
   // Mantiene la barra BW duplicata (accanto alla step response) sincronizzata
@@ -751,9 +791,7 @@ function updateVoltageLoop() {
   const Rload = parseFloat(document.getElementById('R_load').value) || 53.3;
   const f_line = parseFloat(document.getElementById('f_line').value) || 50;
 
-  const w_bw = 2 * Math.PI * bw;
-  const Kp = C * w_bw * 0.8;
-  const Ki = C * w_bw * w_bw * 0.3;
+  const { Kp, Ki } = computeVoltageLoopGains(C, Rload, bw, voltDesignMethod);
 
   document.getElementById('kp_v').textContent = Kp.toFixed(4);
   document.getElementById('ki_v').textContent = Ki.toFixed(4);
@@ -783,7 +821,36 @@ function updateVoltageLoop() {
     phases.push(cArg(H));
   }
 
-  const prev = compareEnabled.voltage ? prevCurves.voltage : null;
+  // Overlay tratteggiato sul Bode: o lo snapshot di un tuning precedente, o
+  // (mutuamente esclusivo, vedi toggleCompare/toggleVoltMethodCompare) il
+  // metodo di design alternativo a quello attivo, per confrontarli senza
+  // dover cambiare selezione avanti e indietro.
+  const infoElVCompare = document.getElementById('voltMethodCompareInfo');
+  let prev = compareEnabled.voltage ? prevCurves.voltage : null;
+  if (voltMethodCompareEnabled) {
+    const altMethod = voltDesignMethod === 'cancel' ? 'scaled' : 'cancel';
+    const altGains = computeVoltageLoopGains(C, Rload, bw, altMethod);
+    const altNumOL = [altGains.Ki, altGains.Kp];
+    const altMags = [], altPhases = [];
+    for (let i = 0; i < freqs.length; i++) {
+      const w = 2 * Math.PI * freqs[i];
+      const H = evalTF(altNumOL, denOL, complex(0, w));
+      altMags.push(20 * Math.log10(cAbs(H)));
+      altPhases.push(cArg(H));
+    }
+    let altPm = 90;
+    for (let i = 0; i < freqs.length; i++) {
+      if (Math.abs(altMags[i]) < 1) { altPm = 180 + altPhases[i]; break; }
+    }
+    prev = { freqs, mags: altMags };
+    const altLabel = altMethod === 'cancel' ? 'Cancellazione polo' : 'Scaling da BW';
+    if (infoElVCompare) {
+      infoElVCompare.style.display = '';
+      infoElVCompare.textContent = `Metodo alternativo (${altLabel}): Kp=${altGains.Kp.toFixed(4)}, Ki=${altGains.Ki.toFixed(4)}, PM=${altPm.toFixed(1)}°`;
+    }
+  } else if (infoElVCompare) {
+    infoElVCompare.style.display = 'none';
+  }
   drawBodeDual('bodeV', freqs, mags, phases, mags, phases, bw, prev);
 
   let pm = 90, gm = 100;
@@ -1459,10 +1526,24 @@ function computeCurrentLoopPM(L, R, bw, f_sw, includeParasitics) {
   return { Kp, Ki, pm };
 }
 
-function computeVoltageLoopPM(C, Rload, bw) {
+// Guadagni PI del loop di Tensione, coi due metodi di design disponibili:
+// - 'cancel': cancellazione del polo del plant (esplicita R_load), duale del
+//   metodo del loop di Corrente. Kp/Ki ricavati imponendo che lo zero del PI
+//   cada esattamente sul polo del plant 1/(R_load*C_DC):
+//     Ki/Kp = 1/(R_load*C_DC)  =>  L_OL(s) = Kp/(s*C_DC)  =>  Kp = C_DC*wbw, Ki = wbw/R_load
+// - 'scaled': scaling fisso da BW (storico, robusto a variazioni di carico
+//   perché non dipende da R_load — vedi nota nel tab Tensione).
+function computeVoltageLoopGains(C, Rload, bw, method) {
   const w_bw = 2 * Math.PI * bw;
-  const Kp = C * w_bw * 0.8;
-  const Ki = C * w_bw * w_bw * 0.3;
+  if (method === 'cancel') {
+    const R = Rload > 0 ? Rload : 53.3; // carico nullo/invalido non ha senso fisico
+    return { Kp: C * w_bw, Ki: w_bw / R };
+  }
+  return { Kp: C * w_bw * 0.8, Ki: C * w_bw * w_bw * 0.3 };
+}
+
+function computeVoltageLoopPM(C, Rload, bw, method) {
+  const { Kp, Ki } = computeVoltageLoopGains(C, Rload, bw, method);
   const numOL = [Ki, Kp];
   const denOL = [0, 1 / Rload, C];
 
@@ -1576,7 +1657,7 @@ function runSweep() {
       if (paramId === 'C_dc') { C = C_nom * variation; x = C * 1e6; }
       else if (paramId === 'R_load') { Rload = Rload_nom * variation; x = Rload; }
       else { bw = bwV_nom * variation; x = bw; }
-      const res = computeVoltageLoopPM(C, Rload, bw);
+      const res = computeVoltageLoopPM(C, Rload, bw, voltDesignMethod);
       pm = res.pm;
       os = overshootFromPM(pm);
     } else {
@@ -1641,7 +1722,7 @@ function runWorstCase() {
     const resI = computeCurrentLoopPM(L, R, bwI, f_sw, true);
     const C = C_nom * c.Cf;
     const Rload = Rload_nom * c.Rf;
-    const resV = computeVoltageLoopPM(C, Rload, bwV);
+    const resV = computeVoltageLoopPM(C, Rload, bwV, voltDesignMethod);
     return { label: c.label, pmI: resI.pm, pmV: resV.pm };
   });
 
@@ -1684,7 +1765,7 @@ function runLoadRobustness() {
     // end and under-sample near full load where behavior changes fastest.
     const logMin = Math.log10(Rmin), logMax = Math.log10(Rmax);
     const R = Math.pow(10, logMin + (logMax - logMin) * i / (nPoints - 1));
-    const res = computeVoltageLoopPM(C_nom, R, bwV);
+    const res = computeVoltageLoopPM(C_nom, R, bwV, voltDesignMethod);
     const poleFreq = 1 / (2 * Math.PI * R * C_nom);
     rVals.push(R);
     pmVals.push(res.pm);
@@ -1695,9 +1776,9 @@ function runLoadRobustness() {
   drawSweepLine('loadBWPlot', rVals, poleFreqVals, bwV, 'f_polo (Hz)');
 
   const minPM = Math.min(...pmVals);
-  const resAtMin = computeVoltageLoopPM(C_nom, Rmin, bwV);
-  const resAtMax = computeVoltageLoopPM(C_nom, Rmax, bwV);
-  const resAtNom = computeVoltageLoopPM(C_nom, Rload_nom, bwV);
+  const resAtMin = computeVoltageLoopPM(C_nom, Rmin, bwV, voltDesignMethod);
+  const resAtMax = computeVoltageLoopPM(C_nom, Rmax, bwV, voltDesignMethod);
+  const resAtNom = computeVoltageLoopPM(C_nom, Rload_nom, bwV, voltDesignMethod);
 
   document.getElementById('load_pm_min').textContent = minPM.toFixed(1);
   document.getElementById('load_pm_at_rmin').textContent = resAtMin.pm.toFixed(1);
