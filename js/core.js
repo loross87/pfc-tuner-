@@ -150,7 +150,9 @@ function onTopologyChanged() {
 // ---------- All input field IDs used across the app ----------
 const ALL_PARAM_IDS = [
   'v_ac', 'f_line', 'p_out', 'v_dc', 'L', 'R_l', 'C_dc', 'f_sw', 'R_load',
-  'td_pwm', 'f_sense', 'f_aaf', 'td_dig'
+  'td_pwm', 'f_sense', 'f_aaf', 'td_dig',
+  'v2_dab', 'n_dab', 'lk_dab', 'f_sw_dab', 'c_out2_dab', 'r_load2_dab',
+  'td_pwm_dab', 'f_sense_dab', 'f_aaf_dab', 'td_dig_dab'
 ];
 
 // ---------- Validation rules ----------
@@ -172,10 +174,10 @@ function validateAll() {
   ALL_PARAM_IDS.forEach(id => {
     if (isNaN(v[id])) {
       issues.push({ field: id, message: 'Valore non valido', severity: 'error' });
-    } else if (v[id] <= 0 && id !== 'td_dig') {
-      // td_dig could theoretically be 0, but not negative; others must be > 0
+    } else if (v[id] <= 0 && id !== 'td_dig' && id !== 'td_dig_dab') {
+      // td_dig/td_dig_dab could theoretically be 0, but not negative; others must be > 0
       if (v[id] < 0) issues.push({ field: id, message: 'Il valore non può essere negativo', severity: 'error' });
-      else if (v[id] === 0 && !['td_pwm','td_dig'].includes(id)) issues.push({ field: id, message: 'Il valore deve essere maggiore di zero', severity: 'error' });
+      else if (v[id] === 0 && !['td_pwm','td_dig','td_pwm_dab','td_dig_dab'].includes(id)) issues.push({ field: id, message: 'Il valore deve essere maggiore di zero', severity: 'error' });
     }
   });
 
@@ -323,8 +325,17 @@ function applyPresetFromCompare(which) {
 }
 
 // ---------- LocalStorage persistence ----------
+// Campi persistiti del tab DAB — bucket separato (data.dab), additivo: un
+// file salvato prima dell'introduzione del DAB non ha questa chiave e
+// applyLoadedData() la salta senza errori (vedi sotto).
+const DAB_PERSISTED_IDS = [
+  'v2_dab', 'n_dab', 'lk_dab', 'f_sw_dab', 'c_out2_dab', 'r_load2_dab',
+  'ripple_target_pct_dab', 'td_pwm_dab', 'f_sense_dab', 'f_aaf_dab', 'td_dig_dab',
+  'bw_dab_slider', 'disc_method_dab', 'disc_fs_dab', 'ki_corr_dab_tcalc'
+];
+
 function collectAllParams() {
-  const data = { system: {}, parasitics: {}, loops: {} };
+  const data = { system: {}, parasitics: {}, loops: {}, dab: {} };
   ['v_ac','f_line','p_out','v_dc','L','R_l','C_dc','f_sw','R_load','topology','ripple_target_pct','holdup_vmin'].forEach(id => {
     const el = document.getElementById(id);
     if (el) data.system[id] = el.value;
@@ -336,6 +347,10 @@ function collectAllParams() {
   ['bw_i_slider','bw_v_slider','bw_pll_slider','zeta_pll_slider','disc_method_i','disc_fs_i','disc_method_v','disc_fs_v','ki_corr_tcalc','load_rmin_pct','load_rmax_pct','disc_method_pll','disc_fs_pll','adc_loop','adc_bits','adc_fullscale','pll_step_freq_delta','pll_step_phase_delta'].forEach(id => {
     const el = document.getElementById(id);
     if (el) data.loops[id] = el.value;
+  });
+  DAB_PERSISTED_IDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) data.dab[id] = el.value;
   });
   return data;
 }
@@ -373,6 +388,10 @@ function applyLoadedData(data) {
     if (el) el.value = val;
   });
   if (data.loops) Object.entries(data.loops).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val;
+  });
+  if (data.dab) Object.entries(data.dab).forEach(([id, val]) => {
     const el = document.getElementById(id);
     if (el) el.value = val;
   });
@@ -463,7 +482,7 @@ function exportPDFReport() {
   // until the user manually revisited that tab. We now genuinely activate
   // each panel (moved off-screen so the user doesn't see the flicker),
   // render into it, then restore the original active panel exactly as it was.
-  const panelsToCapture = ['current', 'voltage', 'pll', 'robustness'];
+  const panelsToCapture = ['current', 'voltage', 'pll', 'dab', 'robustness'];
   const originalActivePanel = document.querySelector('.panel.active');
   const originalActiveTab = document.querySelector('.tab.active');
   const savedTab = currentTab;
@@ -522,7 +541,24 @@ function exportPDFReport() {
   const discRows = [
     ['Corrente', document.getElementById('disc_method_i')?.value || '--', document.getElementById('disc_fs_i')?.value || '--', document.getElementById('disc_i_b0')?.textContent || '--', document.getElementById('disc_i_b1')?.textContent || '--'],
     ['Tensione', document.getElementById('disc_method_v')?.value || '--', document.getElementById('disc_fs_v')?.value || '--', document.getElementById('disc_v_b0')?.textContent || '--', document.getElementById('disc_v_b1')?.textContent || '--'],
-    ['PLL', document.getElementById('disc_method_pll')?.value || '--', document.getElementById('disc_fs_pll')?.value || '--', document.getElementById('disc_pll_b0')?.textContent || '--', document.getElementById('disc_pll_b1')?.textContent || '--']
+    ['PLL', document.getElementById('disc_method_pll')?.value || '--', document.getElementById('disc_fs_pll')?.value || '--', document.getElementById('disc_pll_b0')?.textContent || '--', document.getElementById('disc_pll_b1')?.textContent || '--'],
+    ['DAB', document.getElementById('disc_method_dab')?.value || '--', document.getElementById('disc_fs_dab')?.value || '--', document.getElementById('disc_dab_b0')?.textContent || '--', document.getElementById('disc_dab_b1')?.textContent || '--']
+  ];
+
+  const dabRows = [
+    ['V2', document.getElementById('v2_dab')?.value || '--', 'V'],
+    ['n (rapporto spire)', document.getElementById('n_dab')?.value || '--', '—'],
+    ['Lk', document.getElementById('lk_dab')?.value || '--', 'μH'],
+    ['f_sw DAB', document.getElementById('f_sw_dab')?.value || '--', 'kHz'],
+    ['R_load2', document.getElementById('r_load2_dab')?.value || '--', 'Ω'],
+    ['C_out2', document.getElementById('c_out2_dab')?.value || '--', 'μF'],
+    ['K_p (DAB)', document.getElementById('kp_dab')?.textContent || '--', 'rad/V'],
+    ['K_i (DAB)', document.getElementById('ki_dab')?.textContent || '--', 'rad/(V·s)'],
+    ['PM (DAB)', document.getElementById('pm_dab')?.textContent || '--', '°'],
+    ['P_max', document.getElementById('dab_pmax')?.textContent || '--', 'W'],
+    ['φ0', document.getElementById('dab_phi0')?.textContent || '--', '°'],
+    ['d = nV2/V1', document.getElementById('dab_dratio')?.textContent || '--', '—'],
+    ['I_Lk,peak', document.getElementById('dab_ilkpeak')?.textContent || '--', 'A']
   ];
 
   const root = document.getElementById('printReportRoot');
@@ -567,6 +603,15 @@ function exportPDFReport() {
     </div>
 
     <div class="print-section">
+      <h2>DAB — Dual Active Bridge</h2>
+      <table>
+        <thead><tr><th>Parametro</th><th>Valore</th><th>Unità</th></tr></thead>
+        <tbody>${dabRows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody>
+      </table>
+      ${captureCanvasAsImg('bodeDAB', 'Bode loop DAB')}
+    </div>
+
+    <div class="print-section">
       <h2>Regolatori Discreti (z-domain)</h2>
       <table>
         <thead><tr><th>Loop</th><th>Metodo</th><th>f_camp (kHz)</th><th>b0</th><th>b1</th></tr></thead>
@@ -584,6 +629,19 @@ function exportPDFReport() {
           <tr><td>K_i originale</td><td>${document.getElementById('ki_corr_ki_orig')?.textContent || '--'}</td></tr>
           <tr><td>K_i corretto</td><td>${document.getElementById('ki_corr_ki_new')?.textContent || '--'}</td></tr>
           <tr><td>Riduzione</td><td>${document.getElementById('ki_corr_pct')?.textContent || '--'}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="print-section">
+      <h2>Correzione K<sub>i</sub> per Ritardo Digitale (DAB)</h2>
+      <table>
+        <thead><tr><th>Parametro</th><th>Valore</th></tr></thead>
+        <tbody>
+          <tr><td>T_d totale</td><td>${document.getElementById('ki_corr_dab_td')?.textContent || '--'} μs</td></tr>
+          <tr><td>K_i originale</td><td>${document.getElementById('ki_corr_dab_ki_orig')?.textContent || '--'}</td></tr>
+          <tr><td>K_i corretto</td><td>${document.getElementById('ki_corr_dab_ki_new')?.textContent || '--'}</td></tr>
+          <tr><td>Riduzione</td><td>${document.getElementById('ki_corr_dab_pct')?.textContent || '--'}</td></tr>
         </tbody>
       </table>
     </div>
@@ -663,6 +721,23 @@ function checkLoopCoherence() {
     label: `BW PLL vs f_linea/10`,
     detail: `${bwPLL} Hz vs limite ${(fLine/10).toFixed(1)} Hz`,
     status: bwPLL <= fLine / 10 ? 'ok' : (bwPLL <= fLine / 6 ? 'warn' : 'bad')
+  });
+
+  // DAB loop BW vs the DAB's own switching frequency. Intentionally NOT
+  // compared against bwV (PFC voltage loop BW): current/voltage/PLL are
+  // nested within a single converter's control hierarchy (current loop
+  // nested inside voltage loop's action, PLL supplies the frame both use),
+  // while the DAB regulates a different power stage fed from an already-
+  // regulated bus — there's no cascade relationship the way there is
+  // between the three PFC loops, so a fixed BW ratio between bw_v_slider
+  // and bw_dab_slider would be a fabricated constraint, not a real one.
+  const bwDab = parseFloat(document.getElementById('bw_dab_slider')?.value) || 0;
+  const fSwDab = (parseFloat(document.getElementById('f_sw_dab')?.value) || 100) * 1000;
+  const ratioSwDab = fSwDab / bwDab;
+  items.push({
+    label: `BW DAB vs f_sw DAB`,
+    detail: `${bwDab} Hz vs ${fSwDab} Hz (rapporto ${ratioSwDab.toFixed(1)}x)`,
+    status: ratioSwDab >= 10 ? 'ok' : (ratioSwDab >= 5 ? 'warn' : 'bad')
   });
 
   return items;
