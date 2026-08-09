@@ -700,8 +700,21 @@ function updateCurrentLoop() {
 }
 
 function updateVoltageLoop() {
-  const bw = parseInt(document.getElementById('bw_v_slider').value);
+  const bwSliderElV = document.getElementById('bw_v_slider');
+  const bw = parseInt(bwSliderElV.value);
   document.getElementById('bw_v_val').textContent = bw + ' Hz';
+
+  // Mantiene la barra BW duplicata (accanto alla step response) sincronizzata
+  // con quella principale: stesso range e stesso valore, in entrambe le direzioni.
+  const bwSlider2V = document.getElementById('bw_v_slider_2');
+  if (bwSlider2V) {
+    bwSlider2V.min = bwSliderElV.min;
+    bwSlider2V.max = bwSliderElV.max;
+    bwSlider2V.step = bwSliderElV.step;
+    bwSlider2V.value = bw;
+    const bwVal2V = document.getElementById('bw_v_val_2');
+    if (bwVal2V) bwVal2V.textContent = bw + ' Hz';
+  }
 
   const C = (parseFloat(document.getElementById('C_dc').value) || 1000) * 1e-6;
   const Rload = parseFloat(document.getElementById('R_load').value) || 53.3;

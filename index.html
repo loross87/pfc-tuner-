@@ -439,6 +439,11 @@
     <div class="card">
       <div class="card-title">📈 Risposta al Gradino - Loop Chiuso</div>
       <div class="info-text">La finestra temporale si adatta automaticamente fino a mostrare l'assestamento (banda ±2%), invece di una durata fissa che potrebbe tagliare il transitorio con margini di fase ridotti.</div>
+      <div class="slider-row">
+        <span style="min-width:80px;font-size:0.85rem;">BW:</span>
+        <input type="range" id="bw_v_slider_2" min="1" max="50" value="10" step="1" oninput="document.getElementById('bw_v_slider').value=this.value; updateVoltageLoop()">
+        <span class="slider-val" id="bw_v_val_2">10 Hz</span>
+      </div>
       <div class="canvas-container" id="containerStepV"><canvas id="stepV" height="220"></canvas></div>
       <div class="result-grid">
         <div class="result-box"><div class="val" id="stepV_settling">--</div><div class="lbl">T<sub>settling</sub> ±2% (ms)</div></div>
