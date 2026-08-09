@@ -162,6 +162,19 @@ function computeSystem() {
   updateCapacitorSizing();
 }
 
+// ---------- Carico equivalente (R_load da P_out/V_DC) ----------
+// Stesso modello resistivo usato dal loop di Tensione (G_plant = 1/(sC + 1/R_load)):
+// R_load = V_DC^2 / P_out = V_DC / I_out, con I_out = P_out / V_DC.
+function computeEquivalentLoad() {
+  const p_out = parseFloat(document.getElementById('p_out').value) || 3000;
+  const v_dc = parseFloat(document.getElementById('v_dc').value) || 400;
+  const rEq = (v_dc * v_dc) / p_out;
+
+  document.getElementById('R_load').value = rEq.toFixed(2);
+  computeSystem();
+  showToast(`R_load aggiornata a ${rEq.toFixed(2)} Ω (da P=${p_out} W, V=${v_dc} V)`, 'success', 2500);
+}
+
 // ---------- Capacitor sizing (ripple target -> Cmin) and hold-up time ----------
 function updateCapacitorSizing() {
   const p_out = parseFloat(document.getElementById('p_out').value) || 3000;
@@ -1775,6 +1788,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const restored = loadFromStorageIfPresent();
   applyValidationUI();
   computeSystem();
+  renderEquations(); // popola anche i blocchi eq-block statici fuori dal tab Equazioni (es. C_min, t_hold, R_load)
   if (restored) showToast('Configurazione precedente ripristinata', 'success', 1800);
 
   ALL_PARAM_IDS.forEach(id => {

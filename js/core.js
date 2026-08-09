@@ -80,13 +80,17 @@ function renderEquations(retryCount) {
     if (retryCount < 20) {
       setTimeout(() => renderEquations(retryCount + 1), 150);
     } else {
-      document.querySelectorAll('#panel-equations .eq-block').forEach(el => {
+      document.querySelectorAll('.eq-block').forEach(el => {
         if (!el.textContent) el.textContent = el.dataset.latex || '';
       });
     }
     return;
   }
-  document.querySelectorAll('#panel-equations .eq-block').forEach(el => {
+  // Nota: scansiona tutti i blocchi .eq-block[data-latex] del documento, non
+  // solo quelli dentro #panel-equations — alcune card (es. dimensionamento
+  // C_DC/hold-up nel tab Sistema, quantizzazione ADC nel tab Robustezza)
+  // usano lo stesso pattern dichiarativo data-latex ma vivono in altri tab.
+  document.querySelectorAll('.eq-block').forEach(el => {
     const tex = el.dataset.latex;
     if (!tex) return;
     try {
