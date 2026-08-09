@@ -31,6 +31,7 @@
     <button class="tab" onclick="switchTab('current', event)">Corrente</button>
     <button class="tab" onclick="switchTab('voltage', event)">Tensione</button>
     <button class="tab" onclick="switchTab('pll', event)">PLL</button>
+    <button class="tab" onclick="switchTab('dab', event)">DAB</button>
     <button class="tab" onclick="switchTab('grid', event)">Rete</button>
     <button class="tab" onclick="switchTab('power', event)">Potenza</button>
     <button class="tab" onclick="switchTab('ripple', event)">Ripple</button>
@@ -625,6 +626,252 @@
     </div>
   </div>
 
+  <div class="panel" id="panel-dab">
+    <div class="card">
+      <div class="card-title">🔌 DAB — Dual Active Bridge (stadio isolato a valle)</div>
+      <div class="info-text">Il DAB è un secondo stadio DC-DC isolato bidirezionale, a valle del bus PFC — architettura a due stadi. La sua tensione di ingresso V<sub>1</sub> e la potenza trasferita P sono lette direttamente dal tab Sistema (V<sub>DC</sub> e P<sub>out</sub>, trasferimento assunto senza perdite). C<sub>out2</sub> e f<sub>sw</sub> del DAB sono indipendenti da C<sub>DC</sub> e f<sub>sw</sub> del PFC — non li condividono, sono condensatore e frequenza di commutazione di uno stadio fisicamente diverso.</div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="dab_v1">--</div><div class="lbl">V<sub>1</sub> (bus PFC, V)</div></div>
+        <div class="result-box"><div class="val" id="dab_p">--</div><div class="lbl">P trasferita (W)</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⚡ Parametri DAB</div>
+      <div class="param-grid">
+        <div class="param">
+          <label>V<sub>2</sub> — uscita (V)
+            <span class="tooltip-trigger" onclick="toggleTooltip('v2dab', event)">?</span>
+            <div class="tooltip-box" id="tt-v2dab">Tensione DC lato secondario (uscita del DAB).</div>
+          </label>
+          <input type="number" id="v2_dab" value="400" step="5" oninput="updateDAB()">
+          <div class="param-error" id="err-v2_dab"></div>
+        </div>
+        <div class="param">
+          <label>n — rapporto spire (N<sub>p</sub>:N<sub>s</sub>)
+            <span class="tooltip-trigger" onclick="toggleTooltip('ndab', event)">?</span>
+            <div class="tooltip-box" id="tt-ndab">Rapporto di trasformazione n = N_p/N_s. La tensione secondaria riferita al primario è n·V2.</div>
+          </label>
+          <input type="number" id="n_dab" value="1.6" step="0.05" oninput="updateDAB()">
+        </div>
+        <div class="param">
+          <label>L<sub>k</sub> — induttanza dispersione, riferita al primario (μH)
+            <span class="tooltip-trigger" onclick="toggleTooltip('lkdab', event)">?</span>
+            <div class="tooltip-box" id="tt-lkdab">Induttanza serie (leakage del trasformatore + eventuale induttore esterno) che veicola il trasferimento di potenza in modulazione SPS.</div>
+          </label>
+          <input type="number" id="lk_dab" value="20" step="1" oninput="updateDAB()">
+        </div>
+        <div class="param">
+          <label>f<sub>sw</sub> DAB (kHz)
+            <span class="tooltip-trigger" onclick="toggleTooltip('fswdab', event)">?</span>
+            <div class="tooltip-box" id="tt-fswdab">Frequenza di commutazione del DAB — tipicamente molto più alta di quella del PFC, indipendente da f_sw (tab Sistema).</div>
+          </label>
+          <input type="number" id="f_sw_dab" value="100" step="5" oninput="updateDAB()">
+        </div>
+        <div class="param">
+          <label>R<sub>load2</sub> — carico secondario (Ω)
+            <span class="tooltip-trigger" onclick="toggleTooltip('rload2dab', event)">?</span>
+            <div class="tooltip-box" id="tt-rload2dab">Resistenza di carico equivalente vista dall'uscita del DAB, stesso modello resistivo usato dal loop di Tensione del PFC.</div>
+          </label>
+          <input type="number" id="r_load2_dab" value="53.3" step="0.1" oninput="updateDAB()">
+        </div>
+      </div>
+      <div class="eq-block" data-latex="R_{load2} = \dfrac{V_2^2}{P_{out}}"></div>
+      <button class="btn btn-secondary" onclick="computeDABEquivalentLoad()">🔁 Calcola R<sub>load2</sub> da P/V<sub>2</sub></button>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="title-left">🔩 Dimensionamento a Regime (SPS)
+          <span class="tooltip-trigger" onclick="toggleTooltip('dabss', event)">?</span>
+          <div class="tooltip-box" id="tt-dabss">Modulazione Single-Phase-Shift (SPS): la potenza trasferita è funzione dello sfasamento φ tra i due ponti. Qui φ<sub>0</sub> viene risolto dal bilancio di potenza (P = P<sub>out</sub> del tab Sistema), non impostato manualmente.</div>
+        </div>
+      </div>
+      <div class="eq-block" data-latex="P = \dfrac{nV_1V_2}{2\pi f_{sw}L_k}\,\varphi\left(1-\dfrac{|\varphi|}{\pi}\right)"></div>
+      <div class="eq-block" data-latex="P_{max} = \dfrac{nV_1V_2}{8f_{sw}L_k} \quad (\varphi=\pi/2)"></div>
+      <div class="eq-block" data-latex="d = \dfrac{nV_2}{V_1}"></div>
+      <div class="info-text">Trasferimento assunto senza perdite: la potenza P risolta per φ<sub>0</sub> è quella letta da P<sub>out</sub> (tab Sistema).</div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="dab_pmax">--</div><div class="lbl">P<sub>max</sub> (W)</div></div>
+        <div class="result-box"><div class="val" id="dab_phi0">--</div><div class="lbl">φ<sub>0</sub> (°)</div></div>
+        <div class="result-box"><div class="val" id="dab_dratio">--</div><div class="lbl">d = nV<sub>2</sub>/V<sub>1</sub></div></div>
+        <div class="result-box"><div class="val" id="dab_ilkpeak">--</div><div class="lbl">I<sub>Lk,peak</sub> (A)</div></div>
+      </div>
+      <div id="badge_dab_pmax"></div>
+      <div id="badge_dab_zvs"></div>
+      <div class="info-text">Verifica ZVS approssimata: euristica su d, non un confine ZVS esatto — segnala solo un allontanamento significativo dal caso adattato (d≈1) dove la regione ZVS tipicamente si riduce.</div>
+      <div class="canvas-container" id="containerDabPPhi"><canvas id="dabPPhiPlot" height="220"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="title-left">🔋 Dimensionamento C<sub>out2</sub> da Ripple Target
+          <span class="tooltip-trigger" onclick="toggleTooltip('dabcsize', event)">?</span>
+          <div class="tooltip-box" id="tt-dabcsize">Come la card analoga nel tab Sistema, ma per il condensatore d'uscita del DAB: il ripple dominante qui è a 2·f_sw DAB (corrente raddrizzata lato secondario), non a 2·f_linea.</div>
+        </div>
+      </div>
+      <div class="param-grid">
+        <div class="param">
+          <label>Ripple V<sub>2</sub> target (%)</label>
+          <input type="number" id="ripple_target_pct_dab" value="2" step="0.5" min="0.1" max="20" oninput="updateDAB()">
+        </div>
+        <div class="param">
+          <label>C<sub>out2</sub> (μF)</label>
+          <input type="number" id="c_out2_dab" value="470" step="10" oninput="updateDAB()">
+        </div>
+      </div>
+      <div class="eq-block" data-latex="C_{min} = \dfrac{P_{out}}{2\pi \cdot (2f_{sw})\cdot V_2 \cdot \Delta V_2}"></div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="cmin_dab_result">--</div><div class="lbl">C<sub>min</sub> richiesto (μF)</div></div>
+        <div class="result-box"><div class="val" id="cmin_dab_vs_actual">--</div><div class="lbl">C<sub>out2</sub> attuale vs minimo</div></div>
+      </div>
+      <div id="badge_csize_dab"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎛️ Tuning Loop di Controllo (Phase-Shift)</div>
+      <div class="info-text">Metodo: cancellazione del polo del plant V<sub>2</sub>(s)/φ(s) ≈ (G<sub>d</sub>/V<sub>2</sub>)·R<sub>load2</sub>/(1+sR<sub>load2</sub>C<sub>out2</sub>), stessa logica del loop di Tensione del PFC — con il fattore aggiuntivo V<sub>2</sub>/G<sub>d</sub> che converte l'uscita del PI (una fase, non una corrente) nelle unità del plant. G<sub>d</sub> è la transconduttanza di piccolo segnale dP/dφ nel punto di lavoro φ<sub>0</sub>.</div>
+      <div class="eq-block" id="formula_dab_design"></div>
+      <div class="slider-row">
+        <span style="min-width:80px;font-size:0.85rem;">BW:</span>
+        <input type="range" id="bw_dab_slider" min="50" max="5000" value="500" step="50" oninput="updateDAB()">
+        <span class="slider-val" id="bw_dab_val">500 Hz</span>
+      </div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="kp_dab">--</div><div class="lbl">K<sub>p</sub> (rad/V)</div></div>
+        <div class="result-box"><div class="val" id="ki_dab">--</div><div class="lbl">K<sub>i</sub> (rad/(V·s))</div></div>
+        <div class="result-box"><div class="val" id="pm_dab">--</div><div class="lbl">Margine Fase (°)</div></div>
+        <div class="result-box"><div class="val" id="gm_dab">--</div><div class="lbl">Margine Guadagno (dB)</div></div>
+      </div>
+      <div id="badge_dab"></div>
+      <div class="compare-toggle">
+        <label class="switch">
+          <input type="checkbox" onchange="toggleCompare('dab', this.checked)">
+          <span class="switch-slider"></span>
+        </label>
+        <span>Confronta con tuning precedente</span>
+        <button class="icon-btn" style="width:auto;padding:0 10px;height:28px;font-size:0.75rem;" onclick="saveSnapshotForComparison('dab')">📌 Salva attuale</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="title-left">⏱️ Correzione K<sub>i</sub> per Ritardo Digitale
+          <span class="tooltip-trigger" onclick="toggleTooltip('kiCorrDab', event)">?</span>
+          <div class="tooltip-box" id="tt-kiCorrDab">Stessa correzione semplificata usata per il loop di Corrente: riduce K<sub>i</sub> per compensare la fase persa dal ritardo di campionamento/calcolo, lasciando K<sub>p</sub> invariato.</div>
+        </div>
+      </div>
+      <div class="param-grid">
+        <div class="param">
+          <label>T<sub>calc</sub> extra (μs)</label>
+          <input type="number" id="ki_corr_dab_tcalc" value="0" step="0.5" min="0" oninput="updateDAB()">
+        </div>
+      </div>
+      <div class="eq-block" id="ki_corr_dab_formula"></div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="ki_corr_dab_td">--</div><div class="lbl">T<sub>d</sub> totale (μs)</div></div>
+        <div class="result-box"><div class="val" id="ki_corr_dab_ki_orig">--</div><div class="lbl">K<sub>i</sub> originale</div></div>
+        <div class="result-box"><div class="val" id="ki_corr_dab_ki_new">--</div><div class="lbl">K<sub>i</sub> corretto</div></div>
+        <div class="result-box"><div class="val" id="ki_corr_dab_pct">--</div><div class="lbl">Riduzione K<sub>i</sub></div></div>
+      </div>
+      <div id="ki_corr_dab_badge"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">
+        <div class="title-left">💾 Regolatore Discreto (z-domain)
+          <span class="tooltip-trigger" onclick="toggleTooltip('discDab', event)">?</span>
+          <div class="tooltip-box" id="tt-discDab">Conversione di K<sub>p</sub>/K<sub>i</sub> nell'equazione alle differenze per il firmware, coerente con le card analoghe di Corrente/Tensione/PLL.</div>
+        </div>
+      </div>
+      <div class="param-grid">
+        <div class="param">
+          <label>Metodo</label>
+          <select id="disc_method_dab" onchange="updateDAB()">
+            <option value="tustin">Tustin (bilineare)</option>
+            <option value="backward">Backward Euler</option>
+            <option value="forward">Forward Euler</option>
+          </select>
+        </div>
+        <div class="param">
+          <label>f<sub>campionamento</sub> (kHz)</label>
+          <input type="number" id="disc_fs_dab" value="20" step="1" min="0.1" oninput="updateDAB()">
+        </div>
+      </div>
+      <div class="toggle-row" style="margin-top:4px;">
+        <button class="toggle-btn active" id="btnDiscKiOrigDab" onclick="setDiscKiSourceDab('orig')">Usa K<sub>i</sub> originale</button>
+        <button class="toggle-btn" id="btnDiscKiCorrDab" onclick="setDiscKiSourceDab('corr')">Usa K<sub>i</sub> corretto</button>
+      </div>
+      <div class="info-text" id="disc_dab_note"></div>
+      <div class="eq-block" id="disc_dab_formula"></div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="disc_dab_b0">--</div><div class="lbl">b<sub>0</sub></div></div>
+        <div class="result-box"><div class="val" id="disc_dab_b1">--</div><div class="lbl">b<sub>1</sub></div></div>
+        <div class="result-box"><div class="val" id="disc_dab_a1">--</div><div class="lbl">a<sub>1</sub></div></div>
+        <div class="result-box"><div class="val" id="disc_dab_ts">--</div><div class="lbl">T<sub>s</sub> (μs)</div></div>
+      </div>
+      <div class="formula" id="disc_dab_code"></div>
+      <div id="disc_dab_badge"></div>
+      <div class="collapse-header" onclick="toggleCollapse(this)" style="margin-top:14px;">
+        <h3>⚖️ Confronto metodi di discretizzazione</h3>
+        <span class="collapse-icon">▼</span>
+      </div>
+      <div class="collapse-body" id="collapse-discCompareDAB">
+        <div class="info-text" style="margin-bottom:8px;">Risposta in frequenza del regolatore discretizzato con i tre metodi, sovrapposta al PI continuo di riferimento.</div>
+        <div class="canvas-container" id="containerDiscCompareDAB"><canvas id="discCompareDABPlot" height="240"></canvas></div>
+        <div class="legend-row">
+          <div class="legend-item"><div class="legend-line ideal"></div>Continuo (riferimento)</div>
+          <div class="legend-item"><div class="legend-line real"></div>Tustin</div>
+          <div class="legend-item"><div class="legend-dot b"></div>Backward Euler</div>
+          <div class="legend-item"><div class="legend-dot c"></div>Forward Euler</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="collapse-header" onclick="toggleCollapse(this)">
+        <h3>🔬 Effetti Parassiti (PWM, Sensing, Digitale)</h3>
+        <span class="collapse-icon">▼</span>
+      </div>
+      <div class="collapse-body" id="collapse-parasiticDAB">
+        <div class="info-text" style="margin-bottom:10px;">Ritardi propri del DAB (non condivisi con la card parassiti del loop di Corrente, che ha una f_sw molto più bassa). Regola questi parametri per vedere l'impatto sul Bode.</div>
+        <div class="param-grid">
+          <div class="param"><label>Ritardo PWM (μs)</label><input type="number" id="td_pwm_dab" value="2" step="0.5" oninput="updateDABDebounced()"></div>
+          <div class="param"><label>Polo sensing (kHz)</label><input type="number" id="f_sense_dab" value="200" step="10" oninput="updateDABDebounced()"></div>
+          <div class="param"><label>Polo AAF (kHz)</label><input type="number" id="f_aaf_dab" value="50" step="5" oninput="updateDABDebounced()"></div>
+          <div class="param"><label>Ritardo digitale (Ts)</label><input type="number" id="td_dig_dab" value="1.0" step="0.5" oninput="updateDABDebounced()"></div>
+        </div>
+        <div class="legend-row" style="margin-top:10px;">
+          <div class="legend-item"><div class="legend-line ideal"></div>Loop ideale</div>
+          <div class="legend-item"><div class="legend-line real"></div>Loop reale (con parassiti)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📉 Bode Loop Aperto - DAB</div>
+      <div class="canvas-container" id="containerBodeDAB"><canvas id="bodeDAB" height="320"></canvas></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📈 Risposta al Gradino - Loop Chiuso</div>
+      <div class="info-text">La finestra temporale si adatta automaticamente fino a mostrare l'assestamento (banda ±2%).</div>
+      <div class="slider-row">
+        <span style="min-width:80px;font-size:0.85rem;">BW:</span>
+        <input type="range" id="bw_dab_slider_2" min="50" max="5000" value="500" step="50" oninput="document.getElementById('bw_dab_slider').value=this.value; updateDAB()">
+        <span class="slider-val" id="bw_dab_val_2">500 Hz</span>
+      </div>
+      <div class="canvas-container" id="containerStepDAB"><canvas id="stepDAB" height="220"></canvas></div>
+      <div class="result-grid">
+        <div class="result-box"><div class="val" id="stepDAB_settling">--</div><div class="lbl">T<sub>settling</sub> ±2% (ms)</div></div>
+        <div class="result-box"><div class="val" id="stepDAB_overshoot">--</div><div class="lbl">Overshoot</div></div>
+        <div class="result-box"><div class="val" id="stepDAB_rise">--</div><div class="lbl">T<sub>rise</sub> 10-90% (ms)</div></div>
+        <div class="result-box"><div class="val" id="stepDAB_final">--</div><div class="lbl">Valore finale</div></div>
+      </div>
+      <div id="stepDAB_badge"></div>
+    </div>
+  </div>
+
   <div class="panel" id="panel-grid">
     <div class="card">
       <div class="card-title">⚡ Forme d'onda di Rete - PFC Trifase</div>
@@ -906,6 +1153,22 @@
       <div class="info-text">Funzione di trasferimento del bus DC (capacità con carico resistivo equivalente).</div>
       <div class="eq-block" data-latex="K_p = 0.8\,C_{DC}\,\omega_{bw} \qquad K_i = 0.3\,C_{DC}\,\omega_{bw}^2"></div>
       <div class="info-text">Guadagni del PI, scelti per una banda passante target molto più lenta del loop di corrente (regola pratica: almeno 10× più lenta).</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🔌 DAB — Dual Active Bridge (SPS)</div>
+      <div class="eq-block" data-latex="P = \dfrac{nV_1V_2}{2\pi f_{sw}L_k}\,\varphi\left(1-\dfrac{|\varphi|}{\pi}\right)"></div>
+      <div class="info-text">Potenza trasferita, modulazione Single-Phase-Shift (SPS). n = rapporto spire primario:secondario, φ = sfasamento tra i due ponti (rad), L<sub>k</sub> riferita al primario.</div>
+      <div class="eq-block" data-latex="P_{max} = \dfrac{n V_1 V_2}{8 f_{sw} L_k} \quad (\varphi=\pi/2)"></div>
+      <div class="info-text">Potenza massima trasferibile, a sfasamento φ=π/2.</div>
+      <div class="eq-block" data-latex="G_d = \left.\dfrac{dP}{d\varphi}\right|_{\varphi_0} = \dfrac{nV_1V_2}{2\pi f_{sw}L_k}\left(1-\dfrac{2|\varphi_0|}{\pi}\right)"></div>
+      <div class="info-text">Transconduttanza di piccolo segnale fase→potenza nel punto di lavoro φ<sub>0</sub> (risolto dal bilancio di potenza P=P<sub>out</sub>).</div>
+      <div class="eq-block" data-latex="K_p = \dfrac{\omega_{bw}\,C_{out2}\,V_2}{G_d} \qquad K_i = \dfrac{\omega_{bw}}{R_{load2}}\cdot\dfrac{V_2}{G_d}"></div>
+      <div class="info-text">Guadagni PI per cancellazione del polo del plant V<sub>2</sub>(s)/φ(s) ≈ (G<sub>d</sub>/V<sub>2</sub>)·R<sub>load2</sub>/(1+sR<sub>load2</sub>C<sub>out2</sub>) — stessa logica del loop di Tensione, con il fattore aggiuntivo V<sub>2</sub>/G<sub>d</sub> che converte l'uscita del PI (una fase, non una corrente) nelle stesse unità del plant.</div>
+      <div class="eq-block" data-latex="I_0 = -\dfrac{\pi(V_1-nV_2)+2nV_2\varphi}{2\omega L_k} \qquad I_\varphi = \dfrac{V_1(2\varphi-\pi)+\pi n V_2}{2\omega L_k}"></div>
+      <div class="info-text">Corrente nell'induttanza di dispersione agli estremi del semiperiodo (forma d'onda triangolare a tratti, simmetria di semiperiodo); I<sub>Lk,peak</sub> = max(|I<sub>0</sub>|,|I<sub>φ</sub>|). Per il caso adattato (nV<sub>2</sub>=V<sub>1</sub>) si riduce a V<sub>1</sub>φ/(2πf<sub>sw</sub>L<sub>k</sub>), coerente coi risultati noti in letteratura DAB.</div>
+      <div class="eq-block" data-latex="d = \dfrac{nV_2}{V_1}"></div>
+      <div class="info-text">Rapporto di conversione: la regione ZVS lato primario è tipicamente ben estesa per d≈1 e degrada allontanandosi da 1 (qui: verifica approssimata, flag se d fuori da [0.8, 1.25]).</div>
     </div>
 
     <div class="card">

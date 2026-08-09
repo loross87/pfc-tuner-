@@ -3,8 +3,8 @@
 let currentTab = 'system';
 let gridMode = 'v';
 let rippleMode = 'full';
-let compareEnabled = { current: false, voltage: false, pll: false };
-let prevCurves = { current: null, voltage: null, pll: null };
+let compareEnabled = { current: false, voltage: false, pll: false, dab: false };
+let prevCurves = { current: null, voltage: null, pll: null, dab: null };
 
 // Metodo di design del loop di Tensione: 'cancel' (cancellazione del polo,
 // R_load esplicito — default) oppure 'scaled' (scaling fisso da BW, storico,
@@ -35,6 +35,7 @@ function refreshCurrentTab() {
   if (currentTab === 'current') { updateCurrentLoop(); }
   if (currentTab === 'voltage') { updateVoltageLoop(); }
   if (currentTab === 'pll') { updatePLL(); }
+  if (currentTab === 'dab') { updateDAB(); }
   if (currentTab === 'grid') { updateGrid(); }
   if (currentTab === 'power') { updatePower(); }
   if (currentTab === 'ripple') { updateRipple(); }
@@ -77,6 +78,7 @@ function toggleCompare(loopName, checked) {
   if (loopName === 'current') updateCurrentLoop();
   if (loopName === 'voltage') updateVoltageLoop();
   if (loopName === 'pll') updatePLL();
+  if (loopName === 'dab') updateDAB();
 }
 
 function snapshotCurve(loopName, freqs, mags) {
@@ -168,6 +170,42 @@ function parasiticMagPhase(w) {
   return { mag: magTotal, phase: phaseTotal };
 }
 
+// Mirror strutturale di parasiticMagPhase(), ma con campi propri (suffisso
+// _dab) — il DAB gira a una f_sw tipicamente molto più alta di quella del
+// PFC (loop di Corrente/Tensione), quindi non deve riusare i loro td_pwm/
+// f_sense/f_aaf/td_dig, che assumerebbero un ordine di grandezza sbagliato.
+function dabParasiticMagPhase(w) {
+  const parseFieldOrDefault = (id, def) => {
+    const v = parseFloat(document.getElementById(id).value);
+    return isNaN(v) ? def : v; // 0 è un valore fisicamente legittimo per un ritardo, mai `|| default`
+  };
+  const td_pwm = parseFieldOrDefault('td_pwm_dab', 2) * 1e-6;
+  const f_sense = parseFieldOrDefault('f_sense_dab', 200) * 1e3;
+  const f_aaf = parseFieldOrDefault('f_aaf_dab', 50) * 1e3;
+  const td_dig = parseFieldOrDefault('td_dig_dab', 1.0);
+  const f_sw = (parseFloat(document.getElementById('f_sw_dab').value) || 100) * 1e3;
+  const Ts = 1 / f_sw;
+
+  const phase_pwm = -w * td_pwm * 180 / Math.PI;
+  const mag_pwm = 1.0;
+
+  const w_sense = 2 * Math.PI * f_sense;
+  const mag_sense = 1 / Math.sqrt(1 + (w/w_sense)**2);
+  const phase_sense = -Math.atan(w/w_sense) * 180 / Math.PI;
+
+  const w_aaf = 2 * Math.PI * f_aaf;
+  const mag_aaf = 1 / Math.sqrt(1 + (w/w_aaf)**2);
+  const phase_aaf = -Math.atan(w/w_aaf) * 180 / Math.PI;
+
+  const phase_dig = -w * td_dig * Ts * 180 / Math.PI;
+  const mag_dig = 1.0;
+
+  const magTotal = mag_pwm * mag_sense * mag_aaf * mag_dig;
+  const phaseTotal = phase_pwm + phase_sense + phase_aaf + phase_dig;
+
+  return { mag: magTotal, phase: phaseTotal };
+}
+
 function computeSystem() {
   const v_ac = parseFloat(document.getElementById('v_ac').value) || 230;
   const p_out = parseFloat(document.getElementById('p_out').value) || 3000;
@@ -207,6 +245,19 @@ function computeEquivalentLoad() {
   document.getElementById('R_load').value = rEq.toFixed(2);
   computeSystem();
   showToast(`R_load aggiornata a ${rEq.toFixed(2)} Ω (da P=${p_out} W, V=${v_dc} V)`, 'success', 2500);
+}
+
+// Stesso modello resistivo, applicato all'uscita secondaria del DAB:
+// R_load2 = V2^2 / P_out (assume trasferimento di potenza senza perdite tra
+// stadio PFC e stadio DAB, come dichiarato nella card introduttiva del tab DAB).
+function computeDABEquivalentLoad() {
+  const p_out = parseFloat(document.getElementById('p_out').value) || 3000;
+  const v2 = parseFloat(document.getElementById('v2_dab').value) || 400;
+  const rEq = (v2 * v2) / p_out;
+
+  document.getElementById('r_load2_dab').value = rEq.toFixed(2);
+  updateDAB();
+  showToast(`R_load2 aggiornata a ${rEq.toFixed(2)} Ω (da P=${p_out} W, V2=${v2} V)`, 'success', 2500);
 }
 
 // ---------- Capacitor sizing (ripple target -> Cmin) and hold-up time ----------
@@ -275,6 +326,44 @@ let currentLoopDebounceTimer;
 function updateCurrentLoopDebounced() {
   clearTimeout(currentLoopDebounceTimer);
   currentLoopDebounceTimer = setTimeout(updateCurrentLoop, 250);
+}
+
+let dabDebounceTimer;
+function updateDABDebounced() {
+  clearTimeout(dabDebounceTimer);
+  dabDebounceTimer = setTimeout(updateDAB, 250);
+}
+
+// ---------- DAB output capacitor sizing (ripple target -> Cmin) ----------
+// Stessa logica di updateCapacitorSizing(), ma la frequenza di ripple
+// dominante qui è 2*f_sw_dab (corrente raddrizzata lato secondario dopo il
+// ponte), non 2*f_line come nel caso del bus PFC.
+function updateDABCapacitorSizing() {
+  const p_out = parseFloat(document.getElementById('p_out').value) || 3000;
+  const v2 = parseFloat(document.getElementById('v2_dab').value) || 400;
+  const f_sw = (parseFloat(document.getElementById('f_sw_dab').value) || 100) * 1e3;
+  const C_actual = (parseFloat(document.getElementById('c_out2_dab').value) || 470) * 1e-6;
+  const ripplePctRaw = parseFloat(document.getElementById('ripple_target_pct_dab')?.value);
+  const ripplePct = isNaN(ripplePctRaw) ? 2 : ripplePctRaw;
+
+  const deltaV = v2 * (ripplePct / 100);
+  const wRipple = 2 * Math.PI * (2 * f_sw);
+  const cMin = p_out / (wRipple * v2 * deltaV);
+  const cMinUF = cMin * 1e6;
+
+  const cminEl = document.getElementById('cmin_dab_result');
+  const cminVsEl = document.getElementById('cmin_dab_vs_actual');
+  const badgeC = document.getElementById('badge_csize_dab');
+  if (!cminEl) return;
+  cminEl.textContent = cMinUF.toFixed(0);
+  const actualUF = C_actual * 1e6;
+  const ratio = actualUF / cMinUF;
+  cminVsEl.textContent = actualUF.toFixed(0) + ' / ' + cMinUF.toFixed(0) + ' μF';
+  if (ratio >= 1) {
+    badgeC.innerHTML = '<span class="badge ok">✅ C_out2 attuale sufficiente (' + ratio.toFixed(2) + '× il minimo)</span>';
+  } else {
+    badgeC.innerHTML = '<span class="badge bad">❌ C_out2 attuale insufficiente per il ripple target (' + ratio.toFixed(2) + '× il minimo, servirebbero almeno ' + cMinUF.toFixed(0) + ' μF)</span>';
+  }
 }
 
 // ===================== Step response analysis (adaptive window + metrics) =====================
@@ -360,8 +449,9 @@ function simulateStepResponse(stepFn, dt, nominalTau, maxCycles) {
   return { times, vals, settlingTime, settled, overshootPct, riseTime, finalValue, targetValue };
 }
 
+const STEP_PREFIX_BY_LOOP = { current: 'stepI', voltage: 'stepV', dab: 'stepDAB' };
 function displayStepMetrics(loopName, result) {
-  const prefix = loopName === 'current' ? 'stepI' : 'stepV';
+  const prefix = STEP_PREFIX_BY_LOOP[loopName] || ('step' + loopName);
   const settlingEl = document.getElementById(prefix + '_settling');
   const overshootEl = document.getElementById(prefix + '_overshoot');
   const riseEl = document.getElementById(prefix + '_rise');
@@ -485,6 +575,14 @@ function setDiscKiSource(source) {
   document.getElementById('btnDiscKiOrig').classList.toggle('active', source === 'orig');
   document.getElementById('btnDiscKiCorr').classList.toggle('active', source === 'corr');
   updateCurrentLoop();
+}
+
+let discKiSource_dab = 'orig';
+function setDiscKiSourceDab(source) {
+  discKiSource_dab = source;
+  document.getElementById('btnDiscKiOrigDab').classList.toggle('active', source === 'orig');
+  document.getElementById('btnDiscKiCorrDab').classList.toggle('active', source === 'corr');
+  updateDAB();
 }
 
 function renderDiscreteController(prefix, Kp, Ki, fsKHz, method) {
@@ -1246,7 +1344,177 @@ function saveSnapshotForComparison(loopName) {
   } else if (loopName === 'pll' && window._lastPLLSnapshot) {
     snapshotCurve('pll', window._lastPLLSnapshot.freqs, window._lastPLLSnapshot.mags);
     showToast('Curva salvata per confronto', 'success');
+  } else if (loopName === 'dab' && window._lastDabSnapshot) {
+    snapshotCurve('dab', window._lastDabSnapshot.freqs, window._lastDabSnapshot.mags);
+    showToast('Curva salvata per confronto', 'success');
   }
+}
+
+// ===================== DAB tab orchestrator =====================
+function updateDAB() {
+  const bwSliderElDab = document.getElementById('bw_dab_slider');
+  const bw = parseInt(bwSliderElDab.value);
+  const bwLabel = (bw >= 1000 ? (bw/1000).toFixed(1) + ' kHz' : bw + ' Hz');
+  document.getElementById('bw_dab_val').textContent = bwLabel;
+
+  // Mantiene la barra BW duplicata (accanto alla step response) sincronizzata
+  // con quella principale: stesso range e stesso valore, in entrambe le direzioni.
+  const bwSlider2Dab = document.getElementById('bw_dab_slider_2');
+  if (bwSlider2Dab) {
+    bwSlider2Dab.min = bwSliderElDab.min;
+    bwSlider2Dab.max = bwSliderElDab.max;
+    bwSlider2Dab.step = bwSliderElDab.step;
+    bwSlider2Dab.value = bw;
+    const bwVal2Dab = document.getElementById('bw_dab_val_2');
+    if (bwVal2Dab) bwVal2Dab.textContent = bwLabel;
+  }
+
+  // V1 e P sono letti dal tab Sistema, non duplicati come campi propri del DAB.
+  const V1 = parseFloat(document.getElementById('v_dc').value) || 650;
+  const P = parseFloat(document.getElementById('p_out').value) || 3000;
+  document.getElementById('dab_v1').textContent = V1.toFixed(0);
+  document.getElementById('dab_p').textContent = P.toFixed(0);
+
+  const n = parseFloat(document.getElementById('n_dab').value) || 1.6;
+  const V2 = parseFloat(document.getElementById('v2_dab').value) || 400;
+  const Lk = (parseFloat(document.getElementById('lk_dab').value) || 20) * 1e-6;
+  const f_sw = (parseFloat(document.getElementById('f_sw_dab').value) || 100) * 1e3;
+  const Cout2 = (parseFloat(document.getElementById('c_out2_dab').value) || 470) * 1e-6;
+  const Rload2 = parseFloat(document.getElementById('r_load2_dab').value) || 53.3;
+
+  // ---------- Dimensionamento a regime (SPS) ----------
+  const ss = computeDABSteadyState(n, V1, V2, Lk, f_sw, P);
+  document.getElementById('dab_pmax').textContent = ss.Pmax.toFixed(0);
+  document.getElementById('dab_phi0').textContent = (ss.phi0 * 180 / Math.PI).toFixed(1);
+  document.getElementById('dab_dratio').textContent = ss.d.toFixed(3);
+  document.getElementById('dab_ilkpeak').textContent = ss.ILkPeak.toFixed(2);
+
+  const badgePmax = document.getElementById('badge_dab_pmax');
+  if (ss.feasible) {
+    badgePmax.innerHTML = '<span class="badge ok">✅ P<sub>out</sub> (' + P.toFixed(0) + ' W) entro P<sub>max</sub> (' + ss.Pmax.toFixed(0) + ' W)</span>';
+  } else {
+    badgePmax.innerHTML = '<span class="badge bad">❌ P<sub>out</sub> (' + P.toFixed(0) + ' W) supera P<sub>max</sub> (' + ss.Pmax.toFixed(0) + ' W): aumenta n·V2, riduci L<sub>k</sub> o f<sub>sw</sub></span>';
+  }
+  const badgeZvs = document.getElementById('badge_dab_zvs');
+  if (ss.d >= 0.8 && ss.d <= 1.25) {
+    badgeZvs.innerHTML = '<span class="badge ok">✅ d=' + ss.d.toFixed(2) + ' vicino al caso adattato: regione ZVS tipicamente ben estesa</span>';
+  } else {
+    badgeZvs.innerHTML = '<span class="badge warn">⚠️ d=' + ss.d.toFixed(2) + ' lontano da 1: regione ZVS ridotta (verifica approssimata)</span>';
+  }
+
+  // Sweep P(φ) per φ ∈ [0, π/2] — array piccolo (≈150 punti), niente
+  // Math.max/min(...array) da evitare qui (drawSweepLine internamente usa
+  // spread su questo stesso array, sicuro perché la dimensione è fissa e
+  // piccola, non un array di simulazione potenzialmente grande).
+  const phiDeg = [], Pvals = [];
+  const nSweep = 150;
+  for (let i = 0; i <= nSweep; i++) {
+    const phi = (Math.PI / 2) * i / nSweep;
+    phiDeg.push(phi * 180 / Math.PI);
+    Pvals.push(ss.K * phi * (1 - phi / Math.PI));
+  }
+  drawSweepLine('dabPPhiPlot', phiDeg, Pvals, P, 'P (W)');
+
+  updateDABCapacitorSizing();
+
+  // ---------- Formula statica del metodo (unico: cancellazione del polo) ----------
+  const formulaElDabDesign = document.getElementById('formula_dab_design');
+  const formulaTexDab = `K_p = \\dfrac{\\omega_{bw}\\,C_{out2}\\,V_2}{G_d} \\qquad K_i = \\dfrac{\\omega_{bw}}{R_{load2}}\\cdot\\dfrac{V_2}{G_d}`;
+  const formulaFallbackDab = 'Kp = ωbw·Cout2·V2/Gd   Ki = (ωbw/Rload2)·V2/Gd';
+  if (formulaElDabDesign && typeof katex !== 'undefined') {
+    try {
+      katex.render(formulaTexDab, formulaElDabDesign, { throwOnError: false, displayMode: true });
+    } catch (e) { formulaElDabDesign.textContent = formulaFallbackDab; }
+  } else if (formulaElDabDesign) {
+    formulaElDabDesign.textContent = formulaFallbackDab;
+  }
+
+  // ---------- Guadagni PI (cancellazione del polo) ----------
+  const { Kp, Ki } = computeDABLoopGains(Cout2, Rload2, ss.Gd, V2, bw);
+  document.getElementById('kp_dab').textContent = Kp.toFixed(6);
+  document.getElementById('ki_dab').textContent = Ki.toFixed(6);
+
+  const discMethodDab = document.getElementById('disc_method_dab')?.value || 'tustin';
+  const discFsDab = parseFloat(document.getElementById('disc_fs_dab')?.value) || 20;
+  const KiCorrectedDab = updateKiCorrection('ki_corr_dab', Kp, Ki, bw, discFsDab);
+  const KiForDiscretizationDab = (discKiSource_dab === 'corr' && KiCorrectedDab !== null) ? KiCorrectedDab : Ki;
+  renderDiscreteController('disc_dab', Kp, KiForDiscretizationDab, discFsDab, discMethodDab);
+  updateDiscretizationCompare('discCompareDABPlot', Kp, KiForDiscretizationDab, discFsDab);
+
+  // ---------- Bode loop aperto (ideale vs reale con parassiti propri) ----------
+  const Kdc = (ss.Gd / V2) * Rload2; // V/rad, guadagno DC del plant phi->V2
+  const tau = Rload2 * Cout2;
+  const numOL = [Ki * Kdc, Kp * Kdc];
+  const denOL = [0, 1, tau];
+
+  const freqs = [], magsIdeal = [], phasesIdeal = [], magsReal = [], phasesReal = [];
+  const nSweepPoints = 400;
+  for (let i = 0; i <= nSweepPoints; i++) {
+    const f = Math.pow(10, -1 + 5 * i / nSweepPoints);
+    const w = 2 * Math.PI * f;
+    const H = evalTF(numOL, denOL, complex(0, w));
+
+    const magIdeal = 20 * Math.log10(cAbs(H));
+    const phaseIdeal = cArg(H);
+
+    const parasitic = dabParasiticMagPhase(w);
+    const magReal = magIdeal + 20 * Math.log10(parasitic.mag);
+    const phaseReal = phaseIdeal + parasitic.phase;
+
+    freqs.push(f);
+    magsIdeal.push(magIdeal);
+    phasesIdeal.push(phaseIdeal);
+    magsReal.push(magReal);
+    phasesReal.push(phaseReal);
+  }
+
+  const prevDab = compareEnabled.dab ? prevCurves.dab : null;
+  drawBodeDual('bodeDAB', freqs, magsIdeal, phasesIdeal, magsReal, phasesReal, bw, prevDab);
+
+  let pmReal = 90, gmReal = 100;
+  for (let i = 0; i < freqs.length; i++) {
+    if (Math.abs(magsReal[i]) < 1) { pmReal = 180 + phasesReal[i]; break; }
+  }
+  for (let i = 0; i < freqs.length; i++) {
+    if (Math.abs(phasesReal[i] + 180) < 5) { gmReal = -magsReal[i]; break; }
+  }
+  document.getElementById('pm_dab').textContent = pmReal.toFixed(1);
+  document.getElementById('gm_dab').textContent = gmReal.toFixed(1);
+
+  const badgeDab = document.getElementById('badge_dab');
+  if (pmReal > 45 && bw < f_sw / 10) {
+    badgeDab.innerHTML = '<span class="badge ok">✅ Tuning Ottimale</span>';
+  } else if (pmReal > 30) {
+    badgeDab.innerHTML = '<span class="badge warn">⚠️ Margine di fase ridotto</span>';
+  } else {
+    badgeDab.innerHTML = '<span class="badge bad">❌ Instabile o quasi</span>';
+  }
+  if (bw >= f_sw / 10) {
+    badgeDab.innerHTML += ' <span class="badge bad">⚠️ BW troppo vicina a f_sw DAB</span>';
+  }
+
+  // ---------- Step response loop chiuso ----------
+  // dV2/dt = (Kdc*u - V2)/tau, u = Kp*e + Ki*∫e — stesso schema di
+  // updateVoltageLoop, con Kdc/tau al posto di 1/C e 1/(Rload*C).
+  const dt = 1e-6;
+  const nominalTau = 1 / bw;
+  const stepResultDab = simulateStepResponse({
+    init: () => ({ v: 0, e_int: 0, output: 0 }),
+    step: (s, dt) => {
+      const e = 1 - s.v;
+      const u = Kp * e + Ki * s.e_int;
+      const dv = (Kdc * u - s.v) / tau;
+      const v = s.v + dv * dt;
+      const e_int = s.e_int + e * dt;
+      return { v, e_int, output: v };
+    }
+  }, dt, nominalTau, 40);
+
+  drawStep('stepDAB', stepResultDab.times, stepResultDab.vals, 1.0);
+  displayStepMetrics('dab', stepResultDab);
+
+  renderCoherenceList();
+  window._lastDabSnapshot = { freqs, mags: magsReal };
 }
 
 function updateGrid() {
@@ -1469,6 +1737,19 @@ function updateSummary() {
   const pm_v = document.getElementById('pm_v').textContent;
   const pm_pll = document.getElementById('pm_pll').textContent;
 
+  const v2_dab = document.getElementById('v2_dab').value;
+  const n_dab = document.getElementById('n_dab').value;
+  const lk_dab = document.getElementById('lk_dab').value;
+  const f_sw_dab = document.getElementById('f_sw_dab').value;
+  const r_load2_dab = document.getElementById('r_load2_dab').value;
+  const c_out2_dab = document.getElementById('c_out2_dab').value;
+  const kp_dab = document.getElementById('kp_dab').textContent;
+  const ki_dab = document.getElementById('ki_dab').textContent;
+  const pm_dab = document.getElementById('pm_dab').textContent;
+  const dab_phi0 = document.getElementById('dab_phi0').textContent;
+  const dab_dratio = document.getElementById('dab_dratio').textContent;
+  const dab_ilkpeak = document.getElementById('dab_ilkpeak').textContent;
+
   tbody.innerHTML = `
     <tr><td>V<sub>AC</sub></td><td>${v_ac}</td><td>V</td></tr>
     <tr><td>P<sub>out</sub></td><td>${p_out}</td><td>W</td></tr>
@@ -1486,6 +1767,18 @@ function updateSummary() {
     <tr><td>PM reale (corrente)</td><td>${pm_i_real}</td><td>°</td></tr>
     <tr><td>PM (tensione)</td><td>${pm_v}</td><td>°</td></tr>
     <tr><td>PM (PLL)</td><td>${pm_pll}</td><td>°</td></tr>
+    <tr><td>V<sub>2</sub> (DAB)</td><td>${v2_dab}</td><td>V</td></tr>
+    <tr><td>n (DAB)</td><td>${n_dab}</td><td>—</td></tr>
+    <tr><td>L<sub>k</sub> (DAB)</td><td>${lk_dab}</td><td>μH</td></tr>
+    <tr><td>f<sub>sw</sub> (DAB)</td><td>${f_sw_dab}</td><td>kHz</td></tr>
+    <tr><td>R<sub>load2</sub> (DAB)</td><td>${r_load2_dab}</td><td>Ω</td></tr>
+    <tr><td>C<sub>out2</sub> (DAB)</td><td>${c_out2_dab}</td><td>μF</td></tr>
+    <tr><td>K<sub>p</sub> (DAB)</td><td>${kp_dab}</td><td>rad/V</td></tr>
+    <tr><td>K<sub>i</sub> (DAB)</td><td>${ki_dab}</td><td>rad/(V·s)</td></tr>
+    <tr><td>PM (DAB)</td><td>${pm_dab}</td><td>°</td></tr>
+    <tr><td>φ<sub>0</sub> (DAB)</td><td>${dab_phi0}</td><td>°</td></tr>
+    <tr><td>d (DAB)</td><td>${dab_dratio}</td><td>—</td></tr>
+    <tr><td>I<sub>Lk,peak</sub> (DAB)</td><td>${dab_ilkpeak}</td><td>A</td></tr>
   `;
 
   renderCoherenceList();
@@ -1556,6 +1849,73 @@ function computeVoltageLoopPM(C, Rload, bw, method) {
     const magDb = 20 * Math.log10(cAbs(H));
     const phaseDeg = cArg(H);
     if (Math.abs(magDb) < 1) { pm = 180 + phaseDeg; break; }
+  }
+  return { Kp, Ki, pm };
+}
+
+// ===================== DAB (Dual Active Bridge, modulazione SPS) =====================
+// Funzioni pure (solo numeri, niente DOM) — stesso contratto delle
+// calcolatrici di robustezza qui sopra, riusabili anche per un futuro sweep
+// di robustezza del DAB senza duplicare la matematica.
+
+// Transconduttanza di piccolo segnale dP/dφ nel punto di lavoro phi0 (rad).
+function computeDABTransconductance(n, V1, V2, Lk, f_sw, phi0) {
+  const K = (n * V1 * V2) / (2 * Math.PI * f_sw * Lk);
+  return K * (1 - 2 * Math.abs(phi0) / Math.PI);
+}
+
+// Dimensionamento a regime SPS: risolve phi0 dal bilancio di potenza
+// (radice minore di P = K*phi0*(1-phi0/pi)), poi deriva d, I_Lk_peak
+// (I0/Iphi, forma d'onda triangolare a tratti) e P_max. Se P > P_max, phi0
+// è clampato a pi/2 (saturazione fisica) e feasible=false, così le funzioni
+// a valle (Bode/step) restano finite invece di produrre NaN.
+function computeDABSteadyState(n, V1, V2, Lk, f_sw, P) {
+  const w = 2 * Math.PI * f_sw;
+  const K = (n * V1 * V2) / (w * Lk);
+  const Pmax = K * Math.PI / 4;
+  const feasible = P <= Pmax && K > 0;
+  let phi0;
+  if (feasible) {
+    const disc = Math.PI * Math.PI - 4 * Math.PI * P / K;
+    phi0 = (Math.PI - Math.sqrt(Math.max(0, disc))) / 2;
+  } else {
+    phi0 = Math.PI / 2; // clamp: mantiene finiti i calcoli a valle
+  }
+  const V2p = n * V2; // tensione secondaria riferita al primario
+  const I0 = -(Math.PI * (V1 - V2p) + 2 * V2p * phi0) / (2 * w * Lk);
+  const Iphi = (V1 * (2 * phi0 - Math.PI) + Math.PI * V2p) / (2 * w * Lk);
+  const ILkPeak = Math.max(Math.abs(I0), Math.abs(Iphi));
+  const d = V2p / V1;
+  const Gd = computeDABTransconductance(n, V1, V2, Lk, f_sw, phi0);
+  return { K, Pmax, feasible, phi0, I0, Iphi, ILkPeak, d, Gd };
+}
+
+// Guadagni PI, metodo a cancellazione del polo (unico metodo per il DAB,
+// v. nota nel tab DAB). Plant: V2(s)/phi(s) ≈ (Gd/V2)*Rload2/(1+s*Rload2*Cout2).
+// Cancellando lo zero del PI sul polo del plant e imponendo il crossover a
+// wbw si ottiene Kp = wbw*Cout2*V2/Gd, Ki = (wbw/Rload2)*V2/Gd — stessa
+// struttura di computeVoltageLoopGains('cancel'), con il fattore aggiuntivo
+// V2/Gd che converte l'uscita del PI (una fase, non una corrente) nelle
+// unità del plant.
+function computeDABLoopGains(Cout2, Rload2, Gd, V2nom, bw) {
+  const w_bw = 2 * Math.PI * bw;
+  const GdSafe = Math.abs(Gd) > 1e-9 ? Gd : 1e-9; // evita divisione per zero a phi0=0 esatto
+  const KdcFactor = V2nom / GdSafe;
+  return { Kp: Cout2 * w_bw * KdcFactor, Ki: (w_bw / Rload2) * KdcFactor };
+}
+
+function computeDABLoopPM(Cout2, Rload2, Gd, V2nom, bw) {
+  const { Kp, Ki } = computeDABLoopGains(Cout2, Rload2, Gd, V2nom, bw);
+  const Kdc = Gd / V2nom * Rload2;
+  const tau = Rload2 * Cout2;
+  const numOL = [Ki * Kdc, Kp * Kdc];
+  const denOL = [0, 1, tau];
+  let pm = 90;
+  for (let i = 0; i <= 200; i++) {
+    const f = Math.pow(10, -1 + 4 * i / 200);
+    const w = 2 * Math.PI * f;
+    const H = evalTF(numOL, denOL, complex(0, w));
+    if (Math.abs(20 * Math.log10(cAbs(H))) < 1) { pm = 180 + cArg(H); break; }
   }
   return { Kp, Ki, pm };
 }

@@ -1,10 +1,12 @@
 # PFC Tuner — Contesto di Progetto
 
 App web single-page (HTML/CSS/JS vanilla, no framework, no build step) per il
-tuning di convertitori PFC trifase: loop di corrente, loop di tensione, PLL
-SRF, con Bode plot, step response, analisi di robustezza, discretizzazione
-z-domain e report PDF stampabile. Pensata per uso mobile (Android), gira
-interamente lato client, offline-capable via Service Worker.
+tuning di convertitori PFC trifase (loop di corrente, loop di tensione, PLL
+SRF) e del DAB (Dual Active Bridge, stadio DC-DC isolato a valle in
+un'architettura a due stadi), con Bode plot, step response, analisi di
+robustezza, discretizzazione z-domain e report PDF stampabile. Pensata per
+uso mobile (Android), gira interamente lato client, offline-capable via
+Service Worker.
 
 ## Struttura file
 
@@ -239,9 +241,15 @@ script di generazione se serve rifarlo).
   effetti parassiti (PWM delay, sensing pole, AAF pole, ritardo digitale),
   step response con metriche (settling time, overshoot, rise time),
   regolatore discreto z-domain (Tustin/Backward/Forward Euler) con
-  confronto grafico, correzione Ki per ritardo digitale (solo Corrente)
+  confronto grafico, correzione Ki per ritardo digitale (Corrente e DAB)
 - **PLL**: tuning SRF-PLL, dq0/Park transform con θ stimato, feedforward
   disaccoppiato, step di frequenza/fase configurabili, regolatore discreto
+- **DAB**: stadio DC-DC isolato a valle del PFC (modulazione SPS), V1/P
+  letti dal tab Sistema; dimensionamento a regime (potenza trasferita,
+  φ0 risolto dal bilancio di potenza, corrente di picco nell'induttanza
+  di dispersione, check ZVS approssimato), sizing C_out2 da ripple target,
+  tuning loop di controllo phase-shift (cancellazione del polo, unico
+  metodo), Bode con parassiti propri, step response, regolatore discreto
 - **Rete / Potenza / Ripple**: forme d'onda trifase, vettore spaziale αβ,
   teoria p-q, ripple di corrente sull'induttore
 - **Robustezza**: sweep parametrico, analisi worst-case (tolleranze
