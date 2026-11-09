@@ -259,6 +259,16 @@ script di generazione se serve rifarlo).
 - **Riassunto**: tabella parametri finali, export JSON, export PDF
   (via `window.print()` e `@media print`, non generazione server-side)
 
+## Revisione periodica della repo
+
+A inizio sessione, subito dopo una compattazione del contesto, ogni ~5 PR
+mergiate, o prima di dichiarare concluso un lavoro: esegui
+`bash scripts/repo_snapshot.sh` (sola lettura, nessuna modifica) e leggi
+`doc/AI_Context/OPEN_ITEMS.md` — decisioni in sospeso, cose mai provate,
+script usati di rado, trappole non già coperte dalle convenzioni sopra.
+Il codice vince sempre su quel registro se sono in disaccordo. Dettagli
+della procedura in `doc/AI_Context/REPO_REVIEW.md`.
+
 ## Cosa NON fare
 
 - Non introdurre un build step / bundler senza che sia esplicitamente
